@@ -24,36 +24,41 @@ func RegisterHandler(ac *controllers.AuthController) http.HandlerFunc {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(w).Encode(map[string]string{
-				"message": "Invalid input",
+				"error": "Invalid input",
 			})
 			return
 		}
+		// fmt.Println("Data Recieved Registration")
+		// fmt.Println("Email: ", req.Email)
+		// fmt.Println("Username: ", req.Username)
+		// fmt.Println("Passwrd: ", req.Password)
+
 		// Validate email
 		if !ac.IsValidEmail(req.Email) {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(w).Encode(map[string]string{
-				"message": "Invalid email format",
+				"error": "Invalid email format",
 			})
 			return
 		}
 
 		// Validate username
-		if ac.IsValidUsername(req.Username) {
+		if !ac.IsValidUsername(req.Username) {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(w).Encode(map[string]string{
-				"message": "Username must be between 3 and 20 characters and contain only letters, numbers, and underscores",
+				"error": "Username must be between 3 and 20 characters and contain only letters, numbers, and underscores",
 			})
 			return
 		}
 
 		// Validate password
-		if ac.IsValidPassword(req.Password) {
+		if !ac.IsValidPassword(req.Password) {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(w).Encode(map[string]string{
-				"message": "Password must be at least 8 characters long and include uppercase, lowercase, numbers, and special characters",
+				"error": "Password must be at least 8 characters long and include uppercase, lowercase, numbers, and special characters",
 			})
 			return
 		}
@@ -62,24 +67,19 @@ func RegisterHandler(ac *controllers.AuthController) http.HandlerFunc {
 		sanitizedEmail := ac.SanitizeInput(req.Email)
 		sanitizedUsername := ac.SanitizeInput(req.Username)
 
-		// fmt.Println("Data Recieved")
-		// fmt.Println("Email: ", req.Email)
-		// fmt.Println("Username: ", req.Username)
-		// fmt.Println("Passwrd: ", req.Password)
-
 		userID, err := ac.RegisterUser(sanitizedEmail, sanitizedUsername, req.Password)
 		if err != nil {
 			fmt.Println(err)
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(w).Encode(map[string]string{
-				"message": err.Error(),
+				"error": err.Error(),
 			})
 			return
 		}
 
 		ac.CreateSession(w, int(userID))
-		
+
 		w.WriteHeader(302)
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]string{
@@ -106,7 +106,7 @@ func LoginHandler(ac *controllers.AuthController) http.HandlerFunc {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(w).Encode(map[string]string{
-				"message": "Invalid input",
+				"error": "Invalid input",
 			})
 			return
 		}
@@ -119,7 +119,7 @@ func LoginHandler(ac *controllers.AuthController) http.HandlerFunc {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusUnauthorized)
 			json.NewEncoder(w).Encode(map[string]string{
-				"message": err.Error(),
+				"error": err.Error(),
 			})
 			return
 		}
