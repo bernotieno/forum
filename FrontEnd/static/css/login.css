@@ -134,3 +134,27 @@ body {
 .close-button:hover {
     background: #555;
 }
+/* Toast Container */
+.toast {
+    position: fixed;
+    top: 20px;
+    right: -400px; /* Start off-screen */
+    background-color: #ff4444; /* Red background for errors */
+    color: white;
+    padding: 15px 25px;
+    border-radius: 5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    transition: right 0.5s ease-in-out; /* Slide animation */
+    max-width:300px;
+}
+
+/* Toast Message */
+.toast-message {
+    font-size: 14px;
+}
+
+/* Show Toast */
+.toast.show {
+    right: 20px; /* Slide into view */
+}
