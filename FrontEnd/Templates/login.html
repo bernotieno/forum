@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up and Login</title>
+   <link rel="stylesheet" href="../Static/css/login.css">
+</head>
+<body>
+    <div class="container">
+        <button class="close-button" id="closeButton">&times;</button>
+        <div class="left-section" id="leftSection">
+            <h1>Sign up</h1>
+            <p>to use all features of the application</p>
+        </div>
+        <div class="right-section">
+            <div id="signupForm" class="form active">
+                <h2>Create Account</h2>
+                <input type="text" placeholder="Username" required />
+                <input type="email" placeholder="Email" required />
+                <input type="password" placeholder="Password" required />
+                <input type="password" placeholder="Confirm Password" required />
+                <button>Sign Up</button>
+                <div class="toggle">Already have an account? <a href="#" id="toLogin">Log In</a></div>
+            </div>
+
+            <div id="loginForm" class="form">
+                <h2>Welcome Back</h2>
+                <input type="text" placeholder="Username" required />
+                <input type="password" placeholder="Password" required />
+                <button>Log In</button>
+                <div class="toggle">Don't have an account? <a href="#" id="toSignUp">Sign Up</a></div>
+            </div>
+        </div>
+    </div>
+    <script src="../Static/JsFiles/login.js"></script>
+</body>
+</html>
