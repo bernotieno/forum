@@ -4,13 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/Raymond9734/forum.git/BackEnd/controllers"
-	"github.com/google/uuid"
+	"github.com/Raymond9734/forum.git/BackEnd/models"
 )
-
-var Sessions = map[string]int{} // Map session token -> user ID
 
 // RegisterHandler registers a new user
 func RegisterHandler(ac *controllers.AuthController) http.HandlerFunc {
@@ -20,11 +17,7 @@ func RegisterHandler(ac *controllers.AuthController) http.HandlerFunc {
 			return
 		}
 
-		var req struct {
-			Email    string `json:"email"`
-			Username string `json:"username"`
-			Password string `json:"password"`
-		}
+		var req models.RegisterRequest
 
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			fmt.Println(err)
@@ -35,12 +28,46 @@ func RegisterHandler(ac *controllers.AuthController) http.HandlerFunc {
 			})
 			return
 		}
+		// Validate email
+		if !ac.IsValidEmail(req.Email) {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(map[string]string{
+				"message": "Invalid email format",
+			})
+			return
+		}
+
+		// Validate username
+		if ac.IsValidUsername(req.Username) {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(map[string]string{
+				"message": "Username must be between 3 and 20 characters and contain only letters, numbers, and underscores",
+			})
+			return
+		}
+
+		// Validate password
+		if ac.IsValidPassword(req.Password) {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(map[string]string{
+				"message": "Password must be at least 8 characters long and include uppercase, lowercase, numbers, and special characters",
+			})
+			return
+		}
+
+		// Sanitize inputs to prevent XSS
+		sanitizedEmail := ac.SanitizeInput(req.Email)
+		sanitizedUsername := ac.SanitizeInput(req.Username)
+
 		// fmt.Println("Data Recieved")
 		// fmt.Println("Email: ", req.Email)
 		// fmt.Println("Username: ", req.Username)
 		// fmt.Println("Passwrd: ", req.Password)
 
-		err := ac.RegisterUser(req.Email, req.Username, req.Password)
+		userID, err := ac.RegisterUser(sanitizedEmail, sanitizedUsername, req.Password)
 		if err != nil {
 			fmt.Println(err)
 			w.Header().Set("Content-Type", "application/json")
@@ -51,6 +78,8 @@ func RegisterHandler(ac *controllers.AuthController) http.HandlerFunc {
 			return
 		}
 
+		ac.CreateSession(w, int(userID))
+		
 		w.WriteHeader(302)
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]string{
@@ -96,13 +125,7 @@ func LoginHandler(ac *controllers.AuthController) http.HandlerFunc {
 		}
 
 		// Create session cookie
-		sessionToken := uuid.NewString()
-		Sessions[sessionToken] = user.ID
-		http.SetCookie(w, &http.Cookie{
-			Name:    "session_token",
-			Value:   sessionToken,
-			Expires: time.Now().Add(24 * time.Hour),
-		})
+		ac.CreateSession(w, user.ID)
 
 		w.WriteHeader(302)
 		w.Header().Set("Content-Type", "application/json")
@@ -120,7 +143,7 @@ func isLoggedIn(r *http.Request) (bool, int) {
 	}
 
 	// Check if the session_token exists in the Sessions map
-	userID, exists := Sessions[cookie.Value]
+	userID, exists := controllers.Sessions[cookie.Value]
 	if !exists {
 		return false, 0 // Invalid session_token
 	}
@@ -162,17 +185,8 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Retrieve the session token value
-	sessionToken := cookie.Value
-
-	// Delete the session from the Sessions map
-	delete(Sessions, sessionToken)
-
-	// Invalidate the cookie by setting its MaxAge to -1
-	http.SetCookie(w, &http.Cookie{
-		Name:   "session_token",
-		MaxAge: -1, // Deletes the cookie
-	})
+	// Delete cookies session
+	controllers.DeleteSession(w, cookie)
 
 	// Respond with a success message
 	w.Header().Set("Content-Type", "application/json")
