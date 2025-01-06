@@ -3,13 +3,13 @@ package controllers
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	"net/http"
 	"net/mail"
 	"regexp"
 	"strings"
 	"time"
 
+	"github.com/Raymond9734/forum.git/BackEnd/logger"
 	"github.com/Raymond9734/forum.git/BackEnd/models"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -26,18 +26,23 @@ func NewAuthController(db *sql.DB) *AuthController {
 }
 
 func (ac *AuthController) RegisterUser(email, username, password string) (int64, error) {
-	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		logger.Error("Failed to hash password: %v", err)
+		return 0, errors.New("internal server error")
+	}
 
 	result, err := ac.DB.Exec("INSERT INTO users (email, username, password) VALUES (?, ?, ?)", email, username, hashedPassword)
 	if err != nil {
-		fmt.Println(err)
+		logger.Warning("Registration failed - duplicate email or username: %v", err)
 		return 0, errors.New("email or username already taken")
 	}
 
 	// Get the auto-generated user ID
 	userID, err := result.LastInsertId()
 	if err != nil {
-		return 0, fmt.Errorf("failed to retrieve user ID: %w", err)
+		logger.Error("Failed to retrieve user ID after registration: %v", err)
+		return 0, errors.New("failed to complete registration")
 	}
 
 	// Return the user ID
@@ -49,11 +54,12 @@ func (ac *AuthController) AuthenticateUser(username, password string) (*models.U
 	err := ac.DB.QueryRow("SELECT id, email, username, password FROM users WHERE username = ?", username).
 		Scan(&user.ID, &user.Email, &user.Username, &user.Password)
 	if err != nil {
-		fmt.Println(err)
+		logger.Warning("Authentication failed - invalid username: %s", username)
 		return nil, errors.New("invalid username")
 	}
 
-	if bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)) != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
+		logger.Warning("Authentication failed - invalid password for user: %s", username)
 		return nil, errors.New("invalid password")
 	}
 
@@ -63,17 +69,26 @@ func (ac *AuthController) AuthenticateUser(username, password string) (*models.U
 // isValidEmail checks if the email is in a valid format
 func (ac *AuthController) IsValidEmail(email string) bool {
 	_, err := mail.ParseAddress(email)
-	return err == nil
+	if err != nil {
+		logger.Debug("Invalid email format: %s", email)
+		return false
+	}
+	return true
 }
 
 // isValidUsername checks if the username meets the requirements
 func (ac *AuthController) IsValidUsername(username string) bool {
 	if len(username) < 3 || len(username) > 20 {
+		logger.Debug("Invalid username length: %s", username)
 		return false
 	}
 	// Only allow letters, numbers, and underscores
 	regex := regexp.MustCompile(`^[a-zA-Z0-9_]+$`)
-	return regex.MatchString(username)
+	if !regex.MatchString(username) {
+		logger.Debug("Username contains invalid characters: %s", username)
+		return false
+	}
+	return true
 }
 
 // isValidPassword checks if the password meets the requirements
@@ -86,7 +101,12 @@ func (ac *AuthController) IsValidPassword(password string) bool {
 	hasLower := regexp.MustCompile(`[a-z]`).MatchString(password)
 	hasNumber := regexp.MustCompile(`[0-9]`).MatchString(password)
 	hasSpecial := regexp.MustCompile(`[!@#$%^&*()_+{}|:"<>?~\-=[\]\\;',./]`).MatchString(password)
-	return hasUpper && hasLower && hasNumber && hasSpecial
+	
+	if !hasUpper || !hasLower || !hasNumber || !hasSpecial {
+		logger.Debug("Password does not meet complexity requirements")
+		return false
+	}
+	return true
 }
 
 // sanitizeInput removes potentially dangerous characters to prevent XSS
@@ -111,22 +131,23 @@ func (ac *AuthController) CreateSession(w http.ResponseWriter, userID int) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     "session_token",
 		Value:    sessionToken,
-		HttpOnly: true, // Prevent JavaScript access to the cookie
-		// Secure:   true,                           // only sent over HTTPS
-		Expires: time.Now().Add(24 * time.Hour), // Set cookie expiration
+		HttpOnly: true,
+		Expires:  time.Now().Add(24 * time.Hour),
 	})
 }
 
 func DeleteSession(w http.ResponseWriter, cookie *http.Cookie) {
 	// Retrieve the session token value
 	sessionToken := cookie.Value
-
-	// Delete the session from the Sessions map
+	if userID, exists := Sessions[sessionToken]; exists {
+		logger.Info("Deleting session for user ID: %d", userID)
+	}
+	
 	delete(Sessions, sessionToken)
 
 	// Invalidate the cookie by setting its MaxAge to -1
 	http.SetCookie(w, &http.Cookie{
 		Name:   "session_token",
-		MaxAge: -1, // Deletes the cookie
+		MaxAge: -1,
 	})
 }
