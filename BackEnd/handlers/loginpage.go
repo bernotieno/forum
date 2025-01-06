@@ -17,7 +17,7 @@ func LoginPageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tmp, err := template.ParseFiles("FrontEnd/Templates/login.html")
+	tmp, err := template.ParseFiles("FrontEnd/templates/login.html")
 	if err != nil {
 		fmt.Println(err)
 		http.Error(w, "Invalid template", http.StatusInternalServerError)
