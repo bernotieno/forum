@@ -111,9 +111,9 @@ func (ac *AuthController) CreateSession(w http.ResponseWriter, userID int) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     "session_token",
 		Value:    sessionToken,
-		HttpOnly: true,                           // Prevent JavaScript access to the cookie
-		Secure:   true,                           // Ensure the cookie is only sent over HTTPS
-		Expires:  time.Now().Add(24 * time.Hour), // Set cookie expiration
+		HttpOnly: true, // Prevent JavaScript access to the cookie
+		// Secure:   true,                           // only sent over HTTPS
+		Expires: time.Now().Add(24 * time.Hour), // Set cookie expiration
 	})
 }
 
