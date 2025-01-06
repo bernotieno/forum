@@ -8,7 +8,7 @@ import (
 )
 
 func LoginPageHandler(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/login_page" {
+	if r.URL.Path != "/login_Page" {
 		http.NotFound(w, r)
 		return
 	}
