@@ -2,10 +2,10 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/Raymond9734/forum.git/BackEnd/controllers"
+	"github.com/Raymond9734/forum.git/BackEnd/logger"
 	"github.com/Raymond9734/forum.git/BackEnd/models"
 )
 
@@ -13,14 +13,14 @@ import (
 func RegisterHandler(ac *controllers.AuthController) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
+			logger.Warning("Invalid method %s for registration attempt", r.Method)
 			http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
 			return
 		}
 
 		var req models.RegisterRequest
-
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			fmt.Println(err)
+			logger.Error("Failed to decode registration request: %v", err)
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(w).Encode(map[string]string{
@@ -28,13 +28,12 @@ func RegisterHandler(ac *controllers.AuthController) http.HandlerFunc {
 			})
 			return
 		}
-		// fmt.Println("Data Recieved Registration")
-		// fmt.Println("Email: ", req.Email)
-		// fmt.Println("Username: ", req.Username)
-		// fmt.Println("Passwrd: ", req.Password)
+
+		logger.Debug("Registration attempt for email: %s, username: %s", req.Email, req.Username)
 
 		// Validate email
 		if !ac.IsValidEmail(req.Email) {
+			logger.Warning("Invalid email format attempted: %s", req.Email)
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(w).Encode(map[string]string{
@@ -45,6 +44,7 @@ func RegisterHandler(ac *controllers.AuthController) http.HandlerFunc {
 
 		// Validate username
 		if !ac.IsValidUsername(req.Username) {
+			logger.Warning("Invalid username format attempted: %s", req.Username)
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(w).Encode(map[string]string{
@@ -55,6 +55,7 @@ func RegisterHandler(ac *controllers.AuthController) http.HandlerFunc {
 
 		// Validate password
 		if !ac.IsValidPassword(req.Password) {
+			logger.Warning("Invalid password format for user: %s", req.Username)
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(w).Encode(map[string]string{
@@ -63,13 +64,13 @@ func RegisterHandler(ac *controllers.AuthController) http.HandlerFunc {
 			return
 		}
 
-		// Sanitize inputs to prevent XSS
+		// Sanitize inputs
 		sanitizedEmail := ac.SanitizeInput(req.Email)
 		sanitizedUsername := ac.SanitizeInput(req.Username)
 
 		userID, err := ac.RegisterUser(sanitizedEmail, sanitizedUsername, req.Password)
 		if err != nil {
-			fmt.Println(err)
+			logger.Error("Registration failed for user %s: %v", sanitizedUsername, err)
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(w).Encode(map[string]string{
@@ -79,6 +80,7 @@ func RegisterHandler(ac *controllers.AuthController) http.HandlerFunc {
 		}
 
 		ac.CreateSession(w, int(userID))
+		logger.Info("Successfully registered user: %s (ID: %d)", sanitizedUsername, userID)
 
 		w.WriteHeader(302)
 		w.Header().Set("Content-Type", "application/json")
@@ -92,6 +94,7 @@ func RegisterHandler(ac *controllers.AuthController) http.HandlerFunc {
 func LoginHandler(ac *controllers.AuthController) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
+			logger.Warning("Invalid method %s for login attempt", r.Method)
 			http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
 			return
 		}
@@ -102,7 +105,7 @@ func LoginHandler(ac *controllers.AuthController) http.HandlerFunc {
 		}
 
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			fmt.Println(err)
+			logger.Error("Failed to decode login request: %v", err)
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(w).Encode(map[string]string{
@@ -110,12 +113,12 @@ func LoginHandler(ac *controllers.AuthController) http.HandlerFunc {
 			})
 			return
 		}
-		fmt.Println("Data Recieved")
-		fmt.Println("Username: ", req.Username)
-		fmt.Println("Passwrd: ", req.Password)
+
+		logger.Debug("Login attempt for username: %s", req.Username)
+
 		user, err := ac.AuthenticateUser(req.Username, req.Password)
 		if err != nil {
-			fmt.Println(err)
+			logger.Warning("Failed login attempt for user %s: %v", req.Username, err)
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusUnauthorized)
 			json.NewEncoder(w).Encode(map[string]string{
@@ -124,8 +127,8 @@ func LoginHandler(ac *controllers.AuthController) http.HandlerFunc {
 			return
 		}
 
-		// Create session cookie
 		ac.CreateSession(w, user.ID)
+		logger.Info("Successful login for user: %s (ID: %d)", user.Username, user.ID)
 
 		w.WriteHeader(302)
 		w.Header().Set("Content-Type", "application/json")
@@ -153,10 +156,10 @@ func isLoggedIn(r *http.Request) (bool, int) {
 }
 
 func CheckLoginHandler(w http.ResponseWriter, r *http.Request) {
-	loggedIn, _ := isLoggedIn(r)
+	loggedIn, userID := isLoggedIn(r)
 
 	if !loggedIn {
-
+		logger.Debug("Unauthorized access attempt detected")
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
 		json.NewEncoder(w).Encode(map[string]string{
@@ -165,6 +168,7 @@ func CheckLoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	logger.Debug("Verified logged-in status for user ID: %d", userID)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{
@@ -173,10 +177,9 @@ func CheckLoginHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
-	// Get the session_token cookie from the request
 	cookie, err := r.Cookie("session_token")
 	if err != nil {
-		// No session token, user is already logged out or never logged in
+		logger.Debug("Logout attempted with no active session")
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
 		json.NewEncoder(w).Encode(map[string]string{
@@ -185,10 +188,10 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Delete cookies session
+	userID := controllers.Sessions[cookie.Value]
 	controllers.DeleteSession(w, cookie)
+	logger.Info("User (ID: %d) successfully logged out", userID)
 
-	// Respond with a success message
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{

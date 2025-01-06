@@ -2,18 +2,18 @@ package database
 
 import (
 	"database/sql"
-	"log"
 
+	"github.com/Raymond9734/forum.git/BackEnd/logger"
 	_ "github.com/mattn/go-sqlite3"
 )
 
 func Init() *sql.DB {
-	var err error
-	DB, err := sql.Open("sqlite3", "./BackEnd/database/storage/forum.db") 
-	if err != nil {
-		log.Fatal(err)
-	}
 
+	DB, err := sql.Open("sqlite3", "./BackEnd/database/storage/forum.db")
+	if err != nil {
+		logger.Error("Failed to open database connection: %v", err)
+		return nil
+	}
 	// Create Users and Posts table
 	_, err = DB.Exec(`
 		CREATE TABLE IF NOT EXISTS users (
@@ -24,7 +24,8 @@ func Init() *sql.DB {
 		);
 	`)
 	if err != nil {
-		log.Fatal(err)
+		logger.Error("Failed to create users table: %v", err)
+		return nil
 	}
 	return DB
 }
