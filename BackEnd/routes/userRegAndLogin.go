@@ -15,4 +15,5 @@ func UserRegAndLogin(db *sql.DB) {
 	http.HandleFunc("/register", handlers.RegisterHandler(AuthController))
 	http.HandleFunc("/login", handlers.LoginHandler(AuthController))
 	http.HandleFunc("/logout", handlers.LogoutHandler)
+	http.HandleFunc("/login_page", handlers.LoginPageHandler)
 }
