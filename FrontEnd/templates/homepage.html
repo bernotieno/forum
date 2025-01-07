@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reddit-Style Platform</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js"></script>
+    <link rel="stylesheet" href="../static/css/homepage.css">
+</head>
+<body>
+    <header class="header">
+        <!-- <button class="menu-toggle" onclick="toggleMobileMenu()">
+            <i data-feather="menu"></i>
+        </button> -->
+        <div class="logo">
+            <i data-feather="message-circle"></i>
+            <span>ThreadHub</span>
+        </div>
+        <div class="search-bar">
+            <input type="text" class="search-input" placeholder="Search...">
+        </div>
+        <div id="userSection">
+            <!-- Profile image and sign in button will be dynamically inserted here by JS -->
+        </div>
+       
+    </header>
+
+    <div class="container">
+        <!-- Left Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">FEEDS</h3>
+                <a href="#" class="sidebar-link">
+                    <i data-feather="home"></i>
+                    Home
+                </a>
+                <a href="#" class="sidebar-link">
+                    <i data-feather="trending-up"></i>
+                    Popular
+                </a>
+                <a href="#" class="sidebar-link">
+                    <i data-feather="compass"></i>
+                    All
+                </a>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">COMMUNITIES</h3>
+                <a href="#" class="sidebar-link">
+                    <i data-feather="code"></i>
+                    Programming
+                </a>
+                <a href="#" class="sidebar-link">
+                    <i data-feather="monitor"></i>
+                    Technology
+                </a>
+                <a href="#" class="sidebar-link">
+                    <i data-feather="film"></i>
+                    Movies
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main>
+            <div id="posts-container"></div>
+        </main>
+
+        <!-- Right Sidebar -->
+        <aside class="trending">
+            <h3 class="sidebar-title">TRENDING COMMUNITIES</h3>
+            <div id="trending-communities"></div>
+        </aside>
+    </div>
+
+    <!-- Post Editor Container -->
+    <div id="postEditorContainer">
+        <div class="post-editor">
+            <div class="community-selector">
+                <select class="input-field">
+                    <option value="">Choose a community</option>
+                    <option value="programming">r/programming</option>
+                    <option value="webdev">r/webdev</option>
+                    <option value="javascript">r/javascript</option>
+                </select>
+            </div>
+
+            <div class="post-tabs">
+                <div class="tab active">
+                    <i data-feather="type"></i>
+                    Text
+                </div>
+                <div class="tab">
+                    <i data-feather="image"></i>
+                    Images & Video
+                </div>
+                <div class="tab">
+                    <i data-feather="link"></i>
+                    Link
+                </div>
+                <div class="tab">
+                    <i data-feather="bar-chart-2"></i>
+                    Poll
+                </div>
+            </div>
+
+            <input type="text" class="input-field" placeholder="Title" maxlength="300">
+
+            <div class="rich-editor" contenteditable="true">
+                Share your thoughts...
+            </div>
+
+            <div class="actions">
+                <button class="button button-secondary">Save Draft</button>
+                <button class="button button-primary">Post</button>
+            </div>
+        </div>
+    </div>
+    <div id="toast" class="toast"></div>
+   <script src="../static/js/homepage.js"></script>
+</body>
+</html>

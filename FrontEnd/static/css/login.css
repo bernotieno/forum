@@ -1,3 +1,26 @@
+:root {
+    /* Light theme variables */
+    --bg-primary: #ffffff;
+    --bg-secondary: #f6f7f8;
+    --text-primary: #1c1c1c;
+    --text-secondary: #787c7e;
+    --accent-color: #FF4500;
+    --border-color: #edeff1;
+    --upvote-color: #FF4500;
+    --downvote-color: #7193FF;
+    --hover-bg: #f2f4f5;
+}
+
+[data-theme="dark"] {
+    /* Dark theme variables */
+    --bg-primary: #1A1A1B;
+    --bg-secondary: #272729;
+    --text-primary: #D7DADC;
+    --text-secondary: #818384;
+    --border-color: #343536;
+    --hover-bg: #2D2D2E;
+}
+
 body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -6,11 +29,11 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background: #f0f4f8;
+    background: var(--bg-primary);
 }
 
 .container {
-    background: white;
+    background: var(--bg-primary);
     width: 700px;
     height: 400px;
     border-radius: 15px;
@@ -21,9 +44,9 @@ body {
 }
 
 .left-section {
-    background: linear-gradient(135deg, #00D4A1, #00D4A1);
+    background: var(--text-primary);
     width: 50%;
-    color: white;
+    /* color: red; */
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -33,11 +56,13 @@ body {
 }
 
 .left-section h1 {
+    color: var(--bg-primary);
     font-size: 28px;
     margin-bottom: 10px;
 }
 
 .left-section p {
+    color: var(--bg-primary);
     font-size: 16px;
     line-height: 1.5;
 }
@@ -76,7 +101,7 @@ body {
 .form button {
     width: 100%;
     padding: 10px;
-    background: #00D4A1;
+    background: var(--accent-color);
     color: white;
     border: none;
     border-radius: 5px;
@@ -107,7 +132,7 @@ body {
 }
 
 .toggle a {
-    color: #00D4A1;
+    color: var(--accent-color);
     text-decoration: none;
     font-weight: bold;
     cursor: pointer;
@@ -119,7 +144,7 @@ body {
     right: 10px;
     width: 30px;
     height: 30px;
-    background: #00D4A1;
+    background: var(--accent-color);
     color: white;
     border: none;
     border-radius: 50%;
