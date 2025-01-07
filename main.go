@@ -21,6 +21,7 @@ func main() {
 	db := database.Init()
 	logger.Info("Database initialized successfully")
 
+	routes.HomeRoute()
 	routes.ServeStaticFolder()
 	routes.UserRegAndLogin(db)
 
