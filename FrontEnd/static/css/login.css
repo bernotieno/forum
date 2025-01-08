@@ -34,13 +34,15 @@ body {
 
 .container {
     background: var(--bg-primary);
-    width: 700px;
+    width: 410px;
     height: 400px;
     border-radius: 15px;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
     overflow: hidden;
     display: flex;
     position: relative;
+    padding-left: 20px;
+    padding-right: 50px;
 }
 
 .left-section {
@@ -78,6 +80,7 @@ body {
 
 .form.active {
     display: block;
+    width: 400px;
 }
 
 .form h2 {
@@ -182,4 +185,13 @@ body {
 /* Show Toast */
 .toast.show {
     right: 20px; /* Slide into view */
+}
+
+.sign-up_button{
+    width: 420px;
+}
+
+.sign-up_header{
+    text-align: center;
+    font-size: 120%;
 }
