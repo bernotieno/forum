@@ -101,7 +101,7 @@ func (ac *AuthController) IsValidPassword(password string) bool {
 	hasLower := regexp.MustCompile(`[a-z]`).MatchString(password)
 	hasNumber := regexp.MustCompile(`[0-9]`).MatchString(password)
 	hasSpecial := regexp.MustCompile(`[!@#$%^&*()_+{}|:"<>?~\-=[\]\\;',./]`).MatchString(password)
-	
+
 	if !hasUpper || !hasLower || !hasNumber || !hasSpecial {
 		logger.Debug("Password does not meet complexity requirements")
 		return false
@@ -142,7 +142,7 @@ func DeleteSession(w http.ResponseWriter, cookie *http.Cookie) {
 	if userID, exists := Sessions[sessionToken]; exists {
 		logger.Info("Deleting session for user ID: %d", userID)
 	}
-	
+
 	delete(Sessions, sessionToken)
 
 	// Invalidate the cookie by setting its MaxAge to -1
@@ -150,4 +150,23 @@ func DeleteSession(w http.ResponseWriter, cookie *http.Cookie) {
 		Name:   "session_token",
 		MaxAge: -1,
 	})
+}
+
+// Function to retrieve username based on user ID from SQLite database
+func GetUsernameByID(db *sql.DB, userID int) string {
+	var username string
+
+	// Query to fetch the username for the given user ID
+	query := `SELECT username FROM users WHERE id = ?`
+	err := db.QueryRow(query, userID).Scan(&username)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			// No rows were found for the given user ID
+			return ""
+		}
+		// Other database errors
+		return ""
+	}
+
+	return username
 }

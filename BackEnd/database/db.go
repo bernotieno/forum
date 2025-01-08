@@ -8,13 +8,13 @@ import (
 )
 
 func Init() *sql.DB {
-
 	DB, err := sql.Open("sqlite3", "./BackEnd/database/storage/forum.db")
 	if err != nil {
 		logger.Error("Failed to open database connection: %v", err)
 		return nil
 	}
-	// Create Users and Posts table
+
+	// Create Users table
 	_, err = DB.Exec(`
 		CREATE TABLE IF NOT EXISTS users (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -27,5 +27,69 @@ func Init() *sql.DB {
 		logger.Error("Failed to create users table: %v", err)
 		return nil
 	}
+
+	// Create Posts table
+	_, err = DB.Exec(`
+		CREATE TABLE IF NOT EXISTS posts (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			title TEXT NOT NULL,
+			author TEXT NOT NULL,
+			user_id INTEGER NOT NULL, -- Added user_id column
+			category TEXT NOT NULL,
+			likes INTEGER DEFAULT 0,
+			dislikes INTEGER DEFAULT 0,
+			user_vote TEXT,
+			content TEXT NOT NULL,
+			timestamp DATETIME NOT NULL,
+			FOREIGN KEY (user_id) REFERENCES users (id) -- Added comma before FOREIGN KEY
+		);
+	`)
+	if err != nil {
+		logger.Error("Failed to create posts table: %v", err)
+		return nil
+	}
+
+	// Create Comments table
+	_, err = DB.Exec(`
+		CREATE TABLE IF NOT EXISTS comments (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			post_id INTEGER NOT NULL,
+			user_id INTEGER NOT NULL,
+			author TEXT NOT NULL,
+			content TEXT NOT NULL,
+			likes INTEGER DEFAULT 0,
+			dislikes INTEGER DEFAULT 0,
+			user_vote TEXT,
+			timestamp DATETIME NOT NULL,
+			FOREIGN KEY (post_id) REFERENCES posts (id),
+			FOREIGN KEY (user_id) REFERENCES users (id)
+		);
+	`)
+	if err != nil {
+		logger.Error("Failed to create comments table: %v", err)
+		return nil
+	}
+
+	// Create Replies table
+	_, err = DB.Exec(`
+		CREATE TABLE IF NOT EXISTS replies (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			comment_id INTEGER NOT NULL,
+			user_id INTEGER NOT NULL,
+			author TEXT NOT NULL,
+			content TEXT NOT NULL,
+			likes INTEGER DEFAULT 0,
+			dislikes INTEGER DEFAULT 0,
+			user_vote TEXT,
+			timestamp DATETIME NOT NULL,
+			FOREIGN KEY (comment_id) REFERENCES comments (id),
+			FOREIGN KEY (user_id) REFERENCES users (id)
+		);
+	`)
+	if err != nil {
+		logger.Error("Failed to create replies table: %v", err)
+		return nil
+	}
+
 	return DB
 }
