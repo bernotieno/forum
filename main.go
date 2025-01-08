@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/Raymond9734/forum.git/BackEnd/database"
 	"github.com/Raymond9734/forum.git/BackEnd/logger"
@@ -19,11 +20,18 @@ func main() {
 	logger.Info("Starting application...")
 
 	db := database.Init()
+	if db == nil {
+		fmt.Println("An error occured while initializing Database")
+		os.Exit(1)
+	}
 	logger.Info("Database initialized successfully")
 
 	routes.HomeRoute()
 	routes.ServeStaticFolder()
 	routes.UserRegAndLogin(db)
+	routes.PostRoutes(db)
+	routes.CommentRoute(db)
+	routes.ReplyRoute(db)
 
 	fmt.Println("Server running at http://localhost:8080")
 	logger.Info("Server running at http://localhost:8080")
