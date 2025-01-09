@@ -1,0 +1,64 @@
+{{define "title"}}Create Post - ThreadHub{{end}}
+
+{{define "content"}}
+<div class="post-editor-container">
+    <div class="post-editor-header">
+        <h2>Create a Post</h2>
+    </div>
+    
+    <form id="postForm" action="/createPost" method="POST">
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+        
+        <div class="input-group">
+            <input type="text" id="post-title" name="title" class="input-field" 
+                   placeholder="Title" maxlength="300" required>
+        </div>
+
+        <div class="tab-container">
+            <div class="tabs">
+                <button type="button" id="text-tab" class="tab active">Text</button>
+                <button type="button" id="media-tab" class="tab">Media</button>
+            </div>
+
+            <div id="text-content" class="tab-content active">
+                <div class="post-body" id="post-body" contenteditable="true" 
+                     data-placeholder="Share your thoughts..."></div>
+            </div>
+
+            <div id="media-content" class="tab-content">
+                <div class="media-upload-area" id="dropzone">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Drag and drop images/videos here</p>
+                    <p class="small">or click to upload</p>
+                    <input type="file" id="file-input" hidden accept="image/*,video/*">
+                </div>
+            </div>
+        </div>
+
+        <div class="category-section">
+            <select id="category-select" class="input-field">
+                <option value="">Select a category...</option>
+                <option value="technology">Technology</option>
+                <option value="programming">Programming</option>
+                <option value="science">Science</option>
+                <option value="gaming">Gaming</option>
+                <option value="art">Art</option>
+            </select>
+            <div id="selected-categories" class="selected-categories"></div>
+        </div>
+
+        <div class="post-actions">
+            <button type="submit" class="button-primary">Post</button>
+            <button type="button" class="button-outline" onclick="window.location.href='/'">Cancel</button>
+        </div>
+    </form>
+</div>
+
+<div id="toast" class="toast">
+    <div id="toastMessage" class="toast-message"></div>
+</div>
+{{end}}
+
+{{define "scripts"}}
+<script src="../static/js/post.js"></script>
+{{end}} 
