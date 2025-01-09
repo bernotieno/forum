@@ -2,14 +2,39 @@
 
 {{define "content"}}
 <div class="posts-container">
-    <!-- Your homepage specific content here -->
-    <div class="post-card">
-        <!-- Post content -->
+    {{range .Posts}}
+    <div class="post">
+        <div class="post-header">
+            <div class="post-votes">
+                <button class="vote-button" data-vote="up" data-post-id="{{.ID}}">
+                    <i class="fas fa-arrow-up"></i>
+                </button>
+                <span class="vote-count">{{.Likes}}</span>
+                <button class="vote-button" data-vote="down" data-post-id="{{.ID}}">
+                    <i class="fas fa-arrow-down"></i>
+                </button>
+            </div>
+            <div class="post-info">
+                <h3 class="post-title">{{.Title}}</h3>
+                <div class="post-meta">
+                    Posted by {{.Author}} · {{formatTime .Timestamp}}
+                </div>
+                <div class="post-category">{{.Category}}</div>
+            </div>
+        </div>
+        <div class="post-content">{{.Content}}</div>
+        <div class="post-footer">
+            <span class="comments-count">
+                <i class="fas fa-comment"></i>
+                <span>Comments</span>
+            </span>
+        </div>
     </div>
+    {{end}}
 </div>
 {{end}}
 
 {{define "scripts"}}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js"></script>
-<!-- <script src="../static/js/homepage.js"></script> -->
+<script src="../static/js/homepage.js"></script>
 {{end}} 
