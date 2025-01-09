@@ -3,11 +3,63 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"sync"
+	"time"
 
 	"github.com/Raymond9734/forum.git/BackEnd/controllers"
 	"github.com/Raymond9734/forum.git/BackEnd/logger"
 	"github.com/Raymond9734/forum.git/BackEnd/models"
+	"github.com/google/uuid"
 )
+
+// Session store using standard Go map with mutex for thread safety
+var (
+	sessionStore = struct {
+		sync.RWMutex
+		sessions map[string]sessionData
+	}{
+		sessions: make(map[string]sessionData),
+	}
+)
+
+type sessionData struct {
+	UserID    int
+	ExpiresAt time.Time
+}
+
+// Helper function to check if a session is valid
+func isValidSession(token string) (bool, int) {
+	sessionStore.RLock()
+	defer sessionStore.RUnlock()
+
+	session, exists := sessionStore.sessions[token]
+	if !exists || time.Now().After(session.ExpiresAt) {
+		return false, 0
+	}
+	return true, session.UserID
+}
+
+// CreateSession creates a new session for a user
+func CreateSession(w http.ResponseWriter, userID int) {
+	sessionToken := uuid.New().String()
+
+	sessionStore.Lock()
+	sessionStore.sessions[sessionToken] = sessionData{
+		UserID:    userID,
+		ExpiresAt: time.Now().Add(24 * time.Hour),
+	}
+	sessionStore.Unlock()
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "session_token",
+		Value:    sessionToken,
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteStrictMode,
+		MaxAge:   86400, // 24 hours
+	})
+}
 
 // RegisterHandler registers a new user
 func RegisterHandler(ac *controllers.AuthController) http.HandlerFunc {
@@ -177,24 +229,35 @@ func CheckLoginHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("session_token")
-	if err != nil {
-		logger.Debug("Logout attempted with no active session")
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(map[string]string{
-			"message": "No active session",
-		})
+	if !controllers.VerifyCSRFToken(r) {
+		logger.Warning("Invalid CSRF token in logout attempt")
+		http.Error(w, "Invalid CSRF token", http.StatusForbidden)
 		return
 	}
 
-	userID := controllers.Sessions[cookie.Value]
-	controllers.DeleteSession(w, cookie)
-	logger.Info("User (ID: %d) successfully logged out", userID)
+	cookie, err := r.Cookie("session_token")
+	if err != nil {
+		logger.Debug("Logout attempted with no active session")
+		http.Error(w, "No active session", http.StatusUnauthorized)
+		return
+	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{
-		"message": "Successfully logged out",
+	// Remove session
+	sessionStore.Lock()
+	delete(sessionStore.sessions, cookie.Value)
+	sessionStore.Unlock()
+
+	// Clear cookie
+	http.SetCookie(w, &http.Cookie{
+		Name:     "session_token",
+		Value:    "",
+		Path:     "/",
+		MaxAge:   -1,
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteStrictMode,
 	})
+
+	logger.Info("User successfully logged out")
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

@@ -96,25 +96,21 @@ document.getElementById('signupForm').querySelector('button').addEventListener('
 
 // Function to handle the login form submission
 document.getElementById('loginForm').querySelector('button').addEventListener('click', function (event) {
-    event.preventDefault(); // Prevent the default form submission
+    event.preventDefault();
     hideToast(); 
 
-    // Retrieve form data
     const username = document.getElementById('loginForm').querySelector('input[type="text"]').value;
     const password = document.getElementById('loginForm').querySelector('input[type="password"]').value;
 
-    // Create an object with the form data
     const loginData = {
         username: username,
         password: password
     };
 
-    // Send the data to the backend using fetch
     fetch(`${BASE_URL}/login`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            // 'X-CSRF-Token': getCSRFToken() // Include the CSRF token in the headers
         },
         body: JSON.stringify(loginData)
     })
@@ -124,7 +120,8 @@ document.getElementById('loginForm').querySelector('button').addEventListener('c
             showToast(data.error); 
         } else {
             console.log('Success:', data);
-            alert('Login successful!');
+            // Redirect to homepage after successful login
+            window.location.href = data.redirect;
         }
     })
     .catch((error) => {

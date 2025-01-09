@@ -978,3 +978,140 @@ body {
       transform: translateX(-15px);
     }
   }
+
+.post-editor-container {
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 24px;
+    max-width: 800px;
+    margin: 24px auto;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.post-editor-header {
+    margin-bottom: 20px;
+}
+
+.tab-container {
+    margin: 20px 0;
+}
+
+.tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.tab {
+    padding: 8px 16px;
+    border: none;
+    background: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+
+.tab.active {
+    color: var(--accent-color);
+    border-bottom: 2px solid var(--accent-color);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.post-body {
+    min-height: 200px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 12px;
+    margin-bottom: 20px;
+}
+
+.category-section {
+    margin: 20px 0;
+}
+
+.selected-categories {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.category-tag {
+    background: var(--bg-primary);
+    padding: 4px 8px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.remove-category {
+    cursor: pointer;
+    color: var(--text-secondary);
+}
+
+.post-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+.media-upload-area {
+    border: 2px dashed var(--border-color);
+    border-radius: 8px;
+    padding: 40px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.media-upload-area.dragover {
+    border-color: var(--accent-color);
+    background-color: rgba(var(--accent-color-rgb), 0.1);
+}
+
+.media-upload-area i {
+    font-size: 48px;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+}
+
+.media-preview {
+    position: relative;
+    display: inline-block;
+    margin: 10px;
+    max-width: 200px;
+}
+
+.media-preview img,
+.media-preview video {
+    max-width: 100%;
+    border-radius: 4px;
+}
+
+.remove-media {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.remove-media:hover {
+    background: var(--accent-color-dark);
+}
