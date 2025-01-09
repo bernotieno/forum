@@ -19,10 +19,10 @@
         </div>
         <div id="userSection" class="profile-section">
             {{if .IsAuthenticated}}
-                <button class="button-primary-user" onclick="window.location.href='/create-post'">
+                <a href="/create-post" class="button-primary-user">
                     <i class="fas fa-plus"></i>
                     Create Post
-                </button>
+                </a>
                 <div class="profile-image">
                     <img src="../static/images/default-avatar.png" alt="Profile" class="avatar">
                 </div>
