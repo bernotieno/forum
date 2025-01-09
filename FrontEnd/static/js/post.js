@@ -7,6 +7,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const categorySelect = document.getElementById('category-select');
     const selectedCategories = document.getElementById('selected-categories');
     const selectedCats = new Set();
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('file-input');
+    let uploadedFiles = new Set();
 
     // Tab switching
     textTab.addEventListener('click', () => {
@@ -49,7 +52,76 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Form submission
+    // Handle file upload via drag and drop
+    dropzone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropzone.classList.add('dragover');
+    });
+
+    dropzone.addEventListener('dragleave', () => {
+        dropzone.classList.remove('dragover');
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('dragover');
+        handleFiles(e.dataTransfer.files);
+    });
+
+    // Handle file upload via click
+    dropzone.addEventListener('click', () => {
+        fileInput.click();
+    });
+
+    fileInput.addEventListener('change', (e) => {
+        handleFiles(e.target.files);
+    });
+
+    function handleFiles(files) {
+        Array.from(files).forEach(file => {
+            if (!file.type.match('image.*') && !file.type.match('video.*')) {
+                showToast('Only image and video files are allowed');
+                return;
+            }
+            
+            if (file.size > 5 * 1024 * 1024) { // 5MB limit
+                showToast('File size should be less than 5MB');
+                return;
+            }
+
+            uploadedFiles.add(file);
+            displayPreview(file);
+        });
+    }
+
+    function displayPreview(file) {
+        const preview = document.createElement('div');
+        preview.className = 'media-preview';
+        
+        if (file.type.startsWith('image/')) {
+            const img = document.createElement('img');
+            img.src = URL.createObjectURL(file);
+            preview.appendChild(img);
+        } else {
+            const video = document.createElement('video');
+            video.src = URL.createObjectURL(file);
+            video.controls = true;
+            preview.appendChild(video);
+        }
+
+        const removeBtn = document.createElement('button');
+        removeBtn.innerHTML = '×';
+        removeBtn.className = 'remove-media';
+        removeBtn.onclick = () => {
+            uploadedFiles.delete(file);
+            preview.remove();
+        };
+
+        preview.appendChild(removeBtn);
+        mediaContent.appendChild(preview);
+    }
+
+    // Update form submission to include media files
     postForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
@@ -62,12 +134,6 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        const formData = {
-            title: title,
-            content: content,
-            categories: categories
-        };
-
         try {
             const response = await fetch('/createPost', {
                 method: 'POST',
@@ -75,7 +141,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     'Content-Type': 'application/json',
                     'X-CSRF-Token': document.querySelector('input[name="csrf_token"]').value
                 },
-                body: JSON.stringify(formData)
+                body: JSON.stringify({
+                    title: title,
+                    content: content,
+                    category: categories.join(',') // Backend expects a single string
+                })
             });
 
             const data = await response.json();
