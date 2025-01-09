@@ -33,3 +33,32 @@ func (pc *PostController) InsertPost(post models.Post) (int, error) {
 
 	return int(postID), nil
 }
+
+func (pc *PostController) GetAllPosts() ([]models.Post, error) {
+	rows, err := pc.DB.Query(`
+		SELECT id, title, user_id, author, category, likes, dislikes, 
+			   user_vote, content, timestamp 
+		FROM posts 
+		ORDER BY timestamp DESC
+	`)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch posts: %w", err)
+	}
+	defer rows.Close()
+
+	var posts []models.Post
+	for rows.Next() {
+		var post models.Post
+		err := rows.Scan(
+			&post.ID, &post.Title, &post.UserID, &post.Author,
+			&post.Category, &post.Likes, &post.Dislikes,
+			&post.UserVote, &post.Content, &post.Timestamp,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan post: %w", err)
+		}
+		posts = append(posts, post)
+	}
+
+	return posts, nil
+}
