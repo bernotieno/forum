@@ -11,5 +11,6 @@ import (
 func PostRoutes(db *sql.DB) {
 	PostController := controllers.NewPostController(db)
 
+	http.HandleFunc("/create-post", handlers.CreatePostPageHandler)
 	http.HandleFunc("/createPost", handlers.PostHandler(PostController))
 }
