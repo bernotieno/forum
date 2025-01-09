@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{template "title" .}}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../static/css/homepage.css">
+</head>
+<body>
+    <!-- Common Header -->
+    <header class="header">
+        <div class="logo">
+            <i class="fas fa-message"></i>
+            <span>ThreadHub</span>
+        </div>
+        <div class="search-bar">
+            <input type="text" class="search-input" placeholder="Search...">
+        </div>
+        <div id="userSection" class="profile-section">
+            {{if .IsAuthenticated}}
+                <button class="button-primary-user" onclick="window.location.href='/create-post'">
+                    <i class="fas fa-plus"></i>
+                    Create Post
+                </button>
+                <div class="profile-image">
+                    <img src="../static/images/default-avatar.png" alt="Profile" class="avatar">
+                </div>
+                <form action="/logout" method="POST" style="display: inline;">
+                    <!-- CSRF Token -->
+                    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+                    <button type="submit" class="button-outline">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </button>
+                </form>
+            {{else}}
+                <a href="/login_Page" class="button-primary-user">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Login
+                </a>
+            {{end}}
+        </div>
+    </header>
+
+    <!-- Common Sidebar -->
+    <div class="container">
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">FEEDS</h3>
+                <a href="#" class="sidebar-link">
+                    <i class="fas fa-home"></i>
+                    Home
+                </a>
+                <a href="#" class="sidebar-link">
+                    <i class="fas fa-fire"></i>
+                    Popular
+                </a>
+                <a href="#" class="sidebar-link">
+                    <i class="fas fa-globe"></i>
+                    All
+                </a>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">COMMUNITIES</h3>
+                <a href="#" class="sidebar-link">
+                    <i class="fas fa-code"></i>
+                    Programming
+                </a>
+                <a href="#" class="sidebar-link">
+                    <i class="fas fa-microchip"></i>
+                    Technology
+                </a>
+                <a href="#" class="sidebar-link">
+                    <i class="fas fa-film"></i>
+                    Movies
+                </a>
+            </div>
+        </aside>
+
+        <!-- Content Area -->
+        <main class="main-content">
+            {{template "content" .}}
+        </main>
+    </div>
+
+    <!-- Common Footer -->
+    <footer class="footer">
+        <!-- Add your footer content here -->
+    </footer>
+
+    <!-- Common Scripts -->
+    {{template "scripts" .}}
+</body>
+</html>
