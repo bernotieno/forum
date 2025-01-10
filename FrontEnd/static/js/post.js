@@ -124,32 +124,50 @@ document.addEventListener('DOMContentLoaded', function() {
     // Update form submission to include media files
     postForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        
+    
         const title = document.getElementById('post-title').value;
         const content = document.getElementById('post-body').innerText;
         const categories = Array.from(selectedCats);
-
-        if (!title || !content || categories.length === 0) {
-            showToast('Please fill in all required fields');
+        const fileInput = document.getElementById('file-input'); 
+    
+         // Check if required fields are filled
+        if (!title || categories.length === 0) {
+            showToast('Title and categories are required');
             return;
         }
 
+        // Check if at least one of content or file is provided
+        if (!content && (!fileInput || fileInput.files.length === 0)) {
+            showToast('Please provide either text content or an image');
+            return;
+        }
+    
+        // Create a FormData object
+        const formData = new FormData();
+        formData.append('title', title);
+        formData.append('content', content);
+        formData.append('category', categories.join(',')); 
+
+        // Append the file if selected
+        if (fileInput.files.length > 0) {
+            console.log("File selected:", fileInput.files[0]);
+            formData.append('post-file', fileInput.files[0]);
+        }
+        for (let [key, value] of formData.entries()) {
+            console.log(key, value);
+        }
+    
         try {
             const response = await fetch('/createPost', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
                     'X-CSRF-Token': document.querySelector('input[name="csrf_token"]').value
                 },
-                body: JSON.stringify({
-                    title: title,
-                    content: content,
-                    category: categories.join(',') // Backend expects a single string
-                })
+                body: formData // Send as FormData
             });
-
+    
             const data = await response.json();
-            
+    
             if (response.ok) {
                 window.location.href = '/';
             } else {
@@ -159,7 +177,6 @@ document.addEventListener('DOMContentLoaded', function() {
             showToast('An error occurred. Please try again.');
         }
     });
-
     // Toast notification
     function showToast(message) {
         const toast = document.getElementById('toast');
