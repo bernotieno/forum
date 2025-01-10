@@ -5,29 +5,30 @@
     {{range .Posts}}
     <div class="post">
         <div class="post-header">
-            <div class="post-votes">
-                <button class="vote-button" data-vote="up" data-post-id="{{.ID}}">
-                    <i class="fas fa-arrow-up"></i>
-                </button>
-                <span class="vote-count">{{.Likes}}</span>
-                <button class="vote-button" data-vote="down" data-post-id="{{.ID}}">
-                    <i class="fas fa-arrow-down"></i>
-                </button>
-            </div>
             <div class="post-info">
-                <h3 class="post-title">{{.Title}}</h3>
                 <div class="post-meta">
-                    Posted by {{.Author}} · {{formatTime .Timestamp}}
+                    <span class="post-author">{{.Author}}</span>
+                    <span class="timestamp" data-timestamp="{{.Timestamp.Format "2006-01-02T15:04:05Z07:00"}}"></span>
+                    <span class="post-category">{{.Category}}</span>
                 </div>
-                <div class="post-category">{{.Category}}</div>
+                <h3 class="post-title">{{.Title}}</h3>
             </div>
         </div>
         <div class="post-content">{{.Content}}</div>
         <div class="post-footer">
-            <span class="comments-count">
+            <div class="vote-buttons">
+                <button class="vote-button" data-vote="up" data-post-id="{{.ID}}">
+                    <i class="fas fa-thumbs-up"></i>
+                </button>
+                <span class="vote-count">{{.Likes}}</span>
+                <button class="vote-button" data-vote="down" data-post-id="{{.ID}}">
+                    <i class="fas fa-thumbs-down"></i>
+                </button>
+            </div>
+            <div class="comments-count">
                 <i class="fas fa-comment"></i>
                 <span>Comments</span>
-            </span>
+            </div>
         </div>
     </div>
     {{end}}
