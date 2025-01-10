@@ -36,44 +36,73 @@ func PostHandler(pc *controllers.PostController) http.HandlerFunc {
 			return
 		}
 
-		// Decode the request body into a PostRequest object
-		var postReq models.PostRequest
-		if err := json.NewDecoder(r.Body).Decode(&postReq); err != nil {
-			logger.Error("Failed to decode post request: %v", err)
+		// Parse the multipart form
+		err := r.ParseMultipartForm(10 << 20) // 10 MB limit
+		if err != nil {
+			logger.Error("Failed to parse multipart form: %v", err)
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(w).Encode(map[string]string{
-				"error": "Invalid input",
+				"error": "Failed to parse form data",
 			})
 			return
 		}
 
+		// Extract form fields
+		title := r.FormValue("title")
+		content := r.FormValue("content")
+		categories := r.FormValue("category")
+
 		// Validate required fields
-		if postReq.Title == "" || postReq.Content == "" || len(postReq.Categories) == 0 {
-			logger.Warning("Invalid post creation request: missing or empty required fields - remote_addr: %s, method: %s, path: %s, missing_fields: %v",
+		if title == "" || categories == "" {
+			logger.Warning("Invalid post creation request: missing or empty required fields - remote_addr: %s, method: %s, path: %s",
 				r.RemoteAddr,
 				r.Method,
 				r.URL.Path,
-				getMissingFields(postReq),
 			)
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(w).Encode(map[string]string{
-				"message": "Title, content, and categories are required",
+				"message": "Title and categories are required",
+			})
+			return
+		}
+
+		// Handle file upload
+		filePath, err := controllers.UploadFile(r, "post-file", userID)
+		if err != nil {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(map[string]string{
+				"error": "Failed to save file",
+			})
+		}
+
+		if content == "" && filePath == "" {
+			logger.Warning("Invalid post creation request: missing content and image  fields  at least one is required - remote_addr: %s, method: %s, path: %s",
+				r.RemoteAddr,
+				r.Method,
+				r.URL.Path,
+			)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(map[string]string{
+				"message": "Missing content and image  fields  at least one is required",
 			})
 			return
 		}
 
 		userName := controllers.GetUsernameByID(pc.DB, userID)
 
-		// Create a Post object from the PostRequest
+		// Create a Post object from the form data
 		createPost := models.Post{
-			Title:     postReq.Title,
+			Title:     title,
 			Author:    userName,
 			UserID:    userID,
-			Category:  postReq.Categories,
-			Content:   postReq.Content,
+			Category:  categories,
+			Content:   content,
 			Timestamp: time.Now(),
+			ImageUrl:  filePath,
 		}
 
 		// Insert the post into the database
@@ -95,19 +124,4 @@ func PostHandler(pc *controllers.PostController) http.HandlerFunc {
 			"postID": postID,
 		})
 	}
-}
-
-// Helper function to get missing fields
-func getMissingFields(postReq models.PostRequest) []string {
-	var missingFields []string
-	if postReq.Title == "" {
-		missingFields = append(missingFields, "title")
-	}
-	if postReq.Content == "" {
-		missingFields = append(missingFields, "content")
-	}
-	if len(postReq.Categories) == 0 {
-		missingFields = append(missingFields, "categories")
-	}
-	return missingFields
 }
