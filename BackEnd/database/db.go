@@ -40,6 +40,7 @@ func Init() *sql.DB {
 			dislikes INTEGER DEFAULT 0,
 			user_vote TEXT,
 			content TEXT NOT NULL,
+			image_url TEXT,
 			timestamp DATETIME NOT NULL,
 			FOREIGN KEY (user_id) REFERENCES users (id) -- Added comma before FOREIGN KEY
 		);
