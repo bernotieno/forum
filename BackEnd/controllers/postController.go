@@ -18,9 +18,9 @@ func NewPostController(db *sql.DB) *PostController {
 func (pc *PostController) InsertPost(post models.Post) (int, error) {
 	// Insert the post with the UserID
 	result, err := pc.DB.Exec(`
-		INSERT INTO posts (title, user_id, author, category, likes, dislikes, user_vote, content, timestamp)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
-	`, post.Title, post.UserID, post.Author, post.Category, post.Likes, post.Dislikes, post.UserVote, post.Content, post.Timestamp)
+		INSERT INTO posts (title, user_id, author, category, likes, dislikes, user_vote, content, timestamp, image_url)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+	`, post.Title, post.UserID, post.Author, post.Category, post.Likes, post.Dislikes, post.UserVote, post.Content, post.Timestamp, post.ImageUrl)
 	if err != nil {
 		return 0, fmt.Errorf("failed to insert post: %w", err)
 	}
