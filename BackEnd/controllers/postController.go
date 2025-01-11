@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 
+	"github.com/Raymond9734/forum.git/BackEnd/logger"
 	"github.com/Raymond9734/forum.git/BackEnd/models"
 )
 
@@ -37,11 +38,12 @@ func (pc *PostController) InsertPost(post models.Post) (int, error) {
 func (pc *PostController) GetAllPosts() ([]models.Post, error) {
 	rows, err := pc.DB.Query(`
 		SELECT id, title, user_id, author, category, likes, dislikes, 
-			   user_vote, content, timestamp 
+			   user_vote, content, timestamp, image_url 
 		FROM posts 
 		ORDER BY timestamp DESC
 	`)
 	if err != nil {
+		logger.Error("Database query failed in GetAllPosts: %v", err)
 		return nil, fmt.Errorf("failed to fetch posts: %w", err)
 	}
 	defer rows.Close()
@@ -52,9 +54,10 @@ func (pc *PostController) GetAllPosts() ([]models.Post, error) {
 		err := rows.Scan(
 			&post.ID, &post.Title, &post.UserID, &post.Author,
 			&post.Category, &post.Likes, &post.Dislikes,
-			&post.UserVote, &post.Content, &post.Timestamp,
+			&post.UserVote, &post.Content, &post.Timestamp, &post.ImageUrl,
 		)
 		if err != nil {
+			logger.Error("Row scan failed in GetAllPosts: %v", err)
 			return nil, fmt.Errorf("failed to scan post: %w", err)
 		}
 		posts = append(posts, post)
