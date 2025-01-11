@@ -21,6 +21,11 @@ toSignUp.addEventListener('click', (e) => {
     leftSection.innerHTML = '<h1>Sign up</h1><p>to use all features of the application</p>';
 });
 
+document.addEventListener('DOMContentLoaded', function () {
+    document.getElementById('closeButton').addEventListener('click', function () {
+        window.location.href = '/';
+    });
+});
 
 // Function to show the toast
 function showToast(message, duration = 3500) {
