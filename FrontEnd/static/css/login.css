@@ -113,7 +113,7 @@ body {
 }
 
 .form button:hover {
-    background: #00D4A1;
+    background: #1c1c1c;
 }
 
 .form small {
@@ -141,6 +141,10 @@ body {
     cursor: pointer;
 }
 
+.toggle a:hover {
+    color: #1c1c1c;
+}
+
 .close-button {
     position: absolute;
     top: 10px;
@@ -160,20 +164,20 @@ body {
 }
 
 .close-button:hover {
-    background: #555;
+    background: #1c1c1c;
 }
 /* Toast Container */
 .toast {
     position: fixed;
     top: 20px;
-    right: -400px; /* Start off-screen */
-    background-color: #ff4444; /* Red background for errors */
+    right: -400px; 
+    background-color: #ff4444; 
     color: white;
     padding: 15px 25px;
     border-radius: 5px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     z-index: 1000;
-    transition: right 0.5s ease-in-out; /* Slide animation */
+    transition: right 0.5s ease-in-out; 
     max-width:300px;
 }
 
