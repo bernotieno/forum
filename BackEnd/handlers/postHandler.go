@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"database/sql"
 	"encoding/json"
 	"net/http"
 	"time"
@@ -38,7 +39,11 @@ func PostHandler(pc *controllers.PostController) http.HandlerFunc {
 
 		if !controllers.VerifyCSRFToken(r) {
 			logger.Warning("Invalid CSRF token in post attempt")
-			http.Error(w, "Invalid CSRF token", http.StatusForbidden)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusForbidden)
+			json.NewEncoder(w).Encode(map[string]string{
+				"error": "Invalid CSRF token",
+			})
 			return
 		}
 
@@ -82,6 +87,7 @@ func PostHandler(pc *controllers.PostController) http.HandlerFunc {
 			json.NewEncoder(w).Encode(map[string]string{
 				"error": "Failed to save file",
 			})
+			return
 		}
 
 		if content == "" && filePath == "" {
@@ -108,7 +114,10 @@ func PostHandler(pc *controllers.PostController) http.HandlerFunc {
 			Category:  categories,
 			Content:   content,
 			Timestamp: time.Now(),
-			ImageUrl:  filePath,
+			ImageUrl: sql.NullString{
+				String: filePath,
+				Valid:  filePath != "",
+			},
 		}
 
 		// Insert the post into the database
