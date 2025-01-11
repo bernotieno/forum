@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up and Login</title>
     <link rel="stylesheet" href="../static/css/login.css">
+    <!-- Font Awesome for the eye icon -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
 
 <body>
@@ -16,22 +18,33 @@
             <div id="toastMessage" class="toast-message"></div>
         </div>
 
+        <!-- Sign Up Form -->
         <div id="signupForm" class="form active">
             <div class="sign-up_header">
                 <h2>Create Account</h2>
             </div>
             <input type="text" placeholder="Username" required />
             <input type="email" placeholder="Email" required />
-            <input type="password" placeholder="Password" required />
-            <input type="password" placeholder="Confirm Password" required />
+            <div class="password-container">
+                <input type="password" placeholder="Password" id="signupPassword" required />
+                <i class="fa fa-eye" id="signupToggle" onclick="togglePassword('signupPassword', 'signupToggle')"></i>
+            </div>
+            <div class="password-container">
+                <input type="password" placeholder="Confirm Password" id="confirmPassword" required />
+                <i class="fa fa-eye" id="confirmToggle" onclick="togglePassword('confirmPassword', 'confirmToggle')"></i>
+            </div>
             <div class="sign-up_button"><button>Sign Up</button></div>
             <div class="toggle">Already have an account? <a href="#" id="toLogin">Log In</a></div>
         </div>
 
+        <!-- Login Form -->
         <div id="loginForm" class="form">
             <h2>Welcome Back</h2>
             <input type="text" placeholder="Username" required />
-            <input type="password" placeholder="Password" required />
+            <div class="password-container">
+                <input type="password" placeholder="Password" id="loginPassword" required />
+                <i class="fa fa-eye" id="loginToggle" onclick="togglePassword('loginPassword', 'loginToggle')"></i>
+            </div>
             <button>Log In</button>
             <div class="toggle">Don't have an account? <a href="#" id="toSignUp">Sign Up</a></div>
         </div>
