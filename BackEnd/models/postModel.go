@@ -18,7 +18,7 @@ type Post struct {
 	Dislikes  int
 	UserVote  sql.NullString // Can be "like", "dislike", or null
 	Content   string
-	ImageUrl  string
+	ImageUrl  sql.NullString
 	Timestamp time.Time
 }
 
