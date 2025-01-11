@@ -158,22 +158,28 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     
         try {
+            const csrfToken = document.querySelector('input[name="csrf_token"]').value;
+            
+            // Add CSRF token to FormData
+            formData.append('csrf_token', csrfToken);
+            
             const response = await fetch('/createPost', {
                 method: 'POST',
                 headers: {
-                    'X-CSRF-Token': document.querySelector('input[name="csrf_token"]').value
+                    'X-CSRF-Token': csrfToken
                 },
-                body: formData // Send as FormData
+                body: formData
             });
-    
+
             const data = await response.json();
-    
+
             if (response.ok) {
                 window.location.href = '/';
             } else {
                 showToast(data.error || 'Failed to create post');
             }
         } catch (error) {
+            console.error('Error:', error);
             showToast('An error occurred. Please try again.');
         }
     });
