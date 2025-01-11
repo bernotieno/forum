@@ -34,9 +34,14 @@ func GenerateCSRFToken(userID int) string {
 }
 
 func VerifyCSRFToken(r *http.Request) bool {
-	token := r.FormValue("csrf_token")
+	// First check the CSRF token from the header
+	token := r.Header.Get("X-CSRF-Token")
 	if token == "" {
-		return false
+		// If not found in header, get from form
+		token = r.FormValue("csrf_token")
+		if token == "" {
+			return false
+		}
 	}
 
 	// Get userID from session
