@@ -36,6 +36,12 @@ func PostHandler(pc *controllers.PostController) http.HandlerFunc {
 			return
 		}
 
+		if !controllers.VerifyCSRFToken(r) {
+			logger.Warning("Invalid CSRF token in post attempt")
+			http.Error(w, "Invalid CSRF token", http.StatusForbidden)
+			return
+		}
+
 		// Parse the multipart form
 		err := r.ParseMultipartForm(10 << 20) // 10 MB limit
 		if err != nil {
