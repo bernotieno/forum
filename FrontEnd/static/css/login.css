@@ -181,6 +181,25 @@ body {
     max-width:300px;
 }
 
+.password-container {
+    position: relative;
+    margin-bottom: 15px;
+}
+
+.password-container i {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 18px;
+}
+
+#signupToggle, #loginToggle, #confirmToggle {
+    padding-bottom: 15px;
+    margin-left: 25px;
+}
+
 /* Toast Message */
 .toast-message {
     font-size: 14px;
