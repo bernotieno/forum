@@ -3,63 +3,12 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
-	"sync"
-	"time"
 
+	"github.com/Raymond9734/forum.git/BackEnd/auth"
 	"github.com/Raymond9734/forum.git/BackEnd/controllers"
 	"github.com/Raymond9734/forum.git/BackEnd/logger"
 	"github.com/Raymond9734/forum.git/BackEnd/models"
-	"github.com/google/uuid"
 )
-
-// Session store using standard Go map with mutex for thread safety
-var (
-	sessionStore = struct {
-		sync.RWMutex
-		sessions map[string]sessionData
-	}{
-		sessions: make(map[string]sessionData),
-	}
-)
-
-type sessionData struct {
-	UserID    int
-	ExpiresAt time.Time
-}
-
-// Helper function to check if a session is valid
-func isValidSession(token string) (bool, int) {
-	sessionStore.RLock()
-	defer sessionStore.RUnlock()
-
-	session, exists := sessionStore.sessions[token]
-	if !exists || time.Now().After(session.ExpiresAt) {
-		return false, 0
-	}
-	return true, session.UserID
-}
-
-// CreateSession creates a new session for a user
-func CreateSession(w http.ResponseWriter, userID int) {
-	sessionToken := uuid.New().String()
-
-	sessionStore.Lock()
-	sessionStore.sessions[sessionToken] = sessionData{
-		UserID:    userID,
-		ExpiresAt: time.Now().Add(24 * time.Hour),
-	}
-	sessionStore.Unlock()
-
-	http.SetCookie(w, &http.Cookie{
-		Name:     "session_token",
-		Value:    sessionToken,
-		Path:     "/",
-		HttpOnly: true,
-		Secure:   true,
-		SameSite: http.SameSiteStrictMode,
-		MaxAge:   86400, // 24 hours
-	})
-}
 
 // RegisterHandler registers a new user
 func RegisterHandler(ac *controllers.AuthController) http.HandlerFunc {
@@ -131,7 +80,7 @@ func RegisterHandler(ac *controllers.AuthController) http.HandlerFunc {
 			return
 		}
 
-		ac.CreateSession(w, int(userID))
+		auth.CreateSession(w, int(userID))
 		logger.Info("Successfully registered user: %s (ID: %d)", sanitizedUsername, userID)
 
 		w.WriteHeader(302)
@@ -179,7 +128,7 @@ func LoginHandler(ac *controllers.AuthController) http.HandlerFunc {
 			return
 		}
 
-		ac.CreateSession(w, user.ID)
+		auth.CreateSession(w, user.ID)
 		logger.Info("Successful login for user: %s (ID: %d)", user.Username, user.ID)
 
 		w.WriteHeader(302)
@@ -198,7 +147,7 @@ func isLoggedIn(r *http.Request) (bool, int) {
 	}
 
 	// Check if the session_token exists in the Sessions map
-	userID, exists := controllers.Sessions[cookie.Value]
+	userID, exists := auth.Sessions[cookie.Value]
 	if !exists {
 		return false, 0 // Invalid session_token
 	}
@@ -242,10 +191,7 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Remove session
-	sessionStore.Lock()
-	delete(sessionStore.sessions, cookie.Value)
-	sessionStore.Unlock()
+	delete(auth.SessionStore.Sessions, cookie.Value)
 
 	// Clear cookie
 	http.SetCookie(w, &http.Cookie{

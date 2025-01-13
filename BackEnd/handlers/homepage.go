@@ -64,12 +64,6 @@ func (h *HomePageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		Posts:           posts,
 	}
 
-	// Set security headers
-	w.Header().Set("X-Frame-Options", "DENY")
-	w.Header().Set("X-Content-Type-Options", "nosniff")
-	w.Header().Set("X-XSS-Protection", "1; mode=block")
-	w.Header().Set("Content-Security-Policy", "default-src 'self'; style-src 'self' https://cdnjs.cloudflare.com; font-src 'self' https://cdnjs.cloudflare.com")
-
 	// Execute template with data
 	err = tmpl.ExecuteTemplate(w, "layout.html", data)
 	if err != nil {

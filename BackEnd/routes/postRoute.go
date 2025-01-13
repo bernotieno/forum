@@ -6,12 +6,21 @@ import (
 
 	"github.com/Raymond9734/forum.git/BackEnd/controllers"
 	"github.com/Raymond9734/forum.git/BackEnd/handlers"
+	"github.com/Raymond9734/forum.git/BackEnd/middleware"
 )
 
 func PostRoutes(db *sql.DB) {
 	PostController := controllers.NewPostController(db)
 
-	http.HandleFunc("/create-post", handlers.CreatePostPageHandler)
-	http.HandleFunc("/createPost", handlers.PostHandler(PostController))
-    http.HandleFunc("/viewPost", handlers.NewViewPostHandler(db))
+	http.Handle("/create-post", middleware.ApplyMiddleware(
+		http.HandlerFunc(handlers.CreatePostPageHandler),
+		middleware.SetCSPHeaders,
+		middleware.AuthMiddleware,
+	))
+
+	http.Handle("/createPost", middleware.ApplyMiddleware(
+		handlers.PostHandler(PostController),
+		middleware.SetCSPHeaders,
+		middleware.AuthMiddleware,
+	))
 }
