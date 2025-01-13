@@ -23,4 +23,6 @@ func PostRoutes(db *sql.DB) {
 		middleware.SetCSPHeaders,
 		middleware.AuthMiddleware,
 	))
+	http.HandleFunc("/viewPost", handlers.NewViewPostHandler(db))
+
 }
