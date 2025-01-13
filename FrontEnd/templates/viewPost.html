@@ -1,6 +1,5 @@
-{{define "title"}}Home - ThreadHub{{end}}
 {{define "content"}}
-<div class="posts-container">
+<div class="posts">
     {{range .Posts}}
     <div class="post">
         <div class="post-header">
@@ -40,8 +39,3 @@
     {{end}}
 </div>
 {{end}}
-{{define "scripts"}}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js"></script>
-<script src="../static/js/homepage.js"></script>
-<script src="../static/js/theme.js"></script>
-{{end}} 
