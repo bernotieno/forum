@@ -6,7 +6,7 @@
         <h2>Create a Post</h2>
     </div>
     
-    <form id="postForm" action="/createPost" method="POST">
+    <form id="postForm" method="POST" action="/createPost" enctype="multipart/form-data">
         <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
         
         <div class="input-group">
