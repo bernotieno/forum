@@ -502,12 +502,11 @@ body {
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 .comment {
-    padding: 1rem;
-    margin: 1rem 0;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
+    padding: 10px;
+    border-left: 2px solid var(--border-color);
+    margin: 10px 0;
     background-color: var(--bg-secondary);
-    transition: transform 0.2s ease;
+    border-radius: 4px;
 }
 .comment:hover {
     transform: translateX(4px);
@@ -1018,3 +1017,4 @@ body {
     border-radius: 8px;
     background-color: var(--bg-primary);
 }
+
