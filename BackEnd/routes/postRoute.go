@@ -12,6 +12,11 @@ import (
 func PostRoutes(db *sql.DB) {
 	PostController := controllers.NewPostController(db)
 
+	http.Handle("/viewPost", middleware.ApplyMiddleware(
+		handlers.NewViewPostHandler(db),
+		middleware.SetCSPHeaders,
+	))
+
 	http.Handle("/create-post", middleware.ApplyMiddleware(
 		http.HandlerFunc(handlers.CreatePostPageHandler),
 		middleware.SetCSPHeaders,

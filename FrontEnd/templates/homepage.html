@@ -10,7 +10,9 @@
                     <span class="timestamp" data-timestamp="{{.Timestamp.Format "2006-01-02T15:04:05Z07:00"}}"></span>
                     <span class="post-category">{{.Category}}</span>
                 </div>
-                <h3 class="post-title">{{.Title}}</h3>
+                <h3 class="post-title">
+                    <a href="/viewPost?id={{.ID}}">{{.Title}}</a>
+                </h3>
             </div>
         </div>
         <div class="post-content">{{.Content}}</div>

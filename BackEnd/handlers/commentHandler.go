@@ -103,7 +103,7 @@ func CommentHandler(cCtrl *controllers.CommentController) http.HandlerFunc {
 			Content:   commentReq.Content,
 			Likes:     0,
 			Dislikes:  0,
-			UserVote:  sql.NullString{String: "", Valid: false}, // Default to no vote
+			UserVote:  sql.NullString{String: "", Valid: false},
 			Timestamp: time.Now(),
 		}
 

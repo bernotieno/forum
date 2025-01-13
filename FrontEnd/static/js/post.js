@@ -159,15 +159,10 @@ document.addEventListener('DOMContentLoaded', function() {
     
         try {
             const csrfToken = document.querySelector('input[name="csrf_token"]').value;
-            
-            // Add CSRF token to FormData
             formData.append('csrf_token', csrfToken);
-            
+
             const response = await fetch('/createPost', {
                 method: 'POST',
-                headers: {
-                    'X-CSRF-Token': csrfToken
-                },
                 body: formData
             });
 

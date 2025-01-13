@@ -65,3 +65,22 @@ func (pc *PostController) GetAllPosts() ([]models.Post, error) {
 
 	return posts, nil
 }
+
+
+func (pc *PostController) GetPostByID(postID string) (models.Post, error) {
+    var post models.Post
+    err := pc.DB.QueryRow(`
+        SELECT id, title, user_id, author, category, likes, dislikes, 
+               user_vote, content, timestamp, image_url 
+        FROM posts 
+        WHERE id = ?
+    `, postID).Scan(
+        &post.ID, &post.Title, &post.UserID, &post.Author,
+        &post.Category, &post.Likes, &post.Dislikes,
+        &post.UserVote, &post.Content, &post.Timestamp, &post.ImageUrl,
+    )
+    if err != nil {
+        return post, fmt.Errorf("failed to fetch post: %w", err)
+    }
+    return post, nil
+}

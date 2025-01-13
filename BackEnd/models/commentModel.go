@@ -14,7 +14,7 @@ type Comment struct {
 	Content   string
 	Likes     int
 	Dislikes  int
-	UserVote  sql.NullString // Can be "like", "dislike", or null
+	UserVote  sql.NullString
 	Timestamp time.Time
 }
 

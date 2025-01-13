@@ -49,8 +49,7 @@ func Init() *sql.DB {
 		logger.Error("Failed to create posts table: %v", err)
 		return nil
 	}
-
-	// Create Comments table
+	// Create Comments table without reply-related columns
 	_, err = DB.Exec(`
 		CREATE TABLE IF NOT EXISTS comments (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -68,27 +67,6 @@ func Init() *sql.DB {
 	`)
 	if err != nil {
 		logger.Error("Failed to create comments table: %v", err)
-		return nil
-	}
-
-	// Create Replies table
-	_, err = DB.Exec(`
-		CREATE TABLE IF NOT EXISTS replies (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			comment_id INTEGER NOT NULL,
-			user_id INTEGER NOT NULL,
-			author TEXT NOT NULL,
-			content TEXT NOT NULL,
-			likes INTEGER DEFAULT 0,
-			dislikes INTEGER DEFAULT 0,
-			user_vote TEXT,
-			timestamp DATETIME NOT NULL,
-			FOREIGN KEY (comment_id) REFERENCES comments (id),
-			FOREIGN KEY (user_id) REFERENCES users (id)
-		);
-	`)
-	if err != nil {
-		logger.Error("Failed to create replies table: %v", err)
 		return nil
 	}
 
