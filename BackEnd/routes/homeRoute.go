@@ -5,8 +5,14 @@ import (
 	"net/http"
 
 	"github.com/Raymond9734/forum.git/BackEnd/handlers"
+	"github.com/Raymond9734/forum.git/BackEnd/middleware"
 )
 
 func HomeRoute(db *sql.DB) {
-	http.HandleFunc("/", handlers.NewHomePageHandler(db))
+	http.Handle("/", middleware.ApplyMiddleware(
+		handlers.NewHomePageHandler(db),
+		middleware.SetCSPHeaders,
+	))
+
+	// http.HandleFunc("/",handlers.NewHomePageHandler(db))
 }

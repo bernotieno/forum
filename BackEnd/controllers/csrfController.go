@@ -5,15 +5,15 @@ import (
 	"encoding/base64"
 	"net/http"
 	"sync"
+
+	"github.com/Raymond9734/forum.git/BackEnd/auth"
 )
 
-var (
-	// Store CSRF tokens with a map
-	csrfTokens = struct {
-		sync.RWMutex
-		tokens map[int]string
-	}{tokens: make(map[int]string)}
-)
+// Store CSRF tokens with a map
+var csrfTokens = struct {
+	sync.RWMutex
+	tokens map[int]string
+}{tokens: make(map[int]string)}
 
 func GenerateCSRFToken(userID int) string {
 	// Generate random bytes
@@ -50,7 +50,7 @@ func VerifyCSRFToken(r *http.Request) bool {
 		return false
 	}
 
-	userID, exists := Sessions[cookie.Value]
+	userID, exists := auth.Sessions[cookie.Value]
 	if !exists {
 		return false
 	}

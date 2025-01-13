@@ -3,23 +3,18 @@ package controllers
 import (
 	"database/sql"
 	"errors"
-	"net/http"
 	"net/mail"
 	"regexp"
 	"strings"
-	"time"
 
 	"github.com/Raymond9734/forum.git/BackEnd/logger"
 	"github.com/Raymond9734/forum.git/BackEnd/models"
-	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type AuthController struct {
 	DB *sql.DB
 }
-
-var Sessions = map[string]int{} // Map session token -> user ID
 
 func NewAuthController(db *sql.DB) *AuthController {
 	return &AuthController{DB: db}
@@ -118,38 +113,6 @@ func (ac *AuthController) SanitizeInput(input string) string {
 	input = strings.ReplaceAll(input, "\"", "&quot;")
 	input = strings.ReplaceAll(input, "'", "&#39;")
 	return input
-}
-
-func (ac *AuthController) CreateSession(w http.ResponseWriter, userID int) {
-	// Generate a new session token
-	sessionToken := uuid.NewString()
-
-	// Store the session token and user ID in the Sessions map
-	Sessions[sessionToken] = userID
-
-	// Set the session cookie
-	http.SetCookie(w, &http.Cookie{
-		Name:     "session_token",
-		Value:    sessionToken,
-		HttpOnly: true,
-		Expires:  time.Now().Add(24 * time.Hour),
-	})
-}
-
-func DeleteSession(w http.ResponseWriter, cookie *http.Cookie) {
-	// Retrieve the session token value
-	sessionToken := cookie.Value
-	if userID, exists := Sessions[sessionToken]; exists {
-		logger.Info("Deleting session for user ID: %d", userID)
-	}
-
-	delete(Sessions, sessionToken)
-
-	// Invalidate the cookie by setting its MaxAge to -1
-	http.SetCookie(w, &http.Cookie{
-		Name:   "session_token",
-		MaxAge: -1,
-	})
 }
 
 // Function to retrieve username based on user ID from SQLite database
