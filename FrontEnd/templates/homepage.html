@@ -23,13 +23,14 @@
         {{end}}
         <div class="post-footer">
             <div class="vote-buttons">
-                <button class="vote-button" data-vote="up" data-post-id="{{.ID}}">
+                <button class="vote-button" onclick="AddLike('{{.ID}}')">
                     <i class="fas fa-thumbs-up"></i>
                 </button>
-                <span class="vote-count">{{.Likes}}</span>
-                <button class="vote-button" data-vote="down" data-post-id="{{.ID}}">
+                <div class="counter" id="likes-container-{{.ID}}">0</div>
+                <button class="vote-button" onclick="MinusLike('{{.ID}}')">
                     <i class="fas fa-thumbs-down"></i>
                 </button>
+                <div class="counter" id="dislikes-container-{{.ID}}">0</div>
             </div>
             <div class="comments-count">
                 <i class="fas fa-comment"></i>
@@ -44,4 +45,5 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js"></script>
 <script src="../static/js/homepage.js"></script>
 <script src="../static/js/theme.js"></script>
+<script src="../static/js/vote.js"></script>
 {{end}} 
