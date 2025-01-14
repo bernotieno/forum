@@ -175,15 +175,21 @@ body {
 }
 /* Sidebar styles */
 .sidebar {
+    position:sticky;
     background-color: var(--bg-secondary);
-    border-radius: 8px;
-    padding: 20px;
-    height: fit-content;
+    top: 10vh;
+    bottom: 20vh;
+    height: 100vh;
+    overflow-y: auto;
+    width: 250px; 
+    padding-top: 20px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
+
 .sidebar-section {
     margin-bottom: 28px;
 }
+
 .sidebar-title {
     font-size: 14px;
     font-weight: 600;
