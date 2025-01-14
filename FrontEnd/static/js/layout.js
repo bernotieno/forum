@@ -56,7 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 
                 const postCategory = post.getAttribute("data-category")?.toLowerCase() || "";
                 
-                if (selectedCategory === "all" || postCategory === selectedCategory) {
+                if (selectedCategory === "all" || selectedCategory === "home"|| postCategory === selectedCategory) {
                     post.style.display = "block"; 
                 } else {
                     post.style.display = "none"; 
