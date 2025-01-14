@@ -36,12 +36,19 @@ func (h *ViewPostHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check if user is logged in
-	loggedIn, userID := isLoggedIn(r)
+	loggedIn, _ := isLoggedIn(h.db, r)
+
+	sessionToken, err := controllers.GetSessionToken(r)
+	if err != nil {
+		logger.Error("Error getting session token: %s", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
 
 	// Generate CSRF token if user is logged in
 	var csrfToken string
 	if loggedIn {
-		csrfToken = controllers.GenerateCSRFToken(userID)
+		csrfToken, _ = controllers.GenerateCSRFToken(h.db, sessionToken)
 	}
 
 	// Create a PostController instance using the handler's db
