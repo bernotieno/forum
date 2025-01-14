@@ -1,13 +1,31 @@
 {{define "title"}}View Post - ThreadHub{{end}}
 {{define "content"}}
-<div class="post-container">
+<div class="posts-container">
     <div class="post">
         <div class="post-header">
             <div class="post-info">
                 <div class="post-meta">
-                    <span class="post-author">{{.Post.Author}}</span>
+                    <div class="post-author-info">
+                        <div class="author-initial">{{slice .Post.Author 0 1}}</div>
+                        <span class="post-author">{{.Post.Author}}</span>
+                    </div>
                     <span class="timestamp" data-timestamp="{{.Post.Timestamp.Format "2006-01-02T15:04:05Z07:00"}}"></span>
                     <span class="post-category">{{.Post.Category}}</span>
+                    {{if .IsAuthenticated}}
+                    <div class="post-options">
+                        <button class="options-btn">
+                            <i class="fa-solid fa-ellipsis"></i>
+                        </button>
+                        <div class="options-menu">
+                            <button class="option-item" onclick="editPost('{{.Post.ID}}')">
+                                <i class="fa-solid fa-edit"></i> Edit
+                            </button>
+                            <button class="option-item" onclick="deletePost('{{.Post.ID}}')">
+                                <i class="fa-solid fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                    {{end}}
                 </div>
                 <h3 class="post-title">{{.Post.Title}}</h3>
             </div>
@@ -20,27 +38,33 @@
         {{end}}
         <div class="post-footer">
             <div class="vote-buttons">
-                <button class="vote-button" data-vote="up" data-post-id="{{.Post.ID}}">
-                    <i class="fas fa-thumbs-up"></i>
+                <button class="vote-button" onclick="AddLike('{{.Post.ID}}')">
+                    <i class="fa-regular fa-thumbs-up"></i>
                 </button>
-                <span class="vote-count">{{.Post.Likes}}</span>
-                <button class="vote-button" data-vote="down" data-post-id="{{.Post.ID}}">
-                    <i class="fas fa-thumbs-down"></i>
+                <div class="counter" id="likes-container-{{.Post.ID}}">{{.Post.Likes}}</div>
+                <button class="vote-button" onclick="MinusLike('{{.Post.ID}}')">
+                    <i class="fa-regular fa-thumbs-down"></i>
                 </button>
+                <div class="counter" id="dislikes-container-{{.Post.ID}}">0</div>
+            </div>
+            <div class="comments-count">
+                <i class="fa-regular fa-comment"></i>
+                <span class="counter">{{len .Comments}}</span>
             </div>
         </div>
     </div>
 
     <!-- Comments section -->
     <div class="comments-section">
-        <h3>Comments</h3>
         {{if .IsAuthenticated}}
-        <div class="comment-form">
-            <textarea placeholder="Write a comment..." id="commentText"></textarea>
-            <button data-post-id="{{.Post.ID}}" onclick="submitComment(this)">Submit</button>
+        <div class="comment-input-container">
+            <textarea class="main-comment-input" placeholder="Write a comment..." id="commentText"></textarea>
+            <div class="comment-actions">
+                <button class="button button-primary" data-post-id="{{.Post.ID}}" onclick="submitComment(this)">Comment</button>
+            </div>
         </div>
         {{else}}
-        <p>Please <a href="/login_Page">login</a> to comment</p>
+        <p class="login-prompt">Please <a href="/login_Page">login</a> to comment</p>
         {{end}}
 
         <div class="comments-container">
@@ -54,19 +78,39 @@
 </div>
 {{end}}
 
-{{define "scripts"}}
-<script src="../static/js/viewPost.js"></script>
-<script src="../static/js/theme.js"></script>
-{{end}}
-
 {{define "comments"}}
     {{range $comment := .Comments}}
     <div class="comment" data-comment-id="{{$comment.ID}}">
         <div class="comment-header">
-            <span class="comment-author">{{$comment.Author}}</span>
+            <div class="post-author-info">
+                <div class="author-initial">{{slice $comment.Author 0 1}}</div>
+                <span class="comment-author">{{$comment.Author}}</span>
+            </div>
             <span class="timestamp" data-timestamp="{{$comment.Timestamp.Format "2006-01-02T15:04:05Z07:00"}}"></span>
         </div>
         <div class="comment-content">{{$comment.Content}}</div>
+        <div class="comment-footer">
+            <div class="vote-buttons">
+                <button class="vote-button">
+                    <i class="fa-regular fa-thumbs-up"></i>
+                </button>
+                <div class="counter">0</div>
+                <button class="vote-button">
+                    <i class="fa-regular fa-thumbs-down"></i>
+                </button>
+                <div class="counter">0</div>
+            </div>
+            {{if $.IsAuthenticated}}
+            <div class="comment-actions">
+                <button class="reply-button">Reply</button>
+            </div>
+            {{end}}
+        </div>
     </div>
     {{end}}
+{{end}}
+
+{{define "scripts"}}
+<script src="../static/js/viewPost.js"></script>
+<script src="../static/js/theme.js"></script>
 {{end}}

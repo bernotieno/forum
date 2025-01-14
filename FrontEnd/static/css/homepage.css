@@ -5,7 +5,7 @@
     --text-primary: #1c1c1c;
     --text-secondary: #787c7e;
     --accent-color: #FF4500;
-    --border-color: #edeff1;
+    --border-color: #d1d3d5;
     --upvote-color: #FF4500;
     --downvote-color: #7193FF;
     --hover-bg: #f2f4f5;
@@ -16,7 +16,7 @@
     --bg-secondary: #272729;
     --text-primary: #D7DADC;
     --text-secondary: #818384;
-    --border-color: #343536;
+    --border-color: #505050;
     --hover-bg: #2D2D2E;
 }
 * {
@@ -239,13 +239,19 @@ body {
     cursor: pointer;
 }
 /* Post styles */
+.posts-container {
+    max-width: 800px; 
+    margin: 0 auto; 
+    padding: 0 30px; 
+}
+
 .post {
     background-color: var(--bg-secondary);
-    border-radius: 8px;
-    margin-bottom: 20px;
-    padding: 20px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    transition: transform 0.2s ease;
+    border-radius: 11px;
+    margin-bottom: 25px;
+    padding: 16px 16px 0 16px;
+    border: 1px solid var(--border-color);
+    width: 100%;
 }
 .post-info {
     flex: 1;
@@ -256,22 +262,50 @@ body {
     gap: 8px;
     font-size: 14px;
     color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+.author-initial {
+    width: 24px;
+    height: 24px;
+    background-color: var(--accent-color);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.post-author-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.post-author {
+    font-weight: 600;
+    color: var(--text-primary);
 }
 .post-category {
-    margin-left: auto;
-    padding: 4px 8px;
+    padding: 2px 8px;
+    border-radius: 12px;
     font-size: 12px;
-    font-weight: 500;
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
 }
 .post-title {
     cursor: pointer;
 }
+.post-title a {
+    text-decoration: none;
+    color: var(--text-primary);
+}
 .post-title:hover {
     color: var(--accent-color);
 }
-.post:hover {
-    transform: translateY(-2px);
-}
+
 .post-header {
     display: flex;
     align-items: flex-start;
@@ -283,15 +317,6 @@ body {
     flex-direction: column;
     align-items: center;
     margin-right: 16px;
-}
-.vote-button {
-    background: none;
-    border: none;
-    color: var(--text-secondary);
-    cursor: pointer;
-    padding: 4px;
-    border-radius: 4px;
-    transition: all 0.2s ease;
 }
 .vote-button.disabled {
     cursor: not-allowed;
@@ -341,12 +366,13 @@ body {
 }
 .post-footer {
     display: flex;
-    align-items: flex-start; 
+    align-items: center;
     gap: 24px;
-    padding: 12px 0;
+    padding: 8px 16px;
     color: var(--text-secondary);
     font-size: 13px;
-    margin-top: 16px;
+    margin: 0 -16px 0 -16px;
+    border-top: 1px solid var(--border-color);
 }
 .post-footer span {
     display: flex;
@@ -737,32 +763,38 @@ body {
     border: none;
     color: var(--text-secondary);
     cursor: pointer;
-    padding: 4px;
-    border-radius: 4px;
+    padding: 2px;
+    font-size: 18px;
     transition: all 0.2s ease;
 }
 .vote-button:hover {
-    background-color: var(--hover-bg);
+    color: var(--accent-color);
+    transform: scale(1.1);
 }
-.vote-button.active[data-vote="up"] {
-    color: var(--upvote-color);
-}
-.vote-button.active[data-vote="down"] {
-    color: var(--downvote-color);
-}
-.vote-count {
+.counter {
     font-size: 14px;
-    font-weight: 500;
-    color: var(--text-primary);
+    color: var(--text-secondary);
+    min-width: 16px;
+    text-align: center;
 }
 .comments-count {
     display: flex;
-    flex-direction: column; /* Stack icon and text vertically */
     align-items: center;
-    gap: 4px; /* Space between icon and text */
+    gap: 4px;
     color: var(--text-secondary);
     cursor: pointer;
-    transition: all 0.2s ease;
+    font-size: 18px;
+}
+
+.comments-count .counter {
+    font-size: 14px;
+    color: var(--text-secondary);
+    min-width: 16px;
+    text-align: center;
+}
+
+.comments-count:hover {
+    color: var(--accent-color);
 }
 .comment-edit-form {
     margin-top: 1rem;
@@ -1022,5 +1054,72 @@ body {
     object-fit: contain;
     border-radius: 8px;
     background-color: var(--bg-primary);
+}
+
+.post-options {
+    position: relative;
+    margin-left: auto;
+}
+
+.options-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 4px 8px;
+    font-size: 16px;
+    border-radius: 4px;
+}
+
+.options-btn:hover {
+    background-color: var(--hover-bg);
+    color: var(--text-primary);
+}
+
+.options-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    display: none;
+    z-index: 10;
+    min-width: 150px;
+    padding: 8px 0;
+}
+
+.options-menu.show {
+    display: block;
+}
+
+.option-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 8px 16px;
+    border: none;
+    background: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    font-size: 14px;
+    text-align: left;
+    transition: background-color 0.2s ease;
+}
+
+.option-item:hover {
+    background-color: var(--hover-bg);
+}
+
+.option-item i {
+    font-size: 14px;
+    width: 16px;
+    color: var(--text-secondary);
+}
+
+.option-item:hover i {
+    color: var(--text-primary);
 }
 
