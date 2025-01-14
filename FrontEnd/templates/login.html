@@ -18,8 +18,20 @@
             <div id="toastMessage" class="toast-message"></div>
         </div>
 
+        <!-- Login Form -->
+        <div id="loginForm" class="form active">
+            <h2>Welcome Back</h2>
+            <input type="text" placeholder="Username" required />
+            <div class="password-container">
+                <input type="password" placeholder="Password" id="loginPassword" required />
+                <i class="fa fa-eye" id="loginToggle" onclick="togglePassword('loginPassword', 'loginToggle')"></i>
+            </div>
+            <button>Log In</button>
+            <div class="toggle">Don't have an account? <a href="#" id="toSignUp">Sign Up</a></div>
+        </div>
+        
         <!-- Sign Up Form -->
-        <div id="signupForm" class="form active">
+        <div id="signupForm" class="form">
             <div class="sign-up_header">
                 <h2>Create Account</h2>
             </div>
@@ -37,17 +49,6 @@
             <div class="toggle">Already have an account? <a href="#" id="toLogin">Log In</a></div>
         </div>
 
-        <!-- Login Form -->
-        <div id="loginForm" class="form">
-            <h2>Welcome Back</h2>
-            <input type="text" placeholder="Username" required />
-            <div class="password-container">
-                <input type="password" placeholder="Password" id="loginPassword" required />
-                <i class="fa fa-eye" id="loginToggle" onclick="togglePassword('loginPassword', 'loginToggle')"></i>
-            </div>
-            <button>Log In</button>
-            <div class="toggle">Don't have an account? <a href="#" id="toSignUp">Sign Up</a></div>
-        </div>
     </div>
     <script src="../static/js/login.js"></script>
     <script src="../static/js/theme.js"></script>
