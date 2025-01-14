@@ -44,24 +44,20 @@ func VerifyCSRFToken(db *sql.DB, r *http.Request) bool {
 			return false
 		}
 	}
-	fmt.Println("==Token Recieved==", token)
 
 	// Get userID from session
 	cookie, err := r.Cookie("session_token")
-	fmt.Println("==Cookie Recieved==", cookie)
 	if err != nil {
 		return false
 	}
 
-	userID, exists := IsValidSession(db, cookie.Value)
-	fmt.Println("==UserID Recieved==", userID)
+	_, exists := IsValidSession(db, cookie.Value)
 	if !exists {
 		return false
 	}
 
 	// Retrieve the stored token from the database
 	storedToken, expiresAt, err := GetCSRFToken(db, cookie.Value)
-	fmt.Println("==Stored Token Recieved==", storedToken)
 	if err != nil {
 		return false
 	}
