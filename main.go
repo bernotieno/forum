@@ -9,6 +9,7 @@ import (
 	"os/signal"
 	"sync"
 	"syscall"
+	"time"
 
 	"github.com/Raymond9734/forum.git/BackEnd/controllers"
 	"github.com/Raymond9734/forum.git/BackEnd/database"
@@ -51,17 +52,22 @@ func main() {
 		controllers.CleanupExpiredSessions(ctx, db)
 	}()
 
+	// Update your server configuration
+	server := &http.Server{
+		Addr:              ":8080",          // Listen on port 8080
+		ReadTimeout:       15 * time.Second, // Max time to read the entire request
+		WriteTimeout:      15 * time.Second, // Max time to write the response
+		IdleTimeout:       60 * time.Second, // Max time to keep idle connections alive
+		ReadHeaderTimeout: 5 * time.Second,  // Max time to read request headers
+		MaxHeaderBytes:    1 << 20,          // Max size of request headers (1 MB)
+	}
+
 	routes.HomeRoute(db)
 	routes.ServeStaticFolder()
 	routes.UserRegAndLogin(db)
 	routes.PostRoutes(db)
 	routes.CommentRoute(db)
 	routes.ReplyRoute(db)
-
-	// Start the HTTP server
-	server := &http.Server{
-		Addr: ":8080",
-	}
 
 	// Run the server in a goroutine
 	go func() {
