@@ -216,5 +216,9 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	})
 
 	logger.Info("User successfully logged out")
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": "User is logged out succesfully",
+	})
 }
