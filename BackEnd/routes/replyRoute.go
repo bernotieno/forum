@@ -16,5 +16,6 @@ func ReplyRoute(db *sql.DB) {
 		handlers.ReplyHandler(replyController),
 		middleware.SetCSPHeaders,
 		middleware.AuthMiddleware,
+		middleware.CORSMiddleware,
 	))
 }

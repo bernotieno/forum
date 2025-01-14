@@ -15,25 +15,30 @@ func UserRegAndLogin(db *sql.DB) {
 	http.Handle("/check_login", middleware.ApplyMiddleware(
 		http.HandlerFunc(handlers.CheckLoginHandler),
 		middleware.SetCSPHeaders,
+		middleware.CORSMiddleware,
 	))
 
 	http.Handle("/register", middleware.ApplyMiddleware(
 		handlers.RegisterHandler(AuthController),
 		middleware.SetCSPHeaders,
+		middleware.CORSMiddleware,
 	))
 
 	http.Handle("/login", middleware.ApplyMiddleware(
 		handlers.LoginHandler(AuthController),
 		middleware.SetCSPHeaders,
+		middleware.CORSMiddleware,
 	))
 
 	http.Handle("/logout", middleware.ApplyMiddleware(
 		http.HandlerFunc(handlers.LogoutHandler),
 		middleware.SetCSPHeaders,
+		middleware.CORSMiddleware,
 	))
 
 	http.Handle("/login_Page", middleware.ApplyMiddleware(
 		http.HandlerFunc(handlers.LoginPageHandler),
 		middleware.SetCSPHeaders,
+		middleware.CORSMiddleware,
 	))
 }
