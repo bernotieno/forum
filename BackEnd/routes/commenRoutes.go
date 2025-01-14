@@ -16,5 +16,6 @@ func CommentRoute(db *sql.DB) {
 		handlers.CommentHandler(commentController),
 		middleware.SetCSPHeaders,
 		middleware.AuthMiddleware,
+		middleware.CORSMiddleware,
 	))
 }
