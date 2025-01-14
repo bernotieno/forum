@@ -5,14 +5,20 @@ import (
 	"crypto/rand"
 	"database/sql"
 	"encoding/base64"
-	"fmt"
 	"log"
 	"net/http"
 	"time"
 )
 
 func GenerateCSRFToken(db *sql.DB, sessionToken string) (string, error) {
-	// Generate random bytes
+	// First, try to get an existing valid token
+	existingToken, expiresAt, err := GetCSRFToken(db, sessionToken)
+	if err == nil && time.Now().Before(expiresAt) {
+		// If we have a valid token, return it
+		return existingToken, nil
+	}
+
+	// Generate new token only if we don't have a valid one
 	b := make([]byte, 32)
 	if _, err := rand.Read(b); err != nil {
 		return "", err
@@ -22,11 +28,10 @@ func GenerateCSRFToken(db *sql.DB, sessionToken string) (string, error) {
 	token := base64.URLEncoding.EncodeToString(b)
 
 	// Set expiration time (e.g., 1 hour)
-	expiresAt := time.Now().Add(1 * time.Hour)
-	fmt.Println("==Token Generated==", token)
+	expiresAt = time.Now().Add(1 * time.Hour)
 
 	// Store the token in the database
-	err := AddCSRFToken(db, sessionToken, token, expiresAt)
+	err = AddCSRFToken(db, sessionToken, token, expiresAt)
 	if err != nil {
 		return "", err
 	}
@@ -64,7 +69,6 @@ func VerifyCSRFToken(db *sql.DB, r *http.Request) bool {
 
 	// Check if the token matches and is not expired
 	if storedToken != token || time.Now().After(expiresAt) {
-		fmt.Println("==Token Mismatch==")
 		// Delete the expired or invalid token
 		_ = DeleteCSRFToken(db, cookie.Value)
 		return false
