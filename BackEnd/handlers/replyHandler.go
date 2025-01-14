@@ -25,7 +25,7 @@ func ReplyHandler(rCtrl *controllers.ReplyController) http.HandlerFunc {
 		}
 
 		// Check if the user is logged in
-		loggedIn, userID := isLoggedIn(r)
+		loggedIn, userID := isLoggedIn(rCtrl.DB,r)
 		if !loggedIn {
 			logger.Warning("Unauthorized attempt to create reply - remote_addr: %s, method: %s, path: %s, user_id: %d",
 				r.RemoteAddr,

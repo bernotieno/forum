@@ -25,7 +25,7 @@ func CommentHandler(cCtrl *controllers.CommentController) http.HandlerFunc {
 		}
 
 		// Check if the user is logged in
-		loggedIn, userID := isLoggedIn(r)
+		loggedIn, userID := isLoggedIn(cCtrl.DB, r)
 		if !loggedIn {
 			logger.Warning("Unauthorized attempt to create comment - remote_addr: %s, method: %s, path: %s, user_id: %d",
 				r.RemoteAddr,

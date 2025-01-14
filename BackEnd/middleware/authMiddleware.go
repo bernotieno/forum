@@ -3,7 +3,8 @@ package middleware
 import (
 	"net/http"
 
-	"github.com/Raymond9734/forum.git/BackEnd/auth"
+	"github.com/Raymond9734/forum.git/BackEnd/controllers"
+	"github.com/Raymond9734/forum.git/BackEnd/database"
 	"github.com/Raymond9734/forum.git/BackEnd/logger"
 )
 
@@ -23,8 +24,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 		}
 
 		// Validating the session token
-		isValid := auth.IsValidSession(sessionCookie.Value)
-		if !isValid {
+		if _, valid := controllers.IsValidSession(database.GloabalDB, sessionCookie.Value); !valid {
 			logger.Warning("Unauthorized attempt  Invalid Session - remote_addr: %s, method: %s, path: %s",
 				r.RemoteAddr,
 				r.Method,

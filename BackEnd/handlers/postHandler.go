@@ -21,7 +21,7 @@ func PostHandler(pc *controllers.PostController) http.HandlerFunc {
 		}
 
 		// Check if the user is logged in
-		loggedIn, userID := isLoggedIn(r)
+		loggedIn, userID := isLoggedIn(pc.DB, r)
 		if !loggedIn {
 			logger.Warning("Unauthorized attempt to create post - remote_addr: %s, method: %s, path: %s, user_id: %d",
 				r.RemoteAddr,
@@ -37,7 +37,7 @@ func PostHandler(pc *controllers.PostController) http.HandlerFunc {
 			return
 		}
 
-		if !controllers.VerifyCSRFToken(r) {
+		if !controllers.VerifyCSRFToken(pc.DB, r) {
 			logger.Warning("Invalid CSRF token in post attempt")
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusForbidden)

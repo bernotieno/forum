@@ -7,12 +7,15 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
+var GloabalDB *sql.DB
+
 func Init() *sql.DB {
 	DB, err := sql.Open("sqlite3", "./BackEnd/database/storage/forum.db")
 	if err != nil {
 		logger.Error("Failed to open database connection: %v", err)
 		return nil
 	}
+	GloabalDB = DB
 
 	// Create Users table
 	_, err = DB.Exec(`

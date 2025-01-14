@@ -1,55 +1,33 @@
 package auth
 
 import (
+	"database/sql"
 	"net/http"
-	"sync"
 	"time"
 
+	"github.com/Raymond9734/forum.git/BackEnd/controllers"
 	"github.com/Raymond9734/forum.git/BackEnd/logger"
 	"github.com/google/uuid"
 )
 
-var Sessions = map[string]int{} // Map session token -> user ID
-
-// Session store using standard Go map with mutex for thread safety
-var (
-	SessionStore = struct {
-		sync.RWMutex
-		Sessions map[string]sessionData
-	}{
-		Sessions: make(map[string]sessionData),
-	}
-)
-
-type sessionData struct {
-	UserID    int
-	ExpiresAt time.Time
-}
-
-// Helper function to check if a session is valid
-func IsValidSession(token string) bool {
-	SessionStore.RLock()
-	defer SessionStore.RUnlock()
-
-	session, exists := SessionStore.Sessions[token]
-	if !exists || time.Now().After(session.ExpiresAt) {
-		return false
-	}
-	return true
-}
-
 // CreateSession creates a new session for a user
-func CreateSession(w http.ResponseWriter, userID int) {
-	sessionToken := uuid.New().String()
-
-	SessionStore.Lock()
-	SessionStore.Sessions[sessionToken] = sessionData{
-		UserID:    userID,
-		ExpiresAt: time.Now().Add(24 * time.Hour),
+func CreateSession(db *sql.DB, w http.ResponseWriter, userID int) error {
+	// Delete all existing sessions for the user
+	err := controllers.DeleteUserSessions(db, userID)
+	if err != nil {
+		return err
 	}
-	Sessions[sessionToken] = userID
-	SessionStore.Unlock()
 
+	// Create a new session
+	sessionToken := uuid.New().String()
+	expiresAt := time.Now().Add(24 * time.Hour)
+
+	err = controllers.AddSession(db, sessionToken, userID, expiresAt)
+	if err != nil {
+		return err
+	}
+
+	// Set the session cookie
 	http.SetCookie(w, &http.Cookie{
 		Name:     "session_token",
 		Value:    sessionToken,
@@ -59,18 +37,20 @@ func CreateSession(w http.ResponseWriter, userID int) {
 		SameSite: http.SameSiteStrictMode,
 		MaxAge:   86400, // 24 hours
 	})
+
+	return nil
 }
 
-func DeleteSession(w http.ResponseWriter, cookie *http.Cookie) {
-	// Retrieve the session token value
+func DeleteSession(db *sql.DB, w http.ResponseWriter, cookie *http.Cookie) {
 	sessionToken := cookie.Value
-	if userID, exists := Sessions[sessionToken]; exists {
-		logger.Info("Deleting session for user ID: %d", userID)
+
+	// Delete the session from the database
+	err := controllers.DeleteSession(db, sessionToken)
+	if err != nil {
+		logger.Error("Failed to delete session: %v", err)
 	}
 
-	delete(Sessions, sessionToken)
-
-	// Invalidate the cookie by setting its MaxAge to -1
+	// Invalidate the cookie
 	http.SetCookie(w, &http.Cookie{
 		Name:   "session_token",
 		MaxAge: -1,

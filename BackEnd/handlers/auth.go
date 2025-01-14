@@ -1,11 +1,13 @@
 package handlers
 
 import (
+	"database/sql"
 	"encoding/json"
 	"net/http"
 
 	"github.com/Raymond9734/forum.git/BackEnd/auth"
 	"github.com/Raymond9734/forum.git/BackEnd/controllers"
+	"github.com/Raymond9734/forum.git/BackEnd/database"
 	"github.com/Raymond9734/forum.git/BackEnd/logger"
 	"github.com/Raymond9734/forum.git/BackEnd/models"
 )
@@ -80,7 +82,7 @@ func RegisterHandler(ac *controllers.AuthController) http.HandlerFunc {
 			return
 		}
 
-		auth.CreateSession(w, int(userID))
+		auth.CreateSession(ac.DB, w, int(userID))
 		logger.Info("Successfully registered user: %s (ID: %d)", sanitizedUsername, userID)
 
 		w.WriteHeader(302)
@@ -128,7 +130,7 @@ func LoginHandler(ac *controllers.AuthController) http.HandlerFunc {
 			return
 		}
 
-		auth.CreateSession(w, user.ID)
+		auth.CreateSession(ac.DB, w, user.ID)
 		logger.Info("Successful login for user: %s (ID: %d)", user.Username, user.ID)
 
 		w.WriteHeader(302)
@@ -139,7 +141,7 @@ func LoginHandler(ac *controllers.AuthController) http.HandlerFunc {
 	}
 }
 
-func isLoggedIn(r *http.Request) (bool, int) {
+func isLoggedIn(db *sql.DB, r *http.Request) (bool, int) {
 	// Get the session_token cookie from the request
 	cookie, err := r.Cookie("session_token")
 	if err != nil {
@@ -147,7 +149,7 @@ func isLoggedIn(r *http.Request) (bool, int) {
 	}
 
 	// Check if the session_token exists in the Sessions map
-	userID, exists := auth.Sessions[cookie.Value]
+	userID, exists := controllers.IsValidSession(db, cookie.Value)
 	if !exists {
 		return false, 0 // Invalid session_token
 	}
@@ -157,7 +159,7 @@ func isLoggedIn(r *http.Request) (bool, int) {
 }
 
 func CheckLoginHandler(w http.ResponseWriter, r *http.Request) {
-	loggedIn, userID := isLoggedIn(r)
+	loggedIn, userID := isLoggedIn(database.GloabalDB, r)
 
 	if !loggedIn {
 		logger.Debug("Unauthorized access attempt detected")
@@ -178,12 +180,14 @@ func CheckLoginHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
-	if !controllers.VerifyCSRFToken(r) {
+	// Verify CSRF token
+	if !controllers.VerifyCSRFToken(database.GloabalDB, r) {
 		logger.Warning("Invalid CSRF token in logout attempt")
 		http.Error(w, "Invalid CSRF token", http.StatusForbidden)
 		return
 	}
 
+	// Get the session cookie
 	cookie, err := r.Cookie("session_token")
 	if err != nil {
 		logger.Debug("Logout attempted with no active session")
@@ -191,14 +195,21 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	delete(auth.SessionStore.Sessions, cookie.Value)
+	// Delete the session from the database
+	sessionToken := cookie.Value
+	err = controllers.DeleteSession(database.GloabalDB, sessionToken)
+	if err != nil {
+		logger.Error("Failed to delete session: %v", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
 
-	// Clear cookie
+	// Clear the session cookie on the client
 	http.SetCookie(w, &http.Cookie{
 		Name:     "session_token",
 		Value:    "",
 		Path:     "/",
-		MaxAge:   -1,
+		MaxAge:   -1, // Expire the cookie immediately
 		HttpOnly: true,
 		Secure:   true,
 		SameSite: http.SameSiteStrictMode,
