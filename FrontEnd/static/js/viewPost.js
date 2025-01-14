@@ -66,6 +66,32 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+    // Handle options menu
+    document.querySelectorAll('.options-btn').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.stopPropagation(); // Prevent event from bubbling up
+            const menu = this.nextElementSibling;
+            
+            // Close all other open menus first
+            document.querySelectorAll('.options-menu.show').forEach(m => {
+                if (m !== menu) {
+                    m.classList.remove('show');
+                }
+            });
+            
+            // Toggle current menu
+            menu.classList.toggle('show');
+        });
+    });
+
+    // Close menu when clicking anywhere else on the page
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.post-options')) {
+            document.querySelectorAll('.options-menu.show').forEach(menu => {
+                menu.classList.remove('show');
+            });
+        }
+    });
 });
 
 function showToast(message) {
