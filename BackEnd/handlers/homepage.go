@@ -25,20 +25,25 @@ func (h *HomePageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Check if user is logged in
 	loggedIn, _ := isLoggedIn(h.db, r)
 
-	sessionToken, err := controllers.GetSessionToken(r)
-	if err != nil {
-		logger.Error("Error getting session token: %s", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
+	var csrfToken string
+
+	if loggedIn {
+		sessionToken, err := controllers.GetSessionToken(r)
+		if err != nil {
+			logger.Error("Error getting session token: %s", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+
+		// Generate CSRF token for the session
+		csrfToken, err = controllers.GenerateCSRFToken(h.db, sessionToken)
+		if err != nil {
+			logger.Error("Error generating CSRF token: %V", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
 	}
 
-	// Generate CSRF token for the session
-	csrfToken, err := controllers.GenerateCSRFToken(h.db, sessionToken)
-	if err != nil {
-		logger.Error("Error generating CSRF token: %V", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
 	// Create a PostController instance using the handler's db
 	postController := controllers.NewPostController(h.db)
 
