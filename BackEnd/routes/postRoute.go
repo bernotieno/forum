@@ -16,6 +16,7 @@ func PostRoutes(db *sql.DB) {
 		handlers.NewViewPostHandler(db),
 		middleware.SetCSPHeaders,
 		middleware.AuthMiddleware,
+		middleware.CORSMiddleware,
 	))
 
 	http.Handle("/create-post", middleware.ApplyMiddleware(
