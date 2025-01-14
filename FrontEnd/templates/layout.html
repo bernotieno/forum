@@ -10,6 +10,7 @@
     font-src 'self' data: https://cdnjs.cloudflare.com/ajax/libs/font-awesome/;
     img-src 'self' data: blob:;
 ">
+    <meta name="csrf-token" content="{{.CSRFToken}}">
     <title>{{template "title" .}}</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="../static/css/homepage.css">
@@ -33,14 +34,10 @@
                 <div class="profile-image">
                     <img src="../static/images/default-avatar.png" alt="Profile" class="avatar">
                 </div>
-                <form action="/logout" method="POST" style="display: inline;">
-                    <!-- CSRF Token -->
-                    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
-                    <button type="submit" class="button-outline">
-                        <i class="fas fa-sign-out-alt"></i>
-                        Logout
-                    </button>
-                </form>
+                <button id="logoutButton" class="button-outline">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </button>
             {{else}}
                 <a href="/login_Page" class="button-primary-user">
                     <i class="fas fa-sign-in-alt"></i>
@@ -103,5 +100,6 @@
 
     <!-- Common Scripts -->
     {{template "scripts" .}}
+    <script src="../static/js/layout.js"></script>
 </body>
 </html>
