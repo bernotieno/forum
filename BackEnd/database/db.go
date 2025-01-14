@@ -16,7 +16,6 @@ func Init() *sql.DB {
 		return nil
 	}
 	GloabalDB = DB
-
 	// Create Users table
 	_, err = DB.Exec(`
 		CREATE TABLE IF NOT EXISTS users (
@@ -30,7 +29,6 @@ func Init() *sql.DB {
 		logger.Error("Failed to create users table: %v", err)
 		return nil
 	}
-
 	// Create Posts table
 	_, err = DB.Exec(`
 		CREATE TABLE IF NOT EXISTS posts (
@@ -52,7 +50,7 @@ func Init() *sql.DB {
 		logger.Error("Failed to create posts table: %v", err)
 		return nil
 	}
-	// Create Comments table without reply-related columns
+	// Create Comments table
 	_, err = DB.Exec(`
 		CREATE TABLE IF NOT EXISTS comments (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -72,6 +70,50 @@ func Init() *sql.DB {
 		logger.Error("Failed to create comments table: %v", err)
 		return nil
 	}
-
+	// Create Replies table
+	_, err = DB.Exec(`
+		CREATE TABLE IF NOT EXISTS replies (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			comment_id INTEGER NOT NULL,
+			user_id INTEGER NOT NULL,
+			author TEXT NOT NULL,
+			content TEXT NOT NULL,
+			likes INTEGER DEFAULT 0,
+			dislikes INTEGER DEFAULT 0,
+			user_vote TEXT,
+			timestamp DATETIME NOT NULL,
+			FOREIGN KEY (comment_id) REFERENCES comments (id),
+			FOREIGN KEY (user_id) REFERENCES users (id)
+		);
+	`)
+	if err != nil {
+		logger.Error("Failed to create replies table: %v", err)
+		return nil
+	}
+	// create sessions table
+	_, err = DB.Exec(`
+	CREATE TABLE IF NOT EXISTS sessions (
+		session_token TEXT PRIMARY KEY,
+		user_id INTEGER NOT NULL,
+		expires_at DATETIME NOT NULL
+	);
+   `)
+	if err != nil {
+		logger.Error("Failed to create sessions table: %v", err)
+		return nil
+	}
+	// create csrf_tokens table
+	_, err = DB.Exec(`
+	CREATE TABLE IF NOT EXISTS csrf_tokens (
+		session_token TEXT NOT NULL, 
+		csrf_token TEXT NOT NULL,   
+		expires_at DATETIME NOT NULL,
+		PRIMARY KEY (session_token)
+   );
+  `)
+	if err != nil {
+		logger.Error("Failed to create csrf_tokens table: %v", err)
+		return nil
+	}
 	return DB
 }
