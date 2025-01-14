@@ -6,9 +6,25 @@
         <div class="post-header">
             <div class="post-info">
                 <div class="post-meta">
-                    <span class="post-author">{{.Author}}</span>
+                    <div class="post-author-info">
+                        <div class="author-initial">{{slice .Author 0 1}}</div>
+                        <span class="post-author">{{.Author}}</span>
+                    </div>
                     <span class="timestamp" data-timestamp="{{.Timestamp.Format "2006-01-02T15:04:05Z07:00"}}"></span>
                     <span class="post-category">{{.Category}}</span>
+                    <div class="post-options">
+                        <button class="options-btn">
+                            <i class="fa-solid fa-ellipsis"></i>
+                        </button>
+                        <div class="options-menu">
+                            <button class="option-item" onclick="editPost('{{.ID}}')">
+                                <i class="fa-solid fa-edit"></i> Edit
+                            </button>
+                            <button class="option-item" onclick="deletePost('{{.ID}}')">
+                                <i class="fa-solid fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 <h3 class="post-title">
                     <a href="/viewPost?id={{.ID}}">{{.Title}}</a>
@@ -24,17 +40,17 @@
         <div class="post-footer">
             <div class="vote-buttons">
                 <button class="vote-button" onclick="AddLike('{{.ID}}')">
-                    <i class="fas fa-thumbs-up"></i>
+                    <i class="fa-regular fa-thumbs-up"></i>
                 </button>
                 <div class="counter" id="likes-container-{{.ID}}">0</div>
                 <button class="vote-button" onclick="MinusLike('{{.ID}}')">
-                    <i class="fas fa-thumbs-down"></i>
+                    <i class="fa-regular fa-thumbs-down"></i>
                 </button>
                 <div class="counter" id="dislikes-container-{{.ID}}">0</div>
             </div>
             <div class="comments-count">
-                <i class="fas fa-comment"></i>
-                <span>Comments</span>
+                <i class="fa-regular fa-comment"></i>
+                <span class="counter">0</span>
             </div>
         </div>
     </div>
