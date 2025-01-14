@@ -5,6 +5,7 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/Raymond9734/forum.git/BackEnd/database"
 	"github.com/Raymond9734/forum.git/BackEnd/logger"
 )
 
@@ -18,6 +19,12 @@ func LoginPageHandler(w http.ResponseWriter, r *http.Request) {
 	if strings.ToUpper(r.Method) != "GET" {
 		logger.Warning("Invalid method %s for login page access", r.Method)
 		http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	loggedIn, _ := isLoggedIn(database.GloabalDB, r)
+	if loggedIn {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
 
