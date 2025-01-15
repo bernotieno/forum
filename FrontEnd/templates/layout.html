@@ -20,36 +20,38 @@
     <!-- Common Header -->
     <header class="header">
         <div class="logo">
-            <i class="fas fa-message"></i>
-            <span>ThreadHub</span>
+            <i class="fas fa-comments"></i>
+            <span>Forum</span>
         </div>
+        <div class="search-bar-container">
         <div class="search-bar">
             <input type="text" class="search-input" placeholder="Search...">
         </div>
+    </div>
         <div id="userSection" class="profile-section">
             {{if .IsAuthenticated}}
                 <a href="/create-post" class="button-primary-user">
                     <i class="fas fa-plus"></i>
-                    Create Post
+                    Post
                 </a>
                 <div class="profile-image">
-                    <img src="../static/images/default-avatar.png" alt="Profile" class="avatar">
+                    <img src="../static/images/default-avatar.png" alt="Profile" class="avatar" onclick="toggleDropdown()">
+                    <div class="dropdown-content">
+                        <a href="/edit-profile">Edit Profile</a>
+                        <a id="logoutButton">Logout</a>
+                    </div>
                 </div>
-                <button id="logoutButton" class="button-outline">
-                    <i class="fas fa-sign-out-alt"></i>
-                    Logout
-                </button>
             {{else}}
                 <a href="/login_Page" class="button-primary-user">
-                    <i class="fas fa-sign-in-alt"></i>
                     Login
                 </a>
             {{end}}
+            <button id="theme-toggle" class="button-outline">
+                <i class="fas fa-moon"></i>
+                <!-- <span>Toggle Theme</span> -->
+            </button>
         </div>
-        <button id="theme-toggle" class="button-outline">
-            <i class="fas fa-moon"></i>
-            <span>Toggle Theme</span>
-        </button>
+        
     </header>
 
     <!-- Common Sidebar -->
