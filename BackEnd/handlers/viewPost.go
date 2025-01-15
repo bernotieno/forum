@@ -36,30 +36,32 @@ func (h *ViewPostHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check if user is logged in
-	loggedIn, _ := isLoggedIn(h.db, r)
-
-	sessionToken, err := controllers.GetSessionToken(r)
-	if err != nil {
-		logger.Error("Error getting session token: %s", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
+	loggedIn, userID := isLoggedIn(h.db, r) // Assume `isLoggedIn` returns user details if authenticated.
 
 	// Generate CSRF token if user is logged in
 	var csrfToken string
 	if loggedIn {
+		sessionToken, err := controllers.GetSessionToken(r)
+		if err != nil {
+			logger.Error("Error getting session token: %s", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
 		csrfToken, _ = controllers.GenerateCSRFToken(h.db, sessionToken)
 	}
 
-	// Create a PostController instance using the handler's db
+	// Create a PostController instance
 	postController := controllers.NewPostController(h.db)
 
-	// Fetch the post from the database using the controller
+	// Fetch the post from the database
 	post, err := postController.GetPostByID(postID)
 	if err != nil {
 		http.Error(w, "Failed to fetch post", http.StatusInternalServerError)
 		return
 	}
+
+	// Determine if the logged-in user is the post author
+	isAuthor := loggedIn && userID == post.UserID
 
 	// Create CommentController and fetch comments
 	commentController := controllers.NewCommentController(h.db)
@@ -103,11 +105,13 @@ func (h *ViewPostHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	data := struct {
 		IsAuthenticated bool
+		IsAuthor        bool
 		CSRFToken       string
 		Post            models.Post
 		Comments        []models.Comment
 	}{
 		IsAuthenticated: loggedIn,
+		IsAuthor:        isAuthor,
 		CSRFToken:       csrfToken,
 		Post:            post,
 		Comments:        comments,
