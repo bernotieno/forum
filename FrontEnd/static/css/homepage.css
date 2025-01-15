@@ -302,10 +302,6 @@ body {
     text-decoration: none;
     color: var(--text-primary);
 }
-.post-title:hover {
-    color: var(--accent-color);
-}
-
 .post-header {
     display: flex;
     align-items: flex-start;
@@ -366,14 +362,30 @@ body {
 }
 .post-footer {
     display: flex;
-    align-items: center;
-    gap: 24px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
     padding: 8px 16px;
     color: var(--text-secondary);
     font-size: 13px;
     margin: 0 -16px 0 -16px;
     border-top: 1px solid var(--border-color);
 }
+.post-footer .footer-icons {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.post-footer .footer-icons span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
 .post-footer span {
     display: flex;
     align-items: center;
@@ -529,9 +541,8 @@ body {
 .comments-section {
     margin-top: 2rem;
     padding: 1rem;
-    background-color: var(--bg-primary);
     border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    width: 100%;
 }
 .comment {
     padding: 10px;
@@ -540,10 +551,7 @@ body {
     background-color: var(--bg-secondary);
     border-radius: 4px;
 }
-.comment:hover {
-    transform: translateX(4px);
-    border-left: 3px solid var(--accent-color);
-}
+
 .comment-header {
     display: flex;
     align-items: center;
@@ -562,6 +570,11 @@ body {
     color: var(--text-primary);
     line-height: 1.5;
     margin: 0.5rem 0;
+}
+.comment-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 .comment-actions {
     display: flex;
@@ -826,12 +839,34 @@ body {
     font-size: 0.9rem;
     resize: none;
     transition: all 0.3s ease;
+    padding-right: 100px; 
+
 }
 .main-comment-input:focus {
     min-height: 100px;
     outline: none;
     border-color: var(--accent-color);
     box-shadow: 0 0 0 2px rgba(var(--accent-color-rgb), 0.1);
+}
+
+.textarea-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.comment-button {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    padding: 10px 20px; 
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.comment-button.active {
+    opacity: 1;
+    cursor: pointer;
 }
 .comment-actions {
     margin-top: 0.75rem;
@@ -1122,4 +1157,6 @@ body {
 .option-item:hover i {
     color: var(--text-primary);
 }
+
+
 
