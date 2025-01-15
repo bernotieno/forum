@@ -37,38 +37,41 @@
         </div>
         {{end}}
         <div class="post-footer">
-            <div class="vote-buttons">
-                <button class="vote-button" onclick="AddLike('{{.Post.ID}}')">
-                    <i class="fa-regular fa-thumbs-up"></i>
-                </button>
-                <div class="counter" id="likes-container-{{.Post.ID}}">{{.Post.Likes}}</div>
-                <button class="vote-button" onclick="MinusLike('{{.Post.ID}}')">
-                    <i class="fa-regular fa-thumbs-down"></i>
-                </button>
-                <div class="counter" id="dislikes-container-{{.Post.ID}}">0</div>
+            <div class="footer-icons">
+                <div class="vote-buttons">
+                    <button class="vote-button" onclick="AddLike('{{.Post.ID}}')">
+                        <i class="fa-regular fa-thumbs-up"></i>
+                    </button>
+                    <div class="counter" id="likes-container-{{.Post.ID}}">{{.Post.Likes}}</div>
+                    <button class="vote-button" onclick="MinusLike('{{.Post.ID}}')">
+                        <i class="fa-regular fa-thumbs-down"></i>
+                    </button>
+                    <div class="counter" id="dislikes-container-{{.Post.ID}}">0</div>
+                </div>
+                <div class="comments-count">
+                    <i class="fa-regular fa-comment"></i>
+                    <span class="counter">{{len .Comments}}</span>
+                </div>
             </div>
-            <div class="comments-count">
-                <i class="fa-regular fa-comment"></i>
-                <span class="counter">{{len .Comments}}</span>
-            </div>
-        </div>
-    </div>
 
-    <!-- Comments section -->
-    <div class="comments-section">
-        {{if .IsAuthenticated}}
-        <div class="comment-input-container">
-            <textarea class="main-comment-input" placeholder="Write a comment..." id="commentText"></textarea>
-            <div class="comment-actions">
-                <button class="button button-primary" data-post-id="{{.Post.ID}}" onclick="submitComment(this)">Comment</button>
-            </div>
-        </div>
-        {{else}}
-        <p class="login-prompt">Please <a href="/login_Page">login</a> to comment</p>
-        {{end}}
+            <!-- Comments section -->
+            <div class="comments-section">
+                {{if .IsAuthenticated}}
+                <div class="comment-input-container">
+                    <div class="textarea-container">
+                        <textarea class="main-comment-input" placeholder="Write a comment..." id="commentText"></textarea>
+                        <button class="button button-primary comment-button" data-post-id="{{.Post.ID}}" onclick="submitComment(this)">Comment</button>
+                    </div>
+                    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+                </div>
+                {{else}}
+                <p class="login-prompt">Please <a href="/login_Page">login</a> to comment</p>
+                {{end}}
 
-        <div class="comments-container">
-            {{template "comments" dict "Comments" .Comments "IsAuthenticated" .IsAuthenticated "Post" .Post}}
+                <div class="comments-container">
+                    {{template "comments" dict "Comments" .Comments "IsAuthenticated" .IsAuthenticated "Post" .Post}}
+                </div>
+            </div>
         </div>
     </div>
 </div>
