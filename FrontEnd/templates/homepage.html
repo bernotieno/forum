@@ -11,7 +11,8 @@
                         <span class="post-author">{{.Author}}</span>
                     </div>
                     <span class="timestamp" data-timestamp="{{.Timestamp.Format "2006-01-02T15:04:05Z07:00"}}"></span>
-                    <span class="post-category">{{.Category}}</span>
+                    <span class="post-category">{{.Category}}</span>                 
+                {{if .IsAuthor}}
                     <div class="post-options">
                         <button class="options-btn">
                             <i class="fa-solid fa-ellipsis"></i>
@@ -25,6 +26,8 @@
                             </button>
                         </div>
                     </div>
+                    {{end}}
+                    
                 </div>
                 <h3 class="post-title">
                     <a href="/viewPost?id={{.ID}}">{{.Title}}</a>
