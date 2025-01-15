@@ -52,5 +52,6 @@ func UserRegAndLogin(db *sql.DB) {
 		middleware.SetCSPHeaders,
 		middleware.CORSMiddleware,
 		pageLimiter.RateLimit,
+		middleware.VerifyCSRFMiddleware(db),
 	))
 }

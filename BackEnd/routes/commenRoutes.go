@@ -22,5 +22,6 @@ func CommentRoute(db *sql.DB) {
 		middleware.AuthMiddleware,
 		middleware.CORSMiddleware,
 		commentLimiter.RateLimit,
+		middleware.VerifyCSRFMiddleware(db),
 	))
 }
