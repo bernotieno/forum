@@ -10,6 +10,7 @@ import (
 // Post represents a forum post
 type Post struct {
 	ID        int
+	IsAuthor  bool
 	Title     string
 	Author    string
 	UserID    int
