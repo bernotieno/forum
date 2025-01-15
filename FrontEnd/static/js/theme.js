@@ -40,17 +40,15 @@ class ThemeManager {
       });
     }
   
-    updateToggleButton(iconElement, textElement) {
-      if (!iconElement || !textElement) return;
-  
+    updateToggleButton(iconElement) {
+      if (!iconElement) return;
+    
       if (this.theme === 'dark') {
         iconElement.classList.remove('fa-moon');
         iconElement.classList.add('fa-sun');
-        textElement.textContent = 'Light Mode';
       } else {
         iconElement.classList.remove('fa-sun');
         iconElement.classList.add('fa-moon');
-        textElement.textContent = 'Dark Mode';
       }
     }
   
