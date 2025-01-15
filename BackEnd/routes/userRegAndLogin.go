@@ -23,27 +23,35 @@ func UserRegAndLogin(db *sql.DB) {
 		handlers.LoginHandler(AuthController),
 		middleware.SetCSPHeaders,
 		middleware.CORSMiddleware,
-		authLimiter.RateLimit, 
+		authLimiter.RateLimit,
 	))
 
 	http.Handle("/register", middleware.ApplyMiddleware(
 		handlers.RegisterHandler(AuthController),
 		middleware.SetCSPHeaders,
 		middleware.CORSMiddleware,
-		authLimiter.RateLimit, 
+		authLimiter.RateLimit,
 	))
 
 	http.Handle("/login_Page", middleware.ApplyMiddleware(
 		http.HandlerFunc(handlers.LoginPageHandler),
 		middleware.SetCSPHeaders,
 		middleware.CORSMiddleware,
-		pageLimiter.RateLimit, 
+		pageLimiter.RateLimit,
 	))
 
 	http.Handle("/check_login", middleware.ApplyMiddleware(
 		http.HandlerFunc(handlers.CheckLoginHandler),
 		middleware.SetCSPHeaders,
 		middleware.CORSMiddleware,
-		pageLimiter.RateLimit, 
+		pageLimiter.RateLimit,
+	))
+
+	http.Handle("/logout", middleware.ApplyMiddleware(
+		http.HandlerFunc(handlers.LogoutHandler),
+		middleware.SetCSPHeaders,
+		middleware.CORSMiddleware,
+		pageLimiter.RateLimit,
+		middleware.VerifyCSRFMiddleware(db),
 	))
 }

@@ -180,13 +180,6 @@ func CheckLoginHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
-	// Verify CSRF token
-	if !controllers.VerifyCSRFToken(database.GloabalDB, r) {
-		logger.Warning("Invalid CSRF token in logout attempt")
-		http.Error(w, "Invalid CSRF token", http.StatusForbidden)
-		return
-	}
-
 	// Get the session cookie
 	cookie, err := r.Cookie("session_token")
 	if err != nil {
