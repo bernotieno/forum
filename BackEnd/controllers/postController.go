@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/Raymond9734/forum.git/BackEnd/logger"
@@ -66,21 +67,80 @@ func (pc *PostController) GetAllPosts() ([]models.Post, error) {
 	return posts, nil
 }
 
-
 func (pc *PostController) GetPostByID(postID string) (models.Post, error) {
-    var post models.Post
-    err := pc.DB.QueryRow(`
+	var post models.Post
+	err := pc.DB.QueryRow(`
         SELECT id, title, user_id, author, category, likes, dislikes, 
                user_vote, content, timestamp, image_url 
         FROM posts 
         WHERE id = ?
     `, postID).Scan(
-        &post.ID, &post.Title, &post.UserID, &post.Author,
-        &post.Category, &post.Likes, &post.Dislikes,
-        &post.UserVote, &post.Content, &post.Timestamp, &post.ImageUrl,
-    )
-    if err != nil {
-        return post, fmt.Errorf("failed to fetch post: %w", err)
-    }
-    return post, nil
+		&post.ID, &post.Title, &post.UserID, &post.Author,
+		&post.Category, &post.Likes, &post.Dislikes,
+		&post.UserVote, &post.Content, &post.Timestamp, &post.ImageUrl,
+	)
+	if err != nil {
+		return post, fmt.Errorf("failed to fetch post: %w", err)
+	}
+	return post, nil
+}
+
+func (pc *PostController) UpdatePost(post models.Post) error {
+	// Prepare the SQL statement for updating the post
+	query := `
+	UPDATE posts
+	SET Title = ?, Author = ?, UserID = ?, Category = ?, Likes = ?, Dislikes = ?, UserVote = ?, Content = ?, ImageUrl = ?, Timestamp = ?
+	WHERE ID = ?;
+	`
+
+	// Execute the SQL statement with the post data
+	_, err := pc.DB.Exec(query,
+		post.Title,
+		post.Author,
+		post.UserID,
+		post.Category,
+		post.Likes,
+		post.Dislikes,
+		post.UserVote,
+		post.Content,
+		post.ImageUrl,
+		post.Timestamp,
+		post.ID,
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// DeletePost deletes a post from the database by its ID
+func (pc *PostController) DeletePost(postID int, userID int) error {
+	// Ensure the database connection is not nil
+	if pc.DB == nil {
+		return errors.New("database connection is nil")
+	}
+
+	// Prepare the SQL statement to delete the post
+	query := `
+	DELETE FROM posts
+	WHERE ID = ? AND UserID = ?;
+	`
+
+	// Execute the SQL statement
+	result, err := pc.DB.Exec(query, postID, userID)
+	if err != nil {
+		return err
+	}
+
+	// Check if the post was actually deleted
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected == 0 {
+		return errors.New("no post found with the given ID or user ID")
+	}
+
+	return nil
 }
