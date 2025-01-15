@@ -92,6 +92,20 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     });
+
+    // comment button
+    const commentInput = document.getElementById('commentText');
+    const commentButton = document.querySelector('.comment-button');
+
+    commentInput.addEventListener('input', function() {
+        if (commentInput.value.trim() === '') {
+            commentButton.classList.remove('active');
+            commentButton.disabled = true;
+        } else {
+            commentButton.classList.add('active');
+            commentButton.disabled = false;
+        }
+    });
 });
 
 function showToast(message) {
@@ -107,6 +121,13 @@ async function submitComment(button) {
     const content = document.getElementById('commentText').value.trim();
     if (!content) {
         showToast('Comment cannot be empty');
+        return;
+    }
+
+    const csrfTokenElement = document.querySelector('input[name="csrf_token"]');
+    if (!csrfTokenElement) {
+        console.error('CSRF token not found');
+        showToast('An error occurred. Please try again.');
         return;
     }
 
@@ -127,6 +148,7 @@ async function submitComment(button) {
             showToast(data.error || 'Failed to post comment');
         }
     } catch (error) {
+        console.error('Error occurred while posting the comment:', error);
         showToast('An error occurred while posting the comment');
     }
 }
