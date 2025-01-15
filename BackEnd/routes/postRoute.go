@@ -22,7 +22,6 @@ func PostRoutes(db *sql.DB) {
 	http.Handle("/viewPost", middleware.ApplyMiddleware(
 		handlers.NewViewPostHandler(db),
 		middleware.SetCSPHeaders,
-		middleware.AuthMiddleware,
 		middleware.CORSMiddleware,
 		viewLimiter.RateLimit,
 	))
