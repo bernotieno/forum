@@ -23,7 +23,7 @@ func (h *HomePageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 
 	// Check if user is logged in
-	loggedIn, _ := isLoggedIn(h.db, r)
+	loggedIn, userID := isLoggedIn(h.db, r)
 
 	var csrfToken string
 
@@ -52,6 +52,11 @@ func (h *HomePageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, "Failed to fetch posts", http.StatusInternalServerError)
 		return
+	}
+
+	// Add IsAuthor field to each post
+	for i := range posts {
+		posts[i].IsAuthor = loggedIn && posts[i].UserID == userID
 	}
 
 	// Create template function map
