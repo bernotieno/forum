@@ -21,5 +21,6 @@ func ReplyRoute(db *sql.DB) {
 		middleware.AuthMiddleware,
 		middleware.CORSMiddleware,
 		replyLimiter.RateLimit,
+		middleware.VerifyCSRFMiddleware(db),
 	))
 }
