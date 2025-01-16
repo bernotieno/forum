@@ -22,6 +22,7 @@ type Post struct {
 	ImageUrl  sql.NullString
 	Timestamp time.Time
 	Comments  []Comment
+	CommentCount int
 }
 
 type PostRequest struct {

@@ -111,6 +111,7 @@ func (h *ViewPostHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		Comments        []models.Comment
 		UserID          int
 		MaxDepth        int
+		CommentCounts  []models.Post
 	}{
 		IsAuthenticated: loggedIn,
 		IsAuthor:        isAuthor,

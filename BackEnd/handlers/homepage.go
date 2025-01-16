@@ -3,7 +3,6 @@ package handlers
 import (
 	"database/sql"
 	"net/http"
-	"strconv"
 	"text/template"
 	"time"
 
@@ -45,21 +44,24 @@ func (h *HomePageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to fetch posts", http.StatusInternalServerError)
 		return
 	}
-	// Add IsAuthor field to each post
+
+	
+    // Add IsAuthor field to each post and fetch comment count
+    commentController := controllers.NewCommentController(h.db)
 	for i := range posts {
 		posts[i].IsAuthor = loggedIn && posts[i].UserID == userID
+	
+		// Fetch total comment count including replies
+		commentCount, err := commentController.GetCommentCountByPostID(posts[i].ID)
+		if err != nil {
+			logger.Error("Failed to fetch comment count for post %d: %v", posts[i].ID, err)
+			http.Error(w, "Failed to fetch comment count", http.StatusInternalServerError)
+			return
+		}
+		posts[i].Comments = make([]models.Comment, 0) 
+		posts[i].CommentCount = commentCount         
 	}
-    // Fetch comments for each post
-    commentController := controllers.NewCommentController(h.db)
-    for i := range posts {
-        comments, err := commentController.GetCommentsByPostID(strconv.Itoa(posts[i].ID))
-        if err != nil {
-            logger.Error("Failed to fetch comments for post %d: %v", posts[i].ID, err)
-            http.Error(w, "Failed to fetch comments", http.StatusInternalServerError)
-            return
-        }
-        posts[i].Comments = comments
-    }
+
 	// Create template function map
 	funcMap := template.FuncMap{
 		"formatTime": func(t time.Time) string {

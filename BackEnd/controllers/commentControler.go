@@ -181,3 +181,16 @@ func (cc *CommentController) GetCommentsByPostID(postID string) ([]models.Commen
 
 	return result, nil
 }
+
+func (cc *CommentController) GetCommentCountByPostID(postID int) (int, error) {
+    var count int
+    err := cc.DB.QueryRow(`
+        SELECT COUNT(*) 
+        FROM comments 
+        WHERE post_id = ?
+    `, postID).Scan(&count)
+    if err != nil {
+        return 0, fmt.Errorf("failed to fetch comment count: %w", err)
+    }
+    return count, nil
+}
