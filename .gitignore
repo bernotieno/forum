@@ -54,3 +54,5 @@ sessions/
 # Test coverage
 coverage.txt
 coverage.html
+
+uploads/
