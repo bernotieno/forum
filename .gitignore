@@ -8,8 +8,8 @@
 *.out
 
 # SQLite database files
-# *.db
-# forum.db
+*.db
+BackEnd/database/forum.db
 
 # IDE specific files
 .idea/
