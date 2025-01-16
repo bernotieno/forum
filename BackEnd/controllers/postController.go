@@ -124,7 +124,7 @@ func (pc *PostController) DeletePost(postID int, userID int) error {
 	// Prepare the SQL statement to delete the post
 	query := `
 	DELETE FROM posts
-	WHERE ID = ? AND UserID = ?;
+	WHERE ID = ? AND User_id = ?;
 	`
 
 	// Execute the SQL statement
