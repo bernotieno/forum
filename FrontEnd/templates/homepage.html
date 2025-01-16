@@ -1,4 +1,4 @@
-{{define "title"}}Home - Forum{{end}}
+{{define "title"}}Home - ThreadHub{{end}}
 {{define "content"}}
 <div class="posts-container">
     {{range .Posts}}
@@ -18,10 +18,10 @@
                             <i class="fa-solid fa-ellipsis"></i>
                         </button>
                         <div class="options-menu">
-                            <button class="option-item edit-post-btn" data-post-id="{{.ID}}">
+                            <button class="option-item" onclick="editPost('{{.ID}}')">
                                 <i class="fa-solid fa-edit"></i> Edit
                             </button>
-                            <button   class="option-item delete-post-btn" data-post-id="{{.ID}}">
+                            <button class="option-item" onclick="deletePost('{{.ID}}')">
                                 <i class="fa-solid fa-trash"></i> Delete
                             </button>
                         </div>
@@ -42,14 +42,14 @@
         {{end}}
         <div class="post-footer">
             <div class="vote-buttons">
-                <button class="vote-button" onclick="AddLike('{{.ID}}')">
+                <button class="vote-button" id="Like" data-postId="{{.ID}}">
                     <i class="fa-regular fa-thumbs-up"></i>
                 </button>
-                <div class="counter" id="likes-container-{{.ID}}">0</div>
-                <button class="vote-button" onclick="MinusLike('{{.ID}}')">
+                <div class="counter" id="likes-container-{{.ID}}">{{.Likes}}</div>
+                <button class="vote-button" id="DisLike">
                     <i class="fa-regular fa-thumbs-down"></i>
                 </button>
-                <div class="counter" id="dislikes-container-{{.ID}}">0</div>
+                <div class="counter" id="dislikes-container-{{.ID}}">{{.Dislikes}}</div>
             </div>
             <div class="comments-count">
                 <i class="fa-regular fa-comment"></i>
