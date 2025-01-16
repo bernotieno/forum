@@ -128,3 +128,30 @@ class ThemeManager {
   document.addEventListener('DOMContentLoaded', () => {
     new ThemeManager();
   });
+
+      // Add event listener to all delete buttons
+document.querySelectorAll('.delete-post-btn').forEach(button => {
+  button.addEventListener('click', async () => {
+      const postId = button.getAttribute('data-post-id');
+      
+      if (!confirm('Are you sure you want to delete this comment?')) return;
+
+      try {
+          const response = await fetch(`/deletePost?id=${postId}`, {
+              method: 'DELETE',
+              headers: {
+                  'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+              }
+          });
+
+          if (response.ok) {
+              window.location.pathname = "/"
+          } else {
+              showToast('Failed to delete comment');
+          }
+      } catch (error) {
+          console.error('Error:', error);
+          showToast('An error occurred while deleting the comment');
+      }
+  });
+});

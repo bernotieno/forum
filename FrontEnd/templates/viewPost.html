@@ -18,10 +18,10 @@
                                 <i class="fa-solid fa-ellipsis"></i>
                             </button>
                             <div class="options-menu">
-                                <button class="option-item" onclick="editPost('{{.Post.ID}}')">
+                                <button class="option-item edit-post-btn" data-post-id="{{.Post.ID}}">
                                     <i class="fa-solid fa-edit"></i> Edit
                                 </button>
-                                <button class="option-item" onclick="deletePost('{{.Post.ID}}')">
+                                <button   class="option-item delete-post-btn" data-post-id="{{.Post.ID}}">
                                     <i class="fa-solid fa-trash"></i> Delete
                                 </button>
                             </div>
@@ -100,7 +100,7 @@
                         <i class="fa-solid fa-ellipsis"></i>
                     </button>
                     <div class="options-menu">
-                        <button class="option-item" onclick="editComment('{{$comment.ID}}')">
+                        <button class="option-item " onclick="editComment('{{$comment.ID}}')">
                             <i class="fa-solid fa-edit"></i> Edit
                         </button>
                         <button class="option-item" onclick="deleteComment('{{$comment.ID}}')">
