@@ -16,7 +16,26 @@ func NewLikesController(db *sql.DB) *LikesController {
 }
 
 func (Lc *LikesController) InsertLikes(like models.Likes) (int, error) {
-	// Insert the like with the provided PostId, UserId, and UserVote
+	// Check if a row with the same post_id and user_id exists
+	existingRow := Lc.DB.QueryRow(`
+        SELECT id FROM likes WHERE post_id = ? AND user_id = ?;
+    `, like.PostId, like.UserId)
+
+	var existingID int
+	err := existingRow.Scan(&existingID)
+	if err != nil && err != sql.ErrNoRows {
+		return 0, fmt.Errorf("failed to check existing like: %w", err)
+	}
+
+	// If a matching row exists, delete it
+	if err == nil {
+		_, err := Lc.DB.Exec(`DELETE FROM likes WHERE id = ?;`, existingID)
+		if err != nil {
+			return 0, fmt.Errorf("failed to delete existing like: %w", err)
+		}
+	}
+
+	// Insert the new like
 	result, err := Lc.DB.Exec(`
         INSERT INTO likes (post_id, user_id, user_vote)
         VALUES (?, ?, ?);
@@ -30,9 +49,11 @@ func (Lc *LikesController) InsertLikes(like models.Likes) (int, error) {
 	if err != nil {
 		return 0, fmt.Errorf("failed to get last insert ID: %w", err)
 	}
+	Lc.UpdatePostVotes(like.PostId)// test
 
 	return int(likeID), nil
 }
+
 
 func (Lc *LikesController) UpdatePostVotes(postID int) error {
 	// Query to calculate the likes and dislikes from the likes table
