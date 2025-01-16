@@ -17,10 +17,12 @@ type Post struct {
 	Category  string
 	Likes     int
 	Dislikes  int
-	UserVote  sql.NullString // Can be "like", "dislike", or null
+	UserVote  sql.NullString 
 	Content   string
 	ImageUrl  sql.NullString
 	Timestamp time.Time
+	Comments  []Comment
+
 }
 
 type PostRequest struct {
