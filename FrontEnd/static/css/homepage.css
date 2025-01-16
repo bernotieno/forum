@@ -885,6 +885,18 @@ body {
     cursor: pointer;
     font-size: 18px;
 }
+.comments-count a {
+    text-decoration: none; 
+    color: inherit; 
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.comments-count .counter {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
 
 .comments-count .counter {
     font-size: 14px;
