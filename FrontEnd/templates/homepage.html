@@ -41,19 +41,23 @@
         </div>
         {{end}}
         <div class="post-footer">
-            <div class="vote-buttons">
-                <button class="vote-button" onclick="AddLike('{{.ID}}')">
-                    <i class="fa-regular fa-thumbs-up"></i>
-                </button>
-                <div class="counter" id="likes-container-{{.ID}}">0</div>
-                <button class="vote-button" onclick="MinusLike('{{.ID}}')">
-                    <i class="fa-regular fa-thumbs-down"></i>
-                </button>
-                <div class="counter" id="dislikes-container-{{.ID}}">0</div>
-            </div>
-            <div class="comments-count">
-                <i class="fa-regular fa-comment"></i>
-                <span class="counter">0</span>
+            <div class="footer-icons">
+                <div class="vote-buttons">
+                    <button class="vote-button" onclick="AddLike('{{.ID}}')">
+                        <i class="fa-regular fa-thumbs-up"></i>
+                    </button>
+                    <div class="counter" id="likes-container-{{.ID}}">0</div>
+                    <button class="vote-button" onclick="MinusLike('{{.ID}}')">
+                        <i class="fa-regular fa-thumbs-down"></i>
+                    </button>
+                    <div class="counter" id="dislikes-container-{{.ID}}">0</div>
+                </div>
+                <div class="comments-count">
+                    <a href="/viewPost?id={{.ID}}#commentText">
+                        <i class="fa-regular fa-comment"></i>
+                        <span class="counter" id="comments-count-{{.ID}}">{{len .Comments}}</span>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
