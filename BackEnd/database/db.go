@@ -56,38 +56,20 @@ func Init() *sql.DB {
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			post_id INTEGER NOT NULL,
 			user_id INTEGER NOT NULL,
+			parent_id INTEGER DEFAULT NULL,
 			author TEXT NOT NULL,
 			content TEXT NOT NULL,
 			likes INTEGER DEFAULT 0,
 			dislikes INTEGER DEFAULT 0,
 			user_vote TEXT,
-			timestamp DATETIME NOT NULL,
-			FOREIGN KEY (post_id) REFERENCES posts (id),
-			FOREIGN KEY (user_id) REFERENCES users (id)
+			timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+			FOREIGN KEY (post_id) REFERENCES posts(id),
+			FOREIGN KEY (user_id) REFERENCES users(id),
+			FOREIGN KEY (parent_id) REFERENCES comments(id)
 		);
 	`)
 	if err != nil {
 		logger.Error("Failed to create comments table: %v", err)
-		return nil
-	}
-	// Create Replies table
-	_, err = DB.Exec(`
-		CREATE TABLE IF NOT EXISTS replies (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			comment_id INTEGER NOT NULL,
-			user_id INTEGER NOT NULL,
-			author TEXT NOT NULL,
-			content TEXT NOT NULL,
-			likes INTEGER DEFAULT 0,
-			dislikes INTEGER DEFAULT 0,
-			user_vote TEXT,
-			timestamp DATETIME NOT NULL,
-			FOREIGN KEY (comment_id) REFERENCES comments (id),
-			FOREIGN KEY (user_id) REFERENCES users (id)
-		);
-	`)
-	if err != nil {
-		logger.Error("Failed to create replies table: %v", err)
 		return nil
 	}
 	// create sessions table
