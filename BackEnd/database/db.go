@@ -97,5 +97,20 @@ func Init() *sql.DB {
 		logger.Error("Failed to create csrf_tokens table: %v", err)
 		return nil
 	}
+	_, err = DB.Exec(`
+	CREATE TABLE IF NOT EXISTS likes (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		post_id INTEGER NOT NULL,
+		user_id INTEGER NOT NULL,
+		user_vote TEXT CHECK(user_vote IN ('like', 'dislike')),
+		FOREIGN KEY (post_id) REFERENCES posts (id),
+		FOREIGN KEY (user_id) REFERENCES users (id)
+	);
+  `)
+	if err != nil {
+		logger.Error("Failed to create likes table: %v", err)
+		return nil
+	}
+
 	return DB
 }
