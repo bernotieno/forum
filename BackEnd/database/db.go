@@ -16,7 +16,6 @@ func Init() *sql.DB {
 		return nil
 	}
 	GloabalDB = DB
-
 	// Create Users table
 	_, err = DB.Exec(`
 		CREATE TABLE IF NOT EXISTS users (
@@ -30,14 +29,13 @@ func Init() *sql.DB {
 		logger.Error("Failed to create users table: %v", err)
 		return nil
 	}
-
-	// Create Posts table with ON DELETE CASCADE
+	// Create Posts table
 	_, err = DB.Exec(`
 		CREATE TABLE IF NOT EXISTS posts (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			title TEXT NOT NULL,
 			author TEXT NOT NULL,
-			user_id INTEGER NOT NULL,
+			user_id INTEGER NOT NULL, -- Added user_id column
 			category TEXT NOT NULL,
 			likes INTEGER DEFAULT 0,
 			dislikes INTEGER DEFAULT 0,
@@ -45,15 +43,14 @@ func Init() *sql.DB {
 			content TEXT NOT NULL,
 			image_url TEXT,
 			timestamp DATETIME NOT NULL,
-			FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+			FOREIGN KEY (user_id) REFERENCES users (id) -- Added comma before FOREIGN KEY
 		);
 	`)
 	if err != nil {
 		logger.Error("Failed to create posts table: %v", err)
 		return nil
 	}
-
-	// Create Comments table with ON DELETE CASCADE
+	// Create Comments table
 	_, err = DB.Exec(`
 		CREATE TABLE IF NOT EXISTS comments (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -66,42 +63,52 @@ func Init() *sql.DB {
 			dislikes INTEGER DEFAULT 0,
 			user_vote TEXT,
 			timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-			FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
-			FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-			FOREIGN KEY (parent_id) REFERENCES comments(id) ON DELETE CASCADE
+			FOREIGN KEY (post_id) REFERENCES posts(id),
+			FOREIGN KEY (user_id) REFERENCES users(id),
+			FOREIGN KEY (parent_id) REFERENCES comments(id)
 		);
 	`)
 	if err != nil {
 		logger.Error("Failed to create comments table: %v", err)
 		return nil
 	}
-
-	// Create Sessions table with ON DELETE CASCADE
+	// create sessions table
 	_, err = DB.Exec(`
-		CREATE TABLE IF NOT EXISTS sessions (
-			session_token TEXT PRIMARY KEY,
-			user_id INTEGER NOT NULL,
-			expires_at DATETIME NOT NULL,
-			FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-		);
-	`)
+	CREATE TABLE IF NOT EXISTS sessions (
+		session_token TEXT PRIMARY KEY,
+		user_id INTEGER NOT NULL,
+		expires_at DATETIME NOT NULL
+	);
+   `)
 	if err != nil {
 		logger.Error("Failed to create sessions table: %v", err)
 		return nil
 	}
-
-	// Create CSRF Tokens table with ON DELETE CASCADE
+	// create csrf_tokens table
 	_, err = DB.Exec(`
-		CREATE TABLE IF NOT EXISTS csrf_tokens (
-			session_token TEXT NOT NULL,
-			csrf_token TEXT NOT NULL,
-			expires_at DATETIME NOT NULL,
-			PRIMARY KEY (session_token),
-			FOREIGN KEY (session_token) REFERENCES sessions(session_token) ON DELETE CASCADE
-		);
-	`)
+	CREATE TABLE IF NOT EXISTS csrf_tokens (
+		session_token TEXT NOT NULL, 
+		csrf_token TEXT NOT NULL,   
+		expires_at DATETIME NOT NULL,
+		PRIMARY KEY (session_token)
+   );
+  `)
 	if err != nil {
 		logger.Error("Failed to create csrf_tokens table: %v", err)
+		return nil
+	}
+	_, err = DB.Exec(`
+	CREATE TABLE IF NOT EXISTS likes (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		post_id INTEGER NOT NULL,
+		user_id INTEGER NOT NULL,
+		user_vote TEXT CHECK(user_vote IN ('like', 'dislike')),
+		FOREIGN KEY (post_id) REFERENCES posts (id),
+		FOREIGN KEY (user_id) REFERENCES users (id)
+	);
+  `)
+	if err != nil {
+		logger.Error("Failed to create likes table: %v", err)
 		return nil
 	}
 
