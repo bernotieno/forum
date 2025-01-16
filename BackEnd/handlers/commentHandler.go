@@ -105,6 +105,7 @@ func CommentHandler(cCtrl *controllers.CommentController) http.HandlerFunc {
 			Dislikes:  0,
 			UserVote:  sql.NullString{String: "", Valid: false},
 			Timestamp: time.Now(),
+			ParentID:  sql.NullInt64{Int64: int64(commentReq.ParentID), Valid: commentReq.ParentID != 0},
 		}
 
 		// Insert the comment into the database

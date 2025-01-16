@@ -109,12 +109,16 @@ func (h *ViewPostHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		CSRFToken       string
 		Post            models.Post
 		Comments        []models.Comment
+		UserID          int
+		MaxDepth        int
 	}{
 		IsAuthenticated: loggedIn,
 		IsAuthor:        isAuthor,
 		CSRFToken:       csrfToken,
 		Post:            post,
 		Comments:        comments,
+		UserID:          userID,
+		MaxDepth:        3,
 	}
 
 	err = tmpl.ExecuteTemplate(w, "layout.html", data)

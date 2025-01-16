@@ -156,13 +156,28 @@ async function submitComment(button) {
 function showReplyForm(button) {
     const commentId = button.getAttribute('data-comment-id');
     const replyForm = document.getElementById(`reply-form-${commentId}`);
+    
+    // Hide all other reply forms first
+    document.querySelectorAll('.reply-input-container').forEach(container => {
+        if (container.id !== `reply-form-${commentId}`) {
+            container.style.display = 'none';
+        }
+    });
+    
     replyForm.style.display = replyForm.style.display === 'none' ? 'block' : 'none';
 }
 
+function cancelReply(commentId) {
+    const replyForm = document.getElementById(`reply-form-${commentId}`);
+    const replyInput = document.getElementById(`replyText-${commentId}`);
+    replyInput.value = '';
+    replyForm.style.display = 'none';
+}
+
 async function submitReply(button) {
-    const parentId = button.getAttribute('data-comment-id');
+    const commentId = button.getAttribute('data-comment-id');
     const postId = button.getAttribute('data-post-id');
-    const content = document.getElementById(`replyText-${parentId}`).value.trim();
+    const content = document.getElementById(`replyText-${commentId}`).value.trim();
     
     if (!content) {
         showToast('Reply cannot be empty');
@@ -177,8 +192,8 @@ async function submitReply(button) {
                 'X-CSRF-Token': document.querySelector('input[name="csrf_token"]').value
             },
             body: JSON.stringify({ 
-                content,
-                parentId: parseInt(parentId, 10)
+                content: content,
+                parentId: parseInt(commentId, 10)
             })
         });
 
@@ -189,6 +204,89 @@ async function submitReply(button) {
             showToast(data.error || 'Failed to post reply');
         }
     } catch (error) {
+        console.error('Error:', error);
         showToast('An error occurred while posting the reply');
     }
+}
+
+function showOptionsMenu(button) {
+    const menu = button.nextElementSibling;
+    document.querySelectorAll('.options-menu').forEach(m => {
+        if (m !== menu) m.classList.remove('show');
+    });
+    menu.classList.toggle('show');
+}
+
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('.comment-options')) {
+        document.querySelectorAll('.options-menu').forEach(menu => {
+            menu.classList.remove('show');
+        });
+    }
+});
+
+async function editComment(commentId) {
+    const contentDiv = document.getElementById(`comment-content-${commentId}`);
+    const currentContent = contentDiv.textContent;
+    
+    contentDiv.innerHTML = `
+        <textarea class="edit-input" id="edit-${commentId}">${currentContent}</textarea>
+        <div class="edit-buttons">
+            <button class="button button-primary" onclick="saveEdit(${commentId})">Save</button>
+            <button class="button button-secondary" onclick="cancelEdit(${commentId}, '${currentContent}')">Cancel</button>
+        </div>
+    `;
+}
+
+async function deleteComment(commentId) {
+    if (!confirm('Are you sure you want to delete this comment?')) return;
+    
+    try {
+        const response = await fetch(`/comment/${commentId}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-Token': document.querySelector('input[name="csrf_token"]').value
+            }
+        });
+        
+        if (response.ok) {
+            location.reload();
+        } else {
+            showToast('Failed to delete comment');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showToast('An error occurred while deleting the comment');
+    }
 } 
+
+// Hide reply buttons when max depth is reached
+document.addEventListener('DOMContentLoaded', () => {
+    // Get max depth from data attribute, fallback to 3 (matching backend)
+    const maxDepth = parseInt(document.querySelector('[data-max-depth]')?.dataset.maxDepth || 4);
+    
+    document.querySelectorAll('.comment').forEach(comment => {
+        // Calculate comment depth by counting parent comments
+        let depth = 0;
+        let parent = comment;
+        while (parent.parentElement.closest('.comment')) {
+            depth++;
+            parent = parent.parentElement.closest('.comment');
+        }
+        
+        // Hide reply button and form if max depth reached
+        if (depth >= maxDepth) {
+            // Hide reply button
+            const replyButton = comment.querySelector('.reply-button');
+            if (replyButton) {
+                replyButton.remove(); // Remove instead of just hiding
+            }
+            
+            // Hide reply form container
+            const replyForm = comment.querySelector('.reply-input-container');
+            if (replyForm) {
+                replyForm.remove(); // Remove instead of just hiding
+            }
+        }
+    });
+});
