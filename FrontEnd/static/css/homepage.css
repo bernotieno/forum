@@ -65,6 +65,12 @@ body {
 .logo i {
     font-size: 24px;
 }
+.logo-link {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    align-items: center;
+}
 /* Profile and User Section Styles */
 .profile-section {
     display: flex;
