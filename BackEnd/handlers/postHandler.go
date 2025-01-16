@@ -314,7 +314,7 @@ func DeletePostHandler(pc *controllers.PostController) http.HandlerFunc {
 		}
 
 		// Extract the post ID from the query parameters
-		postIDStr := r.URL.Query().Get("postID")
+		postIDStr := r.URL.Query().Get("id")
 		if postIDStr == "" {
 			logger.Warning("Missing post ID in delete request - remote_addr: %s, method: %s, path: %s",
 				r.RemoteAddr,
