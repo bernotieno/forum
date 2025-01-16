@@ -71,8 +71,8 @@
                 <p class="login-prompt">Please <a href="/login_Page">login</a> to comment</p>
                 {{end}}
 
-                <div class="comments-container">
-                    {{template "comments" dict "Comments" .Comments "IsAuthenticated" .IsAuthenticated "Post" .Post}}
+                <div class="comments-container" data-max-depth="{{.MaxDepth}}">
+                    {{template "comments" dict "Comments" .Comments "IsAuthenticated" .IsAuthenticated "Post" .Post "UserID" .UserID}}
                 </div>
             </div>
         </div>
@@ -86,32 +86,64 @@
 
 {{define "comments"}}
     {{range $comment := .Comments}}
-    <div class="comment" data-comment-id="{{$comment.ID}}">
+    <div class="comment depth-{{.Depth}}" data-comment-id="{{$comment.ID}}">
         <div class="comment-header">
             <div class="post-author-info">
                 <div class="author-initial">{{slice $comment.Author 0 1}}</div>
                 <span class="comment-author">{{$comment.Author}}</span>
             </div>
-            <span class="timestamp" data-timestamp="{{$comment.Timestamp.Format "2006-01-02T15:04:05Z07:00"}}"></span>
+            <div class="comment-meta">
+                <span class="timestamp" data-timestamp="{{$comment.Timestamp.Format "2006-01-02T15:04:05Z07:00"}}"></span>
+                {{if eq $comment.UserID $.UserID}}
+                <div class="comment-options">
+                    <button class="options-btn">
+                        <i class="fa-solid fa-ellipsis"></i>
+                    </button>
+                    <div class="options-menu">
+                        <button class="option-item" onclick="editComment('{{$comment.ID}}')">
+                            <i class="fa-solid fa-edit"></i> Edit
+                        </button>
+                        <button class="option-item" onclick="deleteComment('{{$comment.ID}}')">
+                            <i class="fa-solid fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </div>
+                {{end}}
+            </div>
         </div>
-        <div class="comment-content">{{$comment.Content}}</div>
+        <div class="comment-content" id="comment-content-{{$comment.ID}}">{{$comment.Content}}</div>
         <div class="comment-footer">
             <div class="vote-buttons">
-                <button class="vote-button">
+                <button class="vote-button" data-vote="up">
                     <i class="fa-regular fa-thumbs-up"></i>
                 </button>
-                <div class="counter">0</div>
-                <button class="vote-button">
+                <div class="counter">{{$comment.Likes}}</div>
+                <button class="vote-button" data-vote="down">
                     <i class="fa-regular fa-thumbs-down"></i>
                 </button>
-                <div class="counter">0</div>
+                <div class="counter">{{$comment.Dislikes}}</div>
             </div>
-            {{if $.IsAuthenticated}}
+            {{ if and $.IsAuthenticated }}
             <div class="comment-actions">
-                <button class="reply-button">Reply</button>
+                <button class="reply-button" onclick="showReplyForm(this)" data-comment-id="{{$comment.ID}}">Reply</button>
             </div>
             {{end}}
         </div>
+        
+        <!-- Reply form container -->
+        <div class="reply-input-container" id="reply-form-{{$comment.ID}}">
+            <textarea class="reply-input" id="replyText-{{$comment.ID}}" placeholder="Write a reply..."></textarea>
+            <div class="reply-buttons">
+                <button class="button button-primary" onclick="submitReply(this)" data-comment-id="{{$comment.ID}}" data-post-id="{{$.Post.ID}}">Submit</button>
+                <button class="button button-secondary" onclick="cancelReply(this)" data-comment-id="{{$comment.ID}}">Cancel</button>
+            </div>
+        </div>
+
+        {{if $comment.Replies}}
+        <div class="nested-comments">
+            {{template "comments" (dict "Comments" $comment.Replies "IsAuthenticated" $.IsAuthenticated "Post" $.Post "UserID" $.UserID)}}
+        </div>
+        {{end}}
     </div>
     {{end}}
 {{end}}
