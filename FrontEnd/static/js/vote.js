@@ -10,7 +10,8 @@ document.addEventListener('DOMContentLoaded', function() {
     dislikeButtons.forEach(button => {
         button.addEventListener('click', handleVote('dislike'));
     });
-});
+}
+);
 
 // Function to get CSRF token - add flexibility in how we find it
 function getCSRFToken() {
@@ -36,44 +37,35 @@ function handleVote(voteType) {
 
         // Get CSRF token
         const csrfToken = getCSRFToken();
-
-        console.log("==CSRF Token:", csrfToken);
         
-        // Prepare headers
-        const headers = {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        };
-
-        // Only add CSRF token if it exists
-        if (csrfToken) {
-            headers['X-CSRF-Token'] = csrfToken;
-        }
-
+       
         try {
             const response = await fetch('/likePost', {
                 method: 'POST',
-                headers: headers,
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRF-Token': csrfToken
+                },
                 body: new URLSearchParams({
                     'post_id': postId,
                     'vote': voteType
                 })
             });
-
-            if (response.ok) {
-                const data = await response.json();
-                // Update the likes counter
-                const likesContainer = document.getElementById(`likes-container-${postId}`);
-                if (likesContainer) {
-                    likesContainer.textContent = data.likes || '0';
-                }
-                showToast(`Post ${voteType}d successfully!`);
-                
-                // Toggle active state of buttons
-                toggleButtonStates(postId, voteType);
-            } else {
-                const errorData = await response.json();
-                showToast(errorData.message || `Failed to ${voteType} post`);
+        
+        
+        if (response.ok) {
+            const data = await response.json();
+            const likesContainer = document.getElementById(`likes-container-${postId}`);
+            const dislikesContainer = document.getElementById(`dislikes-container-${postId}`);
+            if (likesContainer) {
+                likesContainer.textContent = data.likes || '0';
             }
+            if (dislikesContainer) {
+                dislikesContainer.textContent = data.dislikes || '0';
+            }
+            showToast(`Post ${voteType}d successfully!`);
+            toggleButtonStates(postId, voteType);
+        }
         } catch (error) {
             console.error('Error:', error);
             showToast(`An error occurred while ${voteType}ing the post`);
@@ -81,39 +73,7 @@ function handleVote(voteType) {
     };
 }
 
-// Toast notification function
-function showToast(message) {
-    let toast = document.getElementById('toast');
-    if (!toast) {
-        toast = document.createElement('div');
-        toast.id = 'toast';
-        document.body.appendChild(toast);
-    }
 
-    toast.textContent = message;
-    toast.classList.add('show');
-
-    setTimeout(() => {
-        toast.classList.remove('show');
-    }, 3000);
-}
-
-// Function to toggle button states
-function toggleButtonStates(postId, activeVoteType) {
-    const likeButton = document.querySelector(`[id="Like"][data-postId="${postId}"]`);
-    const dislikeButton = document.querySelector(`[id="DisLike"][data-postId="${postId}"]`);
-
-    if (likeButton && dislikeButton) {
-        likeButton.classList.remove('active');
-        dislikeButton.classList.remove('active');
-
-        if (activeVoteType === 'like') {
-            likeButton.classList.add('active');
-        } else {
-            dislikeButton.classList.add('active');
-        }
-    }
-}
 
 // Function to toggle button states
 function toggleButtonStates(postId, activeVoteType) {
@@ -123,13 +83,13 @@ function toggleButtonStates(postId, activeVoteType) {
     if (likeButton && dislikeButton) {
         // Remove active class from both buttons
         likeButton.classList.remove('active');
-        dislikeButton.classList.remove('active');
+        dislikeButton.classList.remove('dactive');
 
         // Add active class to the clicked button
         if (activeVoteType === 'like') {
             likeButton.classList.add('active');
-        } else {
-            dislikeButton.classList.add('active');
+        } else  {
+            dislikeButton.classList.add('dactive');
         }
     }
 }
@@ -151,58 +111,91 @@ function showToast(message) {
     }, 3000);
 }
 
-// Add CSS for styling
-// const style = document.createElement('style');
-// style.textContent = `
-//     .vote-button {
-//         cursor: pointer;
-//         padding: 5px 10px;
-//         margin: 0 5px;
-//         border: 1px solid #ddd;
-//         background: none;
-//         transition: all 0.3s ease;
-//     }
+// Fetch the user's vote status for all posts
+async function fetchUserVotes() {
+    try {
+        const response = await fetch('/getUserVotes', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
 
-//     .vote-button.active {
-//         background-color: #e0e0e0;
-//         border-color: #999;
-//     }
+        if (response.ok) {
+            const data = await response.json();
+            return data; 
+        } else {
+            console.error('Failed to fetch user votes');
+            return {};
+        }
+    } catch (error) {
+        console.error('Error fetching user votes:', error);
+        return {};
+    }
+}
 
-//     .counter {
-//         display: inline-block;
-//         margin: 0 10px;
-//         font-weight: bold;
-//     }
 
-//     #toast {
-//         visibility: hidden;
-//         min-width: 250px;
-//         margin-left: -125px;
-//         background-color: #333;
-//         color: #fff;
-//         text-align: center;
-//         border-radius: 2px;
-//         padding: 16px;
-//         position: fixed;
-//         z-index: 1;
-//         left: 50%;
-//         bottom: 30px;
-//         font-size: 14px;
-//     }
 
-//     #toast.show {
-//         visibility: visible;
-//         animation: fadein 0.5s, fadeout 0.5s 2.5s;
-//     }
+// Initialize button states for all posts
+async function initializeButtonStates() {
+    const userVotes = await fetchUserVotes();
+    Object.keys(userVotes).forEach(postId => {
+        const activeVoteType = userVotes[postId];
+        toggleButtonStates(postId, activeVoteType);
+    });
+}
 
-//     @keyframes fadein {
-//         from {bottom: 0; opacity: 0;}
-//         to {bottom: 30px; opacity: 1;}
-//     }
+// Call the initialization function when the page loads
+document.addEventListener('DOMContentLoaded', initializeButtonStates);
 
-//     @keyframes fadeout {
-//         from {bottom: 30px; opacity: 1;}
-//         to {bottom: 0; opacity: 0;}
-//     }
-// `;
-// document.head.appendChild(style);
+
+// Check if the user is logged in
+async function checkLoginStatus() {
+    try {
+        const response = await fetch('/checkLoginStatus', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            return data.loggedIn; // Example: { loggedIn: true }
+        } else {
+            console.error('Failed to check login status');
+            return false;
+        }
+    } catch (error) {
+        console.error('Error checking login status:', error);
+        return false;
+    }
+}
+
+// Disable vote buttons if the user is not logged in
+function disableVoteButtons() {
+    const voteButtons = document.querySelectorAll('.vote-button');
+    voteButtons.forEach(button => {
+        button.disabled = true;
+        button.title = "You must be logged in to vote."; // Add a tooltip
+    });
+}
+
+// Enable vote buttons if the user is logged in
+function enableVoteButtons() {
+    const voteButtons = document.querySelectorAll('.vote-button');
+    voteButtons.forEach(button => {
+        button.disabled = false;
+        button.title = ""; // Remove the tooltip
+    });
+}
+
+// Initialize button states on page load
+document.addEventListener('DOMContentLoaded', async () => {
+    const loggedIn = await checkLoginStatus();
+    if (!loggedIn) {
+        disableVoteButtons();
+    } else {
+        enableVoteButtons();
+    }
+});
