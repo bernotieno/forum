@@ -72,4 +72,26 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
     });
+
+    // Restore scroll position if coming back from a post
+    const savedPosition = sessionStorage.getItem('scrollPosition');
+    if (savedPosition) {
+        // Initial scroll
+        window.scrollTo(0, parseInt(savedPosition));
+        
+        // Wait for images and try scrolling again
+        Promise.all(Array.from(document.images).map(img => {
+            if (img.complete) return Promise.resolve();
+            return new Promise(resolve => {
+                img.addEventListener('load', resolve);
+                img.addEventListener('error', resolve);
+            });
+        })).then(() => {
+            // Small delay to ensure all content is properly laid out
+            setTimeout(() => {
+                window.scrollTo(0, parseInt(savedPosition));
+                sessionStorage.removeItem('scrollPosition');
+            }, 100);
+        });
+    }
 });
