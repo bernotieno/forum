@@ -34,7 +34,14 @@
                 </h3>
             </div>
         </div>
-        <div class="post-content">{{.Content}}</div>
+        <div class="post-content">
+            {{if gt (len .Content) 300}}
+                {{slice .Content 0 300}}...
+                <a href="/viewPost?id={{.ID}}" class="read-more">Read more</a>
+            {{else}}
+                {{.Content}}
+            {{end}}
+        </div>
         {{if .ImageUrl.Valid}}
         <div class="post-image">
             <img src="{{.ImageUrl.String}}" alt="Post image" loading="lazy">
