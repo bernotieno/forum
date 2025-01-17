@@ -24,4 +24,13 @@ func CommentRoute(db *sql.DB) {
 		commentLimiter.RateLimit,
 		middleware.VerifyCSRFMiddleware(db),
 	))
+
+	http.Handle("/deleteComment", middleware.ApplyMiddleware(
+		handlers.DeleteCommentHandler(commentController),
+		middleware.SetCSPHeaders,
+		middleware.AuthMiddleware,
+		middleware.CORSMiddleware,
+		commentLimiter.RateLimit,
+		middleware.VerifyCSRFMiddleware(db),
+	))
 }
