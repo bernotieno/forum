@@ -8,7 +8,7 @@
 *.out
 
 # SQLite database files
-# *.db
+*.db
 # BackEnd/database/forum.db
 # BackEnd/database/*.db
 BackEnd/database/forum.sqlite
@@ -55,4 +55,4 @@ sessions/
 coverage.txt
 coverage.html
 
-# uploads/
+uploads/
