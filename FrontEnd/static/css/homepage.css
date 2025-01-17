@@ -944,6 +944,9 @@ body {
     position: relative;
     width: 100%;
 }
+.comment-input-container {
+    margin-top: -3rem;
+}
 .main-comment-input {
     width: 100%;
     min-height: 40px;
@@ -1324,6 +1327,34 @@ body {
     color: var(--text-primary);
     border-color: var(--accent-color);
 }
+/* Style for the edit container */
+.edit-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+/* Style for the textarea */
+.edit-input {
+    width: 100%;
+    min-height: 100px;
+    padding: 10px;
+    font-size: 14px;
+    font-family: inherit;
+    border: 1px solid var(--border-color);
+    background: var(--bg-secondary);
+    border-radius: 4px;
+    resize: vertical; /* Allow vertical resizing */
+    box-sizing: border-box; /* Ensure padding is included in width */
+}
+
+.edit-input:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px rgba(255, 69, 0, 0.1);
+}
+
 
 [data-theme='dark'] .back-button:hover {
     background-color: var(--accent-color-hover);
