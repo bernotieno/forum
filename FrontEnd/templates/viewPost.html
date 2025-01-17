@@ -105,10 +105,10 @@
                         <i class="fa-solid fa-ellipsis"></i>
                     </button>
                     <div class="options-menu">
-                        <button class="option-item " onclick="editComment('{{$comment.ID}}')">
+                        <button id="edit-comment-{{$comment.ID}}" class="option-item">
                             <i class="fa-solid fa-edit"></i> Edit
                         </button>
-                        <button class="option-item" onclick="deleteComment('{{$comment.ID}}')">
+                        <button id="delete-comment-{{$comment.ID}}" class="option-item">
                             <i class="fa-solid fa-trash"></i> Delete
                         </button>
                     </div>
