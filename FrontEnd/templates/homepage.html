@@ -43,14 +43,14 @@
         <div class="post-footer">
             <div class="footer-icons">
                 <div class="vote-buttons">
-                    <button class="vote-button" onclick="AddLike('{{.ID}}')">
+                    <button class="vote-button" id="Like" data-postId="{{.ID}}">
                         <i class="fa-regular fa-thumbs-up"></i>
                     </button>
-                    <div class="counter" id="likes-container-{{.ID}}">0</div>
-                    <button class="vote-button" onclick="MinusLike('{{.ID}}')">
+                    <div class="counter" id="likes-container-{{.ID}}">{{.Likes}}</div>
+                    <button class="vote-button" id="DisLike" data-postId="{{.ID}}">
                         <i class="fa-regular fa-thumbs-down"></i>
                     </button>
-                    <div class="counter" id="dislikes-container-{{.ID}}">0</div>
+                    <div class="counter" id="dislikes-container-{{.ID}}">{{.Dislikes}}</div>
                 </div>
                 <div class="comments-count">
                     <a href="/viewPost?id={{.ID}}#commentText">
@@ -58,19 +58,6 @@
                         <span class="counter" id="comments-count-{{.ID}}">{{.CommentCount}}</span>
                     </a>
                 </div>
-            <div class="vote-buttons">
-                <button class="vote-button" id="Like" data-postId="{{.ID}}">
-                    <i class="fa-regular fa-thumbs-up"></i>
-                </button>
-                <div class="counter" id="likes-container-{{.ID}}">{{.Likes}}</div>
-                <button class="vote-button" id="DisLike">
-                    <i class="fa-regular fa-thumbs-down"></i>
-                </button>
-                <div class="counter" id="dislikes-container-{{.ID}}">{{.Dislikes}}</div>
-            </div>
-            <div class="comments-count">
-                <i class="fa-regular fa-comment"></i>
-                <span class="counter">0</span>
             </div>
         </div>
     </div>
