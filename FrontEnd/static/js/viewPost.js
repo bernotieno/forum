@@ -126,75 +126,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    function showReplyForm(button) {
-        const commentId = button.getAttribute('data-comment-id');
-        const replyForm = document.getElementById(`reply-form-${commentId}`);
-        
-        // Hide all other reply forms first
-        document.querySelectorAll('.reply-input-container').forEach(container => {
-            if (container.id !== `reply-form-${commentId}`) {
-                container.style.display = 'none';
-            }
-        });
-        
-        // Toggle visibility - if it's not 'block', make it 'block', otherwise 'none'
-        replyForm.style.display = replyForm.style.display === 'block' ? 'none' : 'block';
-    }
+   
 
-    function cancelReply(commentId) {
-        const replyForm = document.getElementById(`reply-form-${commentId}`);
-        const replyInput = document.getElementById(`replyText-${commentId}`);
-        replyInput.value = '';
-        replyForm.style.display = 'none';
-    }
-
-    async function submitReply(button) {
-        const commentId = button.getAttribute('data-comment-id');
-        const postId = button.getAttribute('data-post-id');
-        const content = document.getElementById(`replyText-${commentId}`).value.trim();
-        
-        if (!content) {
-            showToast('Reply cannot be empty');
-            return;
-        }
-
-        try {
-            const response = await fetch(`/comment/${postId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-Token': document.querySelector('input[name="csrf_token"]').value
-                },
-                body: JSON.stringify({ 
-                    content: content,
-                    parentId: parseInt(commentId, 10)
-                })
-            });
-
-            if (response.ok) {
-                // Update comment count before reloading
-                const commentCountElement = document.querySelector('.comments-count .counter');
-                const currentCount = parseInt(commentCountElement.textContent);
-                commentCountElement.textContent = currentCount + 1;
-                
-                location.reload();
-            } else {
-                const data = await response.json();
-                showToast(data.error || 'Failed to post reply');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            showToast('An error occurred while posting the reply');
-        }
-    }
-
-    function showOptionsMenu(button) {
-        const menu = button.nextElementSibling;
-        document.querySelectorAll('.options-menu').forEach(m => {
-            if (m !== menu) m.classList.remove('show');
-        });
-        menu.classList.toggle('show');
-    }
+   
 
     document.addEventListener('click', (e) => {
         if (!e.target.closest('.comment-options')) {
@@ -204,40 +138,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    async function editComment(commentId) {
-        const contentDiv = document.getElementById(`comment-content-${commentId}`);
-        const currentContent = contentDiv.textContent;
-        
-        contentDiv.innerHTML = `
-            <textarea class="edit-input" id="edit-${commentId}">${currentContent}</textarea>
-            <div class="edit-buttons">
-                <button class="button button-primary" onclick="saveEdit(${commentId})">Save</button>
-                <button class="button button-secondary" onclick="cancelEdit(${commentId}, '${currentContent}')">Cancel</button>
-            </div>
-        `;
-    }
 
-    async function deleteComment(commentId) {
-        if (!confirm('Are you sure you want to delete this comment?')) return;
-        
-        try {
-            const response = await fetch(`/comment/${commentId}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-Token': document.querySelector('input[name="csrf_token"]').value
-                }
-            });
-            
-            if (response.ok) {
-                location.reload();
-            } else {
-                showToast('Failed to delete comment');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            showToast('An error occurred while deleting the comment');
-        }
-    } 
+    
 
     // Hide reply buttons when max depth is reached
     document.querySelectorAll('.comment').forEach(comment => {
@@ -381,3 +283,95 @@ window.submitReply = async function(button) {
         showToast('An error occurred while posting the reply');
     }
 };
+
+
+
+// Function to delete a comment
+async function deleteComment(commentId) {
+    if (!confirm('Are you sure you want to delete this comment?')) return;
+
+    
+
+    try {
+        const response = await fetch(`/deleteComment?id=${commentId}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-Token': document.querySelector('input[name="csrf_token"]').value
+            }
+        });
+
+        if (response.ok) {
+            console.log("==Response==",response);
+            
+            
+        } else {
+            showToast('Failed to delete comment');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showToast('An error occurred while deleting the comment');
+    }
+}
+
+// Function to edit a comment
+async function editComment(commentId) {
+    const contentDiv = document.getElementById(`comment-content-${commentId}`);
+    const currentContent = contentDiv.textContent;
+
+    contentDiv.innerHTML = `
+        <textarea class="edit-input" id="edit-${commentId}">${currentContent}</textarea>
+        <div class="edit-buttons">
+            <button class="button button-primary" id="save-edit-${commentId}">Save</button>
+            <button class="button button-secondary" id="cancel-edit-${commentId}">Cancel</button>
+        </div>
+    `;
+
+    // Add event listeners for the Save and Cancel buttons
+    document.getElementById(`save-edit-${commentId}`).addEventListener('click', () => saveEdit(commentId));
+    document.getElementById(`cancel-edit-${commentId}`).addEventListener('click', () => cancelEdit(commentId, currentContent));
+}
+
+// Function to save the edited comment
+async function saveEdit(commentId) {
+    const editedContent = document.getElementById(`edit-${commentId}`).value;
+
+    try {
+        const response = await fetch(`/comment/${commentId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': document.querySelector('input[name="csrf_token"]').value
+            },
+            body: JSON.stringify({ content: editedContent })
+        });
+
+        if (response.ok) {
+            location.reload();
+        } else {
+            showToast('Failed to save the edited comment');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showToast('An error occurred while saving the edited comment');
+    }
+}
+
+// Function to cancel the edit and restore the original content
+function cancelEdit(commentId, originalContent) {
+    const contentDiv = document.getElementById(`comment-content-${commentId}`);
+    contentDiv.textContent = originalContent;
+}
+
+// Add event listeners to all delete and edit buttons
+document.addEventListener('DOMContentLoaded', () => {
+    // Loop through all comments and attach event listeners
+    document.querySelectorAll('.options-menu .option-item').forEach(button => {
+        if (button.id.startsWith('delete-comment-')) {
+            const commentId = button.id.replace('delete-comment-', '');
+            button.addEventListener('click', () => deleteComment(commentId));
+        } else if (button.id.startsWith('edit-comment-')) {
+            const commentId = button.id.replace('edit-comment-', '');
+            button.addEventListener('click', () => editComment(commentId));
+        }
+    });
+});
