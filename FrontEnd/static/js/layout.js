@@ -40,34 +40,57 @@ if (logoutButton) {
 document.addEventListener("DOMContentLoaded", () => {
     // Select all sidebar links
     const communityLinks = document.querySelectorAll(".sidebar .sidebar-link");
-    // Select all posts in the main content area
-    const posts = document.querySelectorAll(".main-content .post");
+    // Select the posts container
+    const postsContainer = document.querySelector(".posts-container");
+
+    // Function to filter posts on the homepage
+    const filterPosts = (selectedCategory) => {
+        const posts = postsContainer.querySelectorAll(".post");
+        posts.forEach(post => {
+            const postCategory = post.getAttribute("data-category")?.toLowerCase() || "";
+            if (selectedCategory === "all" || selectedCategory === "home" || postCategory === selectedCategory) {
+                post.style.display = "block";
+            } else {
+                post.style.display = "none";
+            }
+        });
+    };
 
     // Add click event listener to each sidebar link
     communityLinks.forEach(link => {
         link.addEventListener("click", (event) => {
-            event.preventDefault(); 
+            event.preventDefault();
 
             // Get the clicked category name
             const selectedCategory = link.textContent.trim().toLowerCase();
-    
-            // Ensure 'data-category' exists and is normalized
-            posts.forEach(post => {
-                
-                const postCategory = post.getAttribute("data-category")?.toLowerCase() || "";
-                
-                if (selectedCategory === "all" || selectedCategory === "home"|| postCategory === selectedCategory) {
-                    post.style.display = "block"; 
-                } else {
-                    post.style.display = "none"; 
-                }
-            });
+            const currentPath = window.location.pathname;
+
+            // Check the current path
+            if (currentPath === "/") {
+                // If on the homepage, directly filter posts
+                filterPosts(selectedCategory);
+                // Optionally, update the browser history without query parameters
+                history.pushState(null, "", "/");
+            } else if (currentPath === "/viewPost") {
+                // If on the viewPost page, redirect to the homepage
+                sessionStorage.setItem("filterCategory", selectedCategory);
+                window.location.href = "/";
+            }
         });
     });
 
-    // Show all posts by default on page load
-    posts.forEach(post => (post.style.display = ""));
+    // On homepage, check for saved category in sessionStorage
+    if (window.location.pathname === "/") {
+        const savedCategory = sessionStorage.getItem("filterCategory");
+        if (savedCategory) {
+            filterPosts(savedCategory);
+            sessionStorage.removeItem("filterCategory");
+        } else {
+            filterPosts("all");
+        }
+    }
 });
+
 
 function toggleDropdown() {
     const dropdown = document.querySelector('.dropdown-content');
