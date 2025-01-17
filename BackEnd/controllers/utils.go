@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/Raymond9734/forum.git/BackEnd/logger"
@@ -57,4 +58,23 @@ func UploadFile(r *http.Request, formName string, userID int) (string, error) {
 		}
 	}
 	return filePath, nil
+}
+
+func removeImages(imagePaths []string) error {
+	for _, imagePath := range imagePaths {
+		// Remove the "uploads/" prefix if it exists in the imagePath
+		cleanedPath := strings.TrimPrefix(imagePath, "/")
+
+		// Check if the file exists before attempting to delete it
+		if _, err := os.Stat(cleanedPath); os.IsNotExist(err) {
+			return nil
+		}
+
+		// Delete the file
+		if err := os.Remove(cleanedPath); err != nil {
+			return fmt.Errorf("failed to delete image file %s: %w", imagePath, err)
+		}
+
+	}
+	return nil
 }
