@@ -183,14 +183,59 @@ func (cc *CommentController) GetCommentsByPostID(postID string) ([]models.Commen
 }
 
 func (cc *CommentController) GetCommentCountByPostID(postID int) (int, error) {
-    var count int
-    err := cc.DB.QueryRow(`
+	var count int
+	err := cc.DB.QueryRow(`
         SELECT COUNT(*) 
         FROM comments 
         WHERE post_id = ?
     `, postID).Scan(&count)
-    if err != nil {
-        return 0, fmt.Errorf("failed to fetch comment count: %w", err)
-    }
-    return count, nil
+	if err != nil {
+		return 0, fmt.Errorf("failed to fetch comment count: %w", err)
+	}
+	return count, nil
+}
+
+// DeleteComment deletes a comment by its ID
+func (cc *CommentController) DeleteComment(commentID int) error {
+	// Execute the delete query
+	result, err := cc.DB.Exec(`
+        DELETE FROM comments 
+        WHERE id = ?
+    `, commentID)
+	if err != nil {
+		return fmt.Errorf("failed to delete comment: %w", err)
+	}
+
+	// Check if the comment was actually deleted
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("failed to check rows affected: %w", err)
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("no comment found with ID: %d", commentID)
+	}
+
+	return nil
+}
+
+// IsCommentAuthor checks if the given user is the author of the comment
+func (cc *CommentController) IsCommentAuthor(commentID, userID int) (bool, error) {
+	var authorID int
+	// Query the database to get the author ID of the comment
+	err := cc.DB.QueryRow(`
+		SELECT user_id 
+		FROM comments 
+		WHERE id = ?
+	`, commentID).Scan(&authorID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return false, nil
+		}
+
+		return false, fmt.Errorf("failed to fetch comment author: %w", err)
+	}
+
+	// Check if the logged-in user is the author
+	return authorID == userID, nil
 }
