@@ -114,33 +114,98 @@ func (pc *PostController) UpdatePost(post models.Post) error {
 	return nil
 }
 
-// DeletePost deletes a post from the database by its ID
-func (pc *PostController) DeletePost(postID int, userID int) error {
+// DeletePost deletes a post from the database by its ID, along with its comments and associated images
+func (pc *PostController) DeletePost(postID, userID int) error {
 	// Ensure the database connection is not nil
 	if pc.DB == nil {
 		return errors.New("database connection is nil")
 	}
 
-	// Prepare the SQL statement to delete the post
-	query := `
-	DELETE FROM posts
-	WHERE ID = ? AND User_id = ?;
-	`
-
-	// Execute the SQL statement
-	result, err := pc.DB.Exec(query, postID, userID)
+	// Begin a transaction to ensure atomicity
+	tx, err := pc.DB.Begin()
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to begin transaction: %w", err)
+	}
+	defer tx.Rollback() // Rollback in case of error
+
+	// Step 1: Delete all comments associated with the post
+	_, err = tx.Exec(`
+		DELETE FROM comments 
+		WHERE post_id = ?;
+	`, postID)
+	if err != nil {
+		return fmt.Errorf("failed to delete comments: %w", err)
+	}
+
+	// Step 2: Fetch image paths associated with the post before deleting the post
+	var imagePaths []string
+	rows, err := tx.Query(`
+		SELECT image_url FROM posts 
+		WHERE id = ? AND user_id = ?;
+	`, postID, userID)
+	if err != nil {
+		return fmt.Errorf("failed to fetch image paths: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var imagePath sql.NullString // Use sql.NullString to handle NULL values
+		if err := rows.Scan(&imagePath); err != nil {
+			return fmt.Errorf("failed to scan image path: %w", err)
+		}
+		if imagePath.Valid && imagePath.String != "" { // Only append non-empty paths
+			imagePaths = append(imagePaths, imagePath.String)
+		}
+	}
+
+	// Step 3: Delete the post
+	result, err := tx.Exec(`
+		DELETE FROM posts 
+		WHERE id = ? AND user_id = ?;
+	`, postID, userID)
+	if err != nil {
+		return fmt.Errorf("failed to delete post: %w", err)
 	}
 
 	// Check if the post was actually deleted
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to check rows affected: %w", err)
 	}
 	if rowsAffected == 0 {
 		return errors.New("no post found with the given ID or user ID")
 	}
 
+	// Step 4: Delete the image files from the upload folder
+	err = removeImages(imagePaths)
+	if err != nil {
+		return fmt.Errorf("failed to delete image files: %w", err)
+	}
+
+	// Commit the transaction
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("failed to commit transaction: %w", err)
+	}
+
 	return nil
+}
+
+func (pc *PostController) IsPostAuthor(postID, userID int) (bool, error) {
+	var authorID int
+
+	err := pc.DB.QueryRow(`
+		SELECT user_id 
+		FROM posts 
+		WHERE id = ?
+	`, postID).Scan(&authorID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return false, nil
+		}
+
+		return false, fmt.Errorf("failed to fetch post author: %w", err)
+	}
+
+	// Compare the post's author ID with the provided userID
+	return authorID == userID, nil
 }
