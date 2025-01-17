@@ -450,6 +450,17 @@ body {
     margin-bottom: 16px;
     font-size: 15px;
     line-height: 1.7;
+    word-break: break-word;
+}
+.read-more {
+    color: var(--accent-color);
+    text-decoration: none;
+    font-weight: 500;
+    margin-left: 5px;
+}
+
+.read-more:hover {
+    text-decoration: underline;
 }
 .post-footer {
     display: flex;
@@ -1287,6 +1298,37 @@ body {
 .comment-options {
     position: relative;
     display: inline-block;
+}
+
+.back-button-container {
+    margin-bottom: 16px;
+}
+
+.back-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background-color: var(--accent-color);
+    color: white;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.back-button:hover {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border-color: var(--accent-color);
+}
+
+[data-theme='dark'] .back-button:hover {
+    background-color: var(--accent-color-hover);
+    color: white;
+    border-color: transparent;
 }
 
 
