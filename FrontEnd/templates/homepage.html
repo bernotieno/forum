@@ -13,19 +13,19 @@
                     <span class="timestamp" data-timestamp="{{.Timestamp.Format "2006-01-02T15:04:05Z07:00"}}"></span>
                     <span class="post-category">{{.Category}}</span>                 
                 {{if .IsAuthor}}
-                    <div class="post-options">
-                        <button class="options-btn">
-                            <i class="fa-solid fa-ellipsis"></i>
+                <div class="post-options">
+                    <button class="options-btn">
+                        <i class="fa-solid fa-ellipsis"></i>
+                    </button>
+                    <div class="options-menu">
+                        <button class="option-item edit-post-btn" data-post-id="{{.ID}}">
+                            <i class="fa-solid fa-edit"></i> Edit
                         </button>
-                        <div class="options-menu">
-                            <button class="option-item" onclick="editPost('{{.ID}}')">
-                                <i class="fa-solid fa-edit"></i> Edit
-                            </button>
-                            <button class="option-item" onclick="deletePost('{{.ID}}')">
-                                <i class="fa-solid fa-trash"></i> Delete
-                            </button>
-                        </div>
+                        <button   class="option-item delete-post-btn" data-post-id="{{.ID}}">
+                            <i class="fa-solid fa-trash"></i> Delete
+                        </button>
                     </div>
+                </div>
                     {{end}}
                     
                 </div>
