@@ -72,6 +72,15 @@ func (h *ViewPostHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Get total comment count
+	commentCount, err := commentController.GetCommentCountByPostID(post.ID)
+	if err != nil {
+		logger.Error("Failed to fetch comment count: %v", err)
+		http.Error(w, "Failed to fetch comment count", http.StatusInternalServerError)
+		return
+	}
+	post.CommentCount = commentCount
+
 	// Create template function map
 	funcMap := template.FuncMap{
 		"formatTime": func(t time.Time) string {
@@ -111,7 +120,7 @@ func (h *ViewPostHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		Comments        []models.Comment
 		UserID          int
 		MaxDepth        int
-		CommentCounts  []models.Post
+		CommentCounts   []models.Post
 	}{
 		IsAuthenticated: loggedIn,
 		IsAuthor:        isAuthor,

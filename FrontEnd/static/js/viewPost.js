@@ -142,6 +142,11 @@ async function submitComment(button) {
         });
 
         if (response.ok) {
+            // Update comment count before reloading
+            const commentCountElement = document.querySelector('.comments-count .counter');
+            const currentCount = parseInt(commentCountElement.textContent);
+            commentCountElement.textContent = currentCount + 1;
+            
             location.reload();
         } else {
             const data = await response.json();
@@ -198,6 +203,11 @@ async function submitReply(button) {
         });
 
         if (response.ok) {
+            // Update comment count before reloading
+            const commentCountElement = document.querySelector('.comments-count .counter');
+            const currentCount = parseInt(commentCountElement.textContent);
+            commentCountElement.textContent = currentCount + 1;
+            
             location.reload();
         } else {
             const data = await response.json();
