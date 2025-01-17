@@ -51,4 +51,13 @@ func PostRoutes(db *sql.DB) {
 		postLimiter.RateLimit,
 		middleware.VerifyCSRFMiddleware(db),
 	))
+
+	http.Handle("/deletePost", middleware.ApplyMiddleware(
+		handlers.DeletePostHandler(PostController),
+		middleware.SetCSPHeaders,
+		middleware.AuthMiddleware,
+		middleware.CORSMiddleware,
+		postLimiter.RateLimit,
+		middleware.VerifyCSRFMiddleware(db),
+	))
 }

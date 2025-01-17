@@ -58,6 +58,19 @@
                         <span class="counter" id="comments-count-{{.ID}}">{{.CommentCount}}</span>
                     </a>
                 </div>
+            <div class="vote-buttons">
+                <button class="vote-button" id="Like" data-postId="{{.ID}}">
+                    <i class="fa-regular fa-thumbs-up"></i>
+                </button>
+                <div class="counter" id="likes-container-{{.ID}}">{{.Likes}}</div>
+                <button class="vote-button" id="DisLike">
+                    <i class="fa-regular fa-thumbs-down"></i>
+                </button>
+                <div class="counter" id="dislikes-container-{{.ID}}">{{.Dislikes}}</div>
+            </div>
+            <div class="comments-count">
+                <i class="fa-regular fa-comment"></i>
+                <span class="counter">0</span>
             </div>
         </div>
     </div>

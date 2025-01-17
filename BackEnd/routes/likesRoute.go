@@ -10,17 +10,19 @@ import (
 	"github.com/Raymond9734/forum.git/BackEnd/middleware"
 )
 
-func ReplyRoute(db *sql.DB) {
-	replyController := controllers.NewReplyController(db)
+func LikesRoutes(db *sql.DB) {
+	// Create a LikesController instance
+	LikesController := controllers.NewLikesController(db)
 
-	replyLimiter := middleware.NewRateLimiter(10, time.Minute) // 10 replies per minute
+	// Rate limiter for likes
+	likesLimiter := middleware.NewRateLimiter(30, time.Minute) // 30 likes per minute
 
-	http.Handle("/reply/", middleware.ApplyMiddleware(
-		handlers.ReplyHandler(replyController),
+	http.Handle("/likePost", middleware.ApplyMiddleware(
+		handlers.CreateLikeHandler(LikesController),
 		middleware.SetCSPHeaders,
 		middleware.AuthMiddleware,
 		middleware.CORSMiddleware,
-		replyLimiter.RateLimit,
+		likesLimiter.RateLimit,
 		middleware.VerifyCSRFMiddleware(db),
 	))
 }
