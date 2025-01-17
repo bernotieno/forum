@@ -302,17 +302,6 @@ func DeletePostHandler(pc *controllers.PostController) http.HandlerFunc {
 			return
 		}
 
-		// Verify CSRF token
-		if !controllers.VerifyCSRFToken(pc.DB, r) {
-			logger.Warning("Invalid CSRF token in delete post attempt")
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusForbidden)
-			json.NewEncoder(w).Encode(map[string]string{
-				"error": "Invalid CSRF token",
-			})
-			return
-		}
-
 		// Extract the post ID from the query parameters
 		postIDStr := r.URL.Query().Get("id")
 		if postIDStr == "" {
@@ -341,6 +330,34 @@ func DeletePostHandler(pc *controllers.PostController) http.HandlerFunc {
 			return
 		}
 
+		// Verify that the user is the author of the Post
+		isAuthor, err := pc.IsPostAuthor(postID, userID)
+		if err != nil {
+			logger.Error("Failed to verify Post author: %v", err)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(map[string]string{
+				"error": "Failed to verify Post author",
+			})
+			return
+		}
+
+		if !isAuthor {
+			logger.Warning("Unauthorized attempt to delete Post - remote_addr: %s, method: %s, path: %s, user_id: %d",
+				r.RemoteAddr,
+				r.Method,
+				r.URL.Path,
+				userID,
+			)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusForbidden)
+			json.NewEncoder(w).Encode(map[string]string{
+				"message": "You are not authorized to delete this Post",
+			})
+			return
+		}
+
+		logger.Info("User %d is authorized to delete Post %d", userID, postID)
 		// Call the controller to delete the post
 		err = pc.DeletePost(postID, userID)
 		if err != nil {
@@ -353,6 +370,7 @@ func DeletePostHandler(pc *controllers.PostController) http.HandlerFunc {
 			return
 		}
 
+		logger.Info("Post %d deleted successfully by user %d", postID, userID)
 		// Return success response
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
