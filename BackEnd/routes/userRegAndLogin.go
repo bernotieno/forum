@@ -40,7 +40,7 @@ func UserRegAndLogin(db *sql.DB) {
 		pageLimiter.RateLimit,
 	))
 
-	http.Handle("/check_login", middleware.ApplyMiddleware(
+	http.Handle("/checkLoginStatus", middleware.ApplyMiddleware(
 		http.HandlerFunc(handlers.CheckLoginHandler),
 		middleware.SetCSPHeaders,
 		middleware.CORSMiddleware,

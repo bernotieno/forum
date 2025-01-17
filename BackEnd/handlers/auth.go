@@ -161,21 +161,11 @@ func isLoggedIn(db *sql.DB, r *http.Request) (bool, int) {
 func CheckLoginHandler(w http.ResponseWriter, r *http.Request) {
 	loggedIn, userID := isLoggedIn(database.GloabalDB, r)
 
-	if !loggedIn {
-		logger.Debug("Unauthorized access attempt detected")
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(map[string]string{
-			"message": "Unauthorized",
-		})
-		return
-	}
-
 	logger.Debug("Verified logged-in status for user ID: %d", userID)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{
-		"message": "User is logged in",
+	json.NewEncoder(w).Encode(map[string]bool{
+		"loggedIn": loggedIn,
 	})
 }
 

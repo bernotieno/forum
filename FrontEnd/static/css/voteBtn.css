@@ -1,0 +1,25 @@
+.vote-buttons {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.vote-button {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 2px;
+    font-size: 18px;
+    transition: all 0.2s ease;
+}
+.vote-button:hover {
+    color: var(--accent-color);
+    transform: scale(1.1);
+}
+
+.vote-button.active {
+    color: var(--upvote-color);
+}
+.vote-button.dactive {
+     color: var(--downvote-color); 
+}

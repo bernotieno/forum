@@ -67,6 +67,7 @@ func main() {
 	routes.UserRegAndLogin(db)
 	routes.PostRoutes(db)
 	routes.CommentRoute(db)
+	routes.LikesRoutes(db)
 
 	// Run the server in a goroutine
 	go func() {

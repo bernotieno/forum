@@ -7,10 +7,9 @@ import (
 
 	"github.com/Raymond9734/forum.git/BackEnd/controllers"
 	"github.com/Raymond9734/forum.git/BackEnd/logger"
-	"github.com/Raymond9734/forum.git/BackEnd/models"
 )
 
-func CreateLikeHandler(lc *controllers.LikesController) http.HandlerFunc {
+func CreateUserVoteHandler(lc *controllers.LikesController) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Ensure the request method is POST
 		if r.Method != http.MethodPost {
@@ -95,42 +94,72 @@ func CreateLikeHandler(lc *controllers.LikesController) http.HandlerFunc {
 			return
 		}
 
-		// Create a Like object
-		newLike := models.Likes{
-			PostId:   postID,
-			UserId:   userID,
-			UserVote: userVote,
-		}
-
-		// Insert the like into the database
-		likeID, err := lc.InsertLikes(newLike)
+		// Handle the vote
+		err = lc.HandleVote(postID, userID, userVote)
 		if err != nil {
-			logger.Error("Failed to insert like: %v", err)
+			logger.Error("Failed to handle vote: %v", err)
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusInternalServerError)
 			json.NewEncoder(w).Encode(map[string]string{
-				"error": "Failed to create like",
+				"error": err.Error(),
 			})
 			return
 		}
 
-		// Update the likes and dislikes in the posts table
-		err = lc.UpdatePostVotes(postID)
+		// After updating the post votes, fetch the updated likes count
+		likesCount, dislikesCount, err := lc.GetPostVotes(postID)
 		if err != nil {
-			logger.Error("Failed to update votes for post %d: %v", postID, err)
+			logger.Error("Failed to fetch updated votes for post %d: %v", postID, err)
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusInternalServerError)
 			json.NewEncoder(w).Encode(map[string]string{
-				"error": "Failed to update post votes",
+				"error": "Failed to fetch updated votes",
 			})
 			return
 		}
 
-		// Return the created like ID in the response
+		// Return the updated likes and dislikes count
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)
 		json.NewEncoder(w).Encode(map[string]int{
-			"likeID": likeID,
+			"likes":    likesCount,
+			"dislikes": dislikesCount,
 		})
+	}
+}
+
+func GetUserVotesHandler(lc *controllers.LikesController) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Check if the user is logged in
+		loggedIn, userID := isLoggedIn(lc.DB, r)
+		if !loggedIn {
+			logger.Warning("Unauthorized attempt to GetUserVotesHandler - remote_addr: %s, method: %s, path: %s, user_id: %d",
+				r.RemoteAddr,
+				r.Method,
+				r.URL.Path,
+				userID,
+			)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusUnauthorized)
+			json.NewEncoder(w).Encode(map[string]string{
+				"message": "Must be logged in to GetUserVotes",
+			})
+			return
+		}
+
+		userVote, err := lc.GetUserVotes(userID)
+		if err != nil {
+			logger.Error("Failed to get user votes: %v", err)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(map[string]string{
+				"error": "Failed to get user votes",
+			})
+			return
+		}
+
+		// Return the user's votes as JSON
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(userVote)
 	}
 }

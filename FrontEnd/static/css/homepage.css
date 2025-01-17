@@ -405,47 +405,8 @@ body {
     align-items: center;
     margin-right: 16px;
 }
-.vote-button.disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
-    pointer-events: none;
-}
-.vote-count-up,
-.vote-count-down {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-primary);
-    min-width: 1rem;
-    text-align: center;
-}
-.vote-button[data-vote="up"] {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-.vote-button[data-vote="down"] {
-    display: flex; 
-    flex-direction: column;
-    align-items: center;
-}
-.vote-button.disabled:hover {
-    background-color: transparent;
-}
-.vote-button:hover {
-    background-color: var(--hover-bg);
-}
-.vote-button.active[data-vote="up"] {
-    color: var(--upvote-color);
-}
-.vote-button.active[data-vote="down"] {
-    color: var(--downvote-color);
-}
-.vote-count {
-    font-size: 13px;
-    font-weight: 600;
-    margin: 4px 0;
-    color: var(--text-primary);
-}
+
+
 .post-content {
     margin-bottom: 16px;
     font-size: 15px;
@@ -870,24 +831,7 @@ body {
     cursor: not-allowed;
     opacity: 0.6;
 }
-.vote-buttons {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-.vote-button {
-    background: none;
-    border: none;
-    color: var(--text-secondary);
-    cursor: pointer;
-    padding: 2px;
-    font-size: 18px;
-    transition: all 0.2s ease;
-}
-.vote-button:hover {
-    color: var(--accent-color);
-    transform: scale(1.1);
-}
+
 .counter {
     font-size: 14px;
     color: var(--text-secondary);
