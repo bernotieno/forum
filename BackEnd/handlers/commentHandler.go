@@ -128,3 +128,106 @@ func CommentHandler(cCtrl *controllers.CommentController) http.HandlerFunc {
 		})
 	}
 }
+
+// DeleteCommentHandler handles requests for deleting comments
+func DeleteCommentHandler(cCtrl *controllers.CommentController) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Ensure the request method is DELETE
+		if r.Method != http.MethodDelete {
+			log.Printf("Invalid method %s for comment deletion attempt", r.Method)
+			http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
+			return
+		}
+
+		// Check if the user is logged in
+		loggedIn, userID := isLoggedIn(cCtrl.DB, r)
+		if !loggedIn {
+			logger.Warning("Unauthorized attempt to delete comment - remote_addr: %s, method: %s, path: %s, user_id: %d",
+				r.RemoteAddr,
+				r.Method,
+				r.URL.Path,
+				userID,
+			)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusUnauthorized)
+			json.NewEncoder(w).Encode(map[string]string{
+				"message": "Must be logged in to delete a comment",
+			})
+			return
+		}
+
+		commentIDStr := r.URL.Query().Get("id")
+		if commentIDStr == "" {
+			logger.Warning("Missing post ID in delete request - remote_addr: %s, method: %s, path: %s",
+				r.RemoteAddr,
+				r.Method,
+				r.URL.Path,
+			)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(map[string]string{
+				"error": "Post ID is required",
+			})
+			return
+		}
+
+		commentID, err := strconv.Atoi(commentIDStr)
+		if err != nil {
+			logger.Error("Invalid commentID: %v", err)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(map[string]string{
+				"error": "Invalid commentID",
+			})
+			return
+		}
+
+		// Verify that the user is the author of the comment
+		isAuthor, err := cCtrl.IsCommentAuthor(commentID, userID)
+		if err != nil {
+			logger.Error("Failed to verify comment author: %v", err)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(map[string]string{
+				"error": "Failed to verify comment author",
+			})
+			return
+		}
+
+		if !isAuthor {
+			logger.Warning("Unauthorized attempt to delete comment - remote_addr: %s, method: %s, path: %s, user_id: %d",
+				r.RemoteAddr,
+				r.Method,
+				r.URL.Path,
+				userID,
+			)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusForbidden)
+			json.NewEncoder(w).Encode(map[string]string{
+				"message": "You are not authorized to delete this comment",
+			})
+			return
+		}
+
+		logger.Info("User %d is authorized to delete comment %d", userID, commentID)
+		// Delete the comment
+		err = cCtrl.DeleteComment(commentID)
+		if err != nil {
+			logger.Error("Failed to delete comment: %v", err)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(map[string]string{
+				"error": "Failed to delete comment",
+			})
+			return
+		}
+
+		logger.Info("Comment %d deleted successfully by user %d", commentID, userID)
+		// Return success response
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]string{
+			"message": "Comment deleted successfully",
+		})
+	}
+}
