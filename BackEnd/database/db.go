@@ -121,5 +121,23 @@ func Init() *sql.DB {
 		return nil
 	}
 
+	// Create Comment Votes table
+	_, err = DB.Exec(`
+        CREATE TABLE IF NOT EXISTS comment_votes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            comment_id INTEGER NOT NULL,
+            user_id INTEGER NOT NULL,
+            vote_type TEXT CHECK(vote_type IN ('like', 'dislike')),
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (comment_id) REFERENCES comments (id) ON DELETE CASCADE,
+            FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+            UNIQUE(comment_id, user_id)
+        );
+    `)
+	if err != nil {
+		logger.Error("Failed to create comment_votes table: %v", err)
+		return nil
+	}
+
 	return DB
 }
