@@ -161,7 +161,8 @@ func isLoggedIn(db *sql.DB, r *http.Request) (bool, int) {
 func CheckLoginHandler(w http.ResponseWriter, r *http.Request) {
 	loggedIn, userID := isLoggedIn(database.GloabalDB, r)
 
-	logger.Debug("Verified logged-in status for user ID: %d", userID)
+	logger.Debug("Verifying logged-in status for user ID: %d", userID)
+	logger.Info("User %d loggin status: %v", userID, loggedIn)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]bool{
