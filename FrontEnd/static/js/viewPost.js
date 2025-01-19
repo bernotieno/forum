@@ -8,7 +8,7 @@ window.showToast = function(message) {
 };
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Save scroll position before leaving homepage
+    // Check if we came from homepage
     if (document.referrer.includes('/')) {
         sessionStorage.setItem('scrollPosition', window.scrollY);
     }
@@ -56,47 +56,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add this at the beginning of DOMContentLoaded
     const isAuthenticated = document.querySelector('.comment-input-container') !== null;
 
-    // Update the voting event listeners
-    document.querySelectorAll('.vote-button').forEach(button => {
-        button.addEventListener('click', async function() {
-            if (!isAuthenticated) {
-                showToast('Please log in to vote');
-                return;
-            }
-            
-            const postId = this.getAttribute('data-post-id');
-            const voteType = this.getAttribute('data-vote') === 'up' ? 'like' : 'dislike';
-            
-            const formData = new URLSearchParams();
-            formData.append('post_id', postId);
-            formData.append('vote', voteType);
-            
-            try {
-                const response = await fetch('/likePost', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                        'X-CSRF-Token': document.querySelector('input[name="csrf_token"]').value
-                    },
-                    body: formData
-                });
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    // Update the counters
-                    document.getElementById(`likes-container-${postId}`).textContent = data.likes;
-                    document.getElementById(`dislikes-container-${postId}`).textContent = data.dislikes;
-                    // Toggle button states
-                    toggleButtonStates(postId, voteType);
-                } else {
-                    showToast('Failed to vote');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                showToast('An error occurred');
-            }
-        });
-    });
     // Handle options menu
     document.querySelectorAll('.options-btn').forEach(button => {
         button.addEventListener('click', function(e) {
@@ -138,10 +97,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-   
-
-   
-
     document.addEventListener('click', (e) => {
         if (!e.target.closest('.comment-options')) {
             document.querySelectorAll('.options-menu').forEach(menu => {
@@ -149,9 +104,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     });
-
-
-    
 
     // Hide reply buttons when max depth is reached
     document.querySelectorAll('.comment').forEach(comment => {
@@ -296,13 +248,9 @@ window.submitReply = async function(button) {
     }
 };
 
-
-
 // Function to delete a comment
 async function deleteComment(commentId) {
     if (!confirm('Are you sure you want to delete this comment?')) return;
-
-    
 
     try {
         const response = await fetch(`/deleteComment?id=${commentId}`, {
@@ -313,9 +261,24 @@ async function deleteComment(commentId) {
         });
 
         if (response.ok) {
-            console.log("==Response==",response);
-            
-            
+            // Find and remove the comment element
+            const commentElement = document.querySelector(`[data-comment-id="${commentId}"]`);
+            if (commentElement) {
+                // Remove any replies to this comment as well
+                const replies = commentElement.querySelectorAll('.comment');
+                let totalRemoved = 1 + replies.length; // Count main comment + replies
+                
+                commentElement.remove();
+                
+                // Update the comment count in the UI
+                const commentCountElement = document.querySelector('.comments-count .counter');
+                if (commentCountElement) {
+                    const currentCount = parseInt(commentCountElement.textContent);
+                    commentCountElement.textContent = Math.max(0, currentCount - totalRemoved);
+                }
+                
+                showToast('Comment deleted successfully');
+            }
         } else {
             showToast('Failed to delete comment');
         }
@@ -348,8 +311,8 @@ async function saveEdit(commentId) {
     const editedContent = document.getElementById(`edit-${commentId}`).value;
 
     try {
-        const response = await fetch(`/comment/${commentId}`, {
-            method: 'PUT',
+        const response = await fetch(`/updateComment?id=${commentId}`, {
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRF-Token': document.querySelector('input[name="csrf_token"]').value
@@ -358,9 +321,13 @@ async function saveEdit(commentId) {
         });
 
         if (response.ok) {
-            location.reload();
+            // Update the comment content without page reload
+            const contentDiv = document.getElementById(`comment-content-${commentId}`);
+            contentDiv.textContent = editedContent;
+            showToast('Comment updated successfully');
         } else {
-            showToast('Failed to save the edited comment');
+            const data = await response.json();
+            showToast(data.error || 'Failed to save the edited comment');
         }
     } catch (error) {
         console.error('Error:', error);
@@ -387,46 +354,3 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
-
-// Add this function to toggle button states
-function toggleButtonStates(postId, activeVoteType) {
-    const upButton = document.querySelector(`[data-vote="up"][data-post-id="${postId}"]`);
-    const downButton = document.querySelector(`[data-vote="down"][data-post-id="${postId}"]`);
-
-    if (upButton && downButton) {
-        // Remove all active classes first
-        upButton.classList.remove('active');
-        downButton.classList.remove('dactive');
-
-        // Add appropriate active class based on vote type
-        if (activeVoteType === 'like') {
-            upButton.classList.add('active');
-        } else if (activeVoteType === 'dislike') {
-            downButton.classList.add('dactive');
-        }
-    }
-}
-
-// Add this function to initialize button states on page load
-async function initializeVoteStates() {
-    try {
-        const response = await fetch('/getUserVotes', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        });
-
-        if (response.ok) {
-            const userVotes = await response.json();
-            Object.entries(userVotes).forEach(([postId, voteType]) => {
-                toggleButtonStates(postId, voteType);
-            });
-        }
-    } catch (error) {
-        console.error('Error fetching user votes:', error);
-    }
-}
-
-// Call initializeVoteStates when the page loads
-document.addEventListener('DOMContentLoaded', initializeVoteStates);
