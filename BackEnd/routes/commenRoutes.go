@@ -33,4 +33,13 @@ func CommentRoute(db *sql.DB) {
 		commentLimiter.RateLimit,
 		middleware.VerifyCSRFMiddleware(db),
 	))
+
+	http.Handle("/updateComment", middleware.ApplyMiddleware(
+		handlers.UpdateCommentHandler(commentController),
+		middleware.SetCSPHeaders,
+		middleware.AuthMiddleware,
+		middleware.CORSMiddleware,
+		commentLimiter.RateLimit,
+		middleware.VerifyCSRFMiddleware(db),
+	))
 }

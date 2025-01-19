@@ -231,3 +231,61 @@ func DeleteCommentHandler(cCtrl *controllers.CommentController) http.HandlerFunc
 		})
 	}
 }
+
+func UpdateCommentHandler(cc *controllers.CommentController) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+
+		// Get comment ID from query parameters
+		commentID, err := strconv.Atoi(r.URL.Query().Get("id"))
+		if err != nil {
+			http.Error(w, "Invalid comment ID", http.StatusBadRequest)
+			return
+		}
+
+		// Check if user is logged in
+		loggedIn, userID := isLoggedIn(cc.DB, r)
+		if !loggedIn {
+			http.Error(w, "Must be logged in to edit comment", http.StatusUnauthorized)
+			return
+		}
+
+		// Parse request body
+		var updateReq struct {
+			Content string `json:"content"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&updateReq); err != nil {
+			http.Error(w, "Invalid request body", http.StatusBadRequest)
+			return
+		}
+
+		// Verify user is the comment author
+		isAuthor, err := cc.IsCommentAuthor(commentID, userID)
+		if err != nil {
+			logger.Error("Failed to verify comment author: %v", err)
+			http.Error(w, "Failed to verify comment author", http.StatusInternalServerError)
+			return
+		}
+
+		if !isAuthor {
+			http.Error(w, "Not authorized to edit this comment", http.StatusForbidden)
+			return
+		}
+
+		// Update the comment
+		err = cc.UpdateComment(commentID, updateReq.Content)
+		if err != nil {
+			logger.Error("Failed to update comment: %v", err)
+			http.Error(w, "Failed to update comment", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{
+			"message": "Comment updated successfully",
+		})
+	}
+}

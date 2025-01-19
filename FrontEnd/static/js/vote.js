@@ -1,17 +1,32 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Add event listeners to all like and dislike buttons
-    const likeButtons = document.querySelectorAll('[id="Like"]');
-    const dislikeButtons = document.querySelectorAll('[id="DisLike"]');
+    const postLikeButtons = document.querySelectorAll('[id="Like"]:not(.comment-vote)');
+    const postDislikeButtons = document.querySelectorAll('[id="DisLike"]:not(.comment-vote)');
+    const commentVoteButtons = document.querySelectorAll('.comment-vote');
 
-    likeButtons.forEach(button => {
+    // Check authentication status once at load
+    const isAuthenticated = document.querySelector('.comment-input-container') !== null;
+
+    // Post vote event listeners
+    postLikeButtons.forEach(button => {
         button.addEventListener('click', handleVote('like'));
     });
 
-    dislikeButtons.forEach(button => {
+    postDislikeButtons.forEach(button => {
         button.addEventListener('click', handleVote('dislike'));
     });
-}
-);
+
+    // Comment vote event listeners
+    commentVoteButtons.forEach(button => {
+        button.addEventListener('click', function(event) {
+            event.stopPropagation(); // Prevent event bubbling
+            handleCommentVote(event, isAuthenticated);
+        });
+    });
+
+    // Initialize vote states on page load
+    initializeVoteStates();
+});
 
 // Function to get CSRF token - add flexibility in how we find it
 function getCSRFToken() {
@@ -38,7 +53,6 @@ function handleVote(voteType) {
         // Get CSRF token
         const csrfToken = getCSRFToken();
         
-       
         try {
             const response = await fetch('/likePost', {
                 method: 'POST',
@@ -52,20 +66,19 @@ function handleVote(voteType) {
                 })
             });
         
-        
-        if (response.ok) {
-            const data = await response.json();
-            const likesContainer = document.getElementById(`likes-container-${postId}`);
-            const dislikesContainer = document.getElementById(`dislikes-container-${postId}`);
-            if (likesContainer) {
-                likesContainer.textContent = data.likes || '0';
+            if (response.ok) {
+                const data = await response.json();
+                const likesContainer = document.getElementById(`likes-container-${postId}`);
+                const dislikesContainer = document.getElementById(`dislikes-container-${postId}`);
+                if (likesContainer) {
+                    likesContainer.textContent = data.likes || '0';
+                }
+                if (dislikesContainer) {
+                    dislikesContainer.textContent = data.dislikes || '0';
+                }
+                // showToast(`Post ${voteType}d successfully!`);
+                toggleButtonStates(postId, voteType);
             }
-            if (dislikesContainer) {
-                dislikesContainer.textContent = data.dislikes || '0';
-            }
-            showToast(`Post ${voteType}d successfully!`);
-            toggleButtonStates(postId, voteType);
-        }
         } catch (error) {
             console.error('Error:', error);
             showToast(`An error occurred while ${voteType}ing the post`);
@@ -73,7 +86,47 @@ function handleVote(voteType) {
     };
 }
 
-
+// Comment vote handler function
+async function handleCommentVote(event, isAuthenticated) {
+    event.preventDefault();
+    
+    if (!isAuthenticated) {
+        showToast('Please log in to vote');
+        return;
+    }
+    
+    const button = event.currentTarget;
+    const commentId = button.getAttribute('data-comment-id');
+    const voteType = button.getAttribute('data-vote') === 'up' ? 'like' : 'dislike';
+    
+    const formData = new URLSearchParams();
+    formData.append('comment_id', commentId);
+    formData.append('vote', voteType);
+    
+    try {
+        const response = await fetch('/commentVote', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRF-Token': getCSRFToken()
+            },
+            body: formData
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            document.getElementById(`comment-likes-${commentId}`).textContent = data.likes;
+            document.getElementById(`comment-dislikes-${commentId}`).textContent = data.dislikes;
+            toggleCommentButtonStates(commentId, voteType);
+            // showToast('Vote recorded successfully');
+        } else {
+            showToast('Failed to vote');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showToast('An error occurred');
+    }
+}
 
 // Function to toggle button states
 function toggleButtonStates(postId, activeVoteType) {
@@ -88,8 +141,27 @@ function toggleButtonStates(postId, activeVoteType) {
         // Add active class to the clicked button
         if (activeVoteType === 'like') {
             likeButton.classList.add('active');
-        } else  {
+        } else {
             dislikeButton.classList.add('dactive');
+        }
+    }
+}
+
+// Function to toggle comment button states
+function toggleCommentButtonStates(commentId, activeVoteType) {
+    const upButton = document.querySelector(`[data-vote="up"][data-comment-id="${commentId}"]`);
+    const downButton = document.querySelector(`[data-vote="down"][data-comment-id="${commentId}"]`);
+
+    if (upButton && downButton) {
+        // Remove all active classes first
+        upButton.classList.remove('active');
+        downButton.classList.remove('dactive');
+
+        // Add appropriate active class based on vote type
+        if (activeVoteType === 'like') {
+            upButton.classList.add('active');
+        } else if (activeVoteType === 'dislike') {
+            downButton.classList.add('dactive');
         }
     }
 }
@@ -134,20 +206,63 @@ async function fetchUserVotes() {
     }
 }
 
+// Fetch user's comment votes
+async function fetchUserCommentVotes() {
+    try {
+        const response = await fetch('/getUserCommentVotes', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
 
+        if (response.ok) {
+            const data = await response.json();
+            return data;
+        } else {
+            console.error('Failed to fetch user comment votes');
+            return {};
+        }
+    } catch (error) {
+        console.error('Error fetching user comment votes:', error);
+        return {};
+    }
+}
 
 // Initialize button states for all posts
-async function initializeButtonStates() {
-    const userVotes = await fetchUserVotes();
-    Object.keys(userVotes).forEach(postId => {
-        const activeVoteType = userVotes[postId];
-        toggleButtonStates(postId, activeVoteType);
+async function initializeVoteStates() {
+    try {
+        const userVotes = await fetchUserVotes();
+        Object.entries(userVotes).forEach(([postId, voteType]) => {
+            toggleButtonStates(postId, voteType);
+        });
+
+        const userCommentVotes = await fetchUserCommentVotes();
+        Object.entries(userCommentVotes).forEach(([commentId, voteType]) => {
+            toggleCommentButtonStates(commentId, voteType);
+        });
+    } catch (error) {
+        console.error('Error initializing vote states:', error);
+    }
+}
+
+// Disable vote buttons if the user is not logged in
+function disableVoteButtons() {
+    const voteButtons = document.querySelectorAll('.vote-button, .comment-vote');
+    voteButtons.forEach(button => {
+        button.disabled = true;
+        button.title = "You must be logged in to vote.";
     });
 }
 
-// Call the initialization function when the page loads
-document.addEventListener('DOMContentLoaded', initializeButtonStates);
-
+// Enable vote buttons if the user is logged in
+function enableVoteButtons() {
+    const voteButtons = document.querySelectorAll('.vote-button, .comment-vote');
+    voteButtons.forEach(button => {
+        button.disabled = false;
+        button.title = "";
+    });
+}
 
 // Check if the user is logged in
 async function checkLoginStatus() {
@@ -171,31 +286,3 @@ async function checkLoginStatus() {
         return false;
     }
 }
-
-// Disable vote buttons if the user is not logged in
-function disableVoteButtons() {
-    const voteButtons = document.querySelectorAll('.vote-button');
-    voteButtons.forEach(button => {
-        button.disabled = true;
-        button.title = "You must be logged in to vote."; // Add a tooltip
-    });
-}
-
-// Enable vote buttons if the user is logged in
-function enableVoteButtons() {
-    const voteButtons = document.querySelectorAll('.vote-button');
-    voteButtons.forEach(button => {
-        button.disabled = false;
-        button.title = ""; // Remove the tooltip
-    });
-}
-
-// Initialize button states on page load
-document.addEventListener('DOMContentLoaded', async () => {
-    const loggedIn = await checkLoginStatus();
-    if (!loggedIn) {
-        disableVoteButtons();
-    } else {
-        enableVoteButtons();
-    }
-});

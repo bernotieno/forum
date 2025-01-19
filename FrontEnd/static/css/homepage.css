@@ -1306,5 +1306,31 @@ body {
     border-color: transparent;
 }
 
+.vote-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 8px;
+    transition: all 0.2s ease;
+    color: var(--text-secondary);
+}
+
+.vote-button:hover {
+    color: var(--accent-color);
+}
+
+.vote-button.active {
+    color: #4CAF50; /* Green color for likes */
+}
+
+.vote-button.dactive {
+    color: #f44336; /* Red color for dislikes */
+}
+
+.vote-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
 
 
