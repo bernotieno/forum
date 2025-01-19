@@ -76,7 +76,7 @@ function handleVote(voteType) {
                 if (dislikesContainer) {
                     dislikesContainer.textContent = data.dislikes || '0';
                 }
-                showToast(`Post ${voteType}d successfully!`);
+                // showToast(`Post ${voteType}d successfully!`);
                 toggleButtonStates(postId, voteType);
             }
         } catch (error) {
@@ -118,7 +118,7 @@ async function handleCommentVote(event, isAuthenticated) {
             document.getElementById(`comment-likes-${commentId}`).textContent = data.likes;
             document.getElementById(`comment-dislikes-${commentId}`).textContent = data.dislikes;
             toggleCommentButtonStates(commentId, voteType);
-            showToast('Vote recorded successfully');
+            // showToast('Vote recorded successfully');
         } else {
             showToast('Failed to vote');
         }
