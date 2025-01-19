@@ -119,14 +119,14 @@
         <div class="comment-content" id="comment-content-{{$comment.ID}}">{{$comment.Content}}</div>
         <div class="comment-footer">
             <div class="vote-buttons">
-                <button class="vote-button" data-vote="up">
+                <button class="vote-button comment-vote" data-vote="up" data-comment-id="{{$comment.ID}}">
                     <i class="fa-regular fa-thumbs-up"></i>
                 </button>
-                <div class="counter">{{$comment.Likes}}</div>
-                <button class="vote-button" data-vote="down">
+                <div class="counter" id="comment-likes-{{$comment.ID}}">{{$comment.Likes}}</div>
+                <button class="vote-button comment-vote" data-vote="down" data-comment-id="{{$comment.ID}}">
                     <i class="fa-regular fa-thumbs-down"></i>
                 </button>
-                <div class="counter">{{$comment.Dislikes}}</div>
+                <div class="counter" id="comment-dislikes-{{$comment.ID}}">{{$comment.Dislikes}}</div>
             </div>
             {{ if and $.IsAuthenticated }}
             <div class="comment-actions">
@@ -156,4 +156,5 @@
 {{define "scripts"}}
 <script src="../static/js/viewPost.js"></script>
 <script src="../static/js/theme.js"></script>
+<script src="../static/js/vote.js"></script>
 {{end}}
