@@ -1381,5 +1381,26 @@ body {
     }
 }
 
+.button-post {
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-primary);
+    padding: 4px 12px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 115px;
+    justify-content: center;
+}
+
+.button-post:hover {
+    border-color: var(--accent-color);
+    background: var(--hover-bg);
+}
+
 
 
