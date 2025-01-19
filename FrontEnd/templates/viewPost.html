@@ -47,11 +47,11 @@
         <div class="post-footer">
             <div class="footer-icons">
                 <div class="vote-buttons">
-                    <button class="vote-button" data-vote="up" data-post-id="{{.Post.ID}}">
+                    <button class="vote-button" id="Like" data-vote="up" data-postId="{{.Post.ID}}">
                         <i class="fa-regular fa-thumbs-up"></i>
                     </button>
                     <div class="counter" id="likes-container-{{.Post.ID}}">{{.Post.Likes}}</div>
-                    <button class="vote-button" data-vote="down" data-post-id="{{.Post.ID}}">
+                    <button class="vote-button" id="DisLike" data-vote="down" data-postId="{{.Post.ID}}">
                         <i class="fa-regular fa-thumbs-down"></i>
                     </button>
                     <div class="counter" id="dislikes-container-{{.Post.ID}}">{{.Post.Dislikes}}</div>
