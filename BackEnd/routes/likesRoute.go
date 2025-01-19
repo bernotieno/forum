@@ -11,12 +11,14 @@ import (
 )
 
 func LikesRoutes(db *sql.DB) {
-	// Create a LikesController instance
+	// Create controllers
 	LikesController := controllers.NewLikesController(db)
+	CommentVotesController := controllers.NewCommentVotesController(db)
 
 	// Rate limiter for likes
 	likesLimiter := middleware.NewRateLimiter(30, time.Minute) // 30 likes per minute
 
+	// Post vote routes
 	http.Handle("/likePost", middleware.ApplyMiddleware(
 		handlers.CreateUserVoteHandler(LikesController),
 		middleware.SetCSPHeaders,
@@ -32,5 +34,17 @@ func LikesRoutes(db *sql.DB) {
 		middleware.AuthMiddleware,
 		middleware.CORSMiddleware,
 		middleware.VerifyCSRFMiddleware(db),
+	))
+
+	// Comment vote routes
+	http.Handle("/commentVote", middleware.ApplyMiddleware(
+		handlers.CreateCommentVoteHandler(CommentVotesController),
+		middleware.AuthMiddleware,
+		middleware.VerifyCSRFMiddleware(db),
+	))
+
+	http.Handle("/getUserCommentVotes", middleware.ApplyMiddleware(
+		handlers.GetUserCommentVotesHandler(CommentVotesController),
+		middleware.AuthMiddleware,
 	))
 }
