@@ -1,11 +1,11 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     // Add event listeners to all like and dislike buttons
     const postLikeButtons = document.querySelectorAll('[id="Like"]:not(.comment-vote)');
     const postDislikeButtons = document.querySelectorAll('[id="DisLike"]:not(.comment-vote)');
     const commentVoteButtons = document.querySelectorAll('.comment-vote');
 
-    // Check authentication status once at load
-    const isAuthenticated = document.querySelector('.comment-input-container') !== null;
+    // Check authentication status using the checkLoginStatus function
+    const isAuthenticated = await checkLoginStatus();
 
     // Post vote event listeners
     postLikeButtons.forEach(button => {
@@ -24,8 +24,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Initialize vote states on page load
-    initializeVoteStates();
+   
+
+    // Re-initialize vote states if the user becomes authenticated after page load
+    if (isAuthenticated) {
+        initializeVoteStates();
+    }
 });
 
 // Function to get CSRF token - add flexibility in how we find it
@@ -276,7 +280,7 @@ async function checkLoginStatus() {
 
         if (response.ok) {
             const data = await response.json();
-            return data.loggedIn; // Example: { loggedIn: true }
+            return data.loggedIn; 
         } else {
             console.error('Failed to check login status');
             return false;
