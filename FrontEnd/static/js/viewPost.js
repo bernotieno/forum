@@ -53,34 +53,46 @@ document.addEventListener('DOMContentLoaded', function() {
     // Update timestamps every minute
     setInterval(updateTimestamps, 60000);
 
-    // Handle voting
+    // Add this at the beginning of DOMContentLoaded
+    const isAuthenticated = document.querySelector('.comment-input-container') !== null;
+
+    // Update the voting event listeners
     document.querySelectorAll('.vote-button').forEach(button => {
         button.addEventListener('click', async function() {
             if (!isAuthenticated) {
                 showToast('Please log in to vote');
                 return;
             }
-            const postId = this.dataset.postId;
-            const voteType = this.dataset.vote;
+            
+            const postId = this.getAttribute('data-post-id');
+            const voteType = this.getAttribute('data-vote') === 'up' ? 'like' : 'dislike';
+            
+            const formData = new URLSearchParams();
+            formData.append('post_id', postId);
+            formData.append('vote', voteType);
+            
             try {
-                const response = await fetch(`/vote`, {
+                const response = await fetch('/likePost', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'application/x-www-form-urlencoded',
                         'X-CSRF-Token': document.querySelector('input[name="csrf_token"]').value
                     },
-                    body: JSON.stringify({
-                        postId: postId,
-                        voteType: voteType
-                    })
+                    body: formData
                 });
+                
                 if (response.ok) {
                     const data = await response.json();
-                    updateVoteCount(postId, data.likes);
+                    // Update the counters
+                    document.getElementById(`likes-container-${postId}`).textContent = data.likes;
+                    document.getElementById(`dislikes-container-${postId}`).textContent = data.dislikes;
+                    // Toggle button states
+                    toggleButtonStates(postId, voteType);
                 } else {
                     showToast('Failed to vote');
                 }
             } catch (error) {
+                console.error('Error:', error);
                 showToast('An error occurred');
             }
         });
@@ -375,3 +387,46 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+// Add this function to toggle button states
+function toggleButtonStates(postId, activeVoteType) {
+    const upButton = document.querySelector(`[data-vote="up"][data-post-id="${postId}"]`);
+    const downButton = document.querySelector(`[data-vote="down"][data-post-id="${postId}"]`);
+
+    if (upButton && downButton) {
+        // Remove all active classes first
+        upButton.classList.remove('active');
+        downButton.classList.remove('dactive');
+
+        // Add appropriate active class based on vote type
+        if (activeVoteType === 'like') {
+            upButton.classList.add('active');
+        } else if (activeVoteType === 'dislike') {
+            downButton.classList.add('dactive');
+        }
+    }
+}
+
+// Add this function to initialize button states on page load
+async function initializeVoteStates() {
+    try {
+        const response = await fetch('/getUserVotes', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        if (response.ok) {
+            const userVotes = await response.json();
+            Object.entries(userVotes).forEach(([postId, voteType]) => {
+                toggleButtonStates(postId, voteType);
+            });
+        }
+    } catch (error) {
+        console.error('Error fetching user votes:', error);
+    }
+}
+
+// Call initializeVoteStates when the page loads
+document.addEventListener('DOMContentLoaded', initializeVoteStates);
