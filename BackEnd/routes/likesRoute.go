@@ -47,4 +47,10 @@ func LikesRoutes(db *sql.DB) {
 		handlers.GetUserCommentVotesHandler(CommentVotesController),
 		middleware.AuthMiddleware,
 	))
+
+	http.Handle("/getUserLikePosts", middleware.ApplyMiddleware(
+		handlers.GetUserPostLikesHandler(LikesController),
+		middleware.AuthMiddleware,
+		likesLimiter.RateLimit,
+	))
 }
