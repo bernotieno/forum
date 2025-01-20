@@ -26,7 +26,7 @@ func main() {
 	logger.Info("Starting application...")
 
 	db, err := database.Init("Development")
-	if err == nil {
+	if err != nil {
 		fmt.Println("An error occured while initializing Database")
 		os.Exit(1)
 	}
