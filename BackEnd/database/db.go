@@ -9,12 +9,23 @@ import (
 
 var GloabalDB *sql.DB
 
-func Init() *sql.DB {
-	DB, err := sql.Open("sqlite3", "./BackEnd/database/storage/forum.db")
-	if err != nil {
-		logger.Error("Failed to open database connection: %v", err)
-		return nil
+func Init(env string) (*sql.DB, error) {
+	var DB *sql.DB
+	var err error
+	if env == "Test" {
+		DB, err = sql.Open("sqlite3", ":memory:")
+		if err != nil {
+			logger.Error("Failed to open Test database connection: %v", err)
+			return nil, err
+		}
+	} else {
+		DB, err = sql.Open("sqlite3", "./BackEnd/database/storage/forum.db")
+		if err != nil {
+			logger.Error("Failed to open database connection: %v", err)
+			return nil, err
+		}
 	}
+
 	GloabalDB = DB
 
 	// Create Users table
@@ -28,7 +39,7 @@ func Init() *sql.DB {
     `)
 	if err != nil {
 		logger.Error("Failed to create users table: %v", err)
-		return nil
+		return nil, err
 	}
 
 	// Create Posts table
@@ -50,7 +61,7 @@ func Init() *sql.DB {
     `)
 	if err != nil {
 		logger.Error("Failed to create posts table: %v", err)
-		return nil
+		return nil, err
 	}
 
 	// Create Comments table
@@ -73,7 +84,7 @@ func Init() *sql.DB {
     `)
 	if err != nil {
 		logger.Error("Failed to create comments table: %v", err)
-		return nil
+		return nil, err
 	}
 
 	// Create Sessions table
@@ -87,7 +98,7 @@ func Init() *sql.DB {
     `)
 	if err != nil {
 		logger.Error("Failed to create sessions table: %v", err)
-		return nil
+		return nil, err
 	}
 
 	// Create CSRF Tokens table
@@ -102,7 +113,7 @@ func Init() *sql.DB {
     `)
 	if err != nil {
 		logger.Error("Failed to create csrf_tokens table: %v", err)
-		return nil
+		return nil, err
 	}
 
 	// Create Likes table
@@ -118,7 +129,7 @@ func Init() *sql.DB {
     `)
 	if err != nil {
 		logger.Error("Failed to create likes table: %v", err)
-		return nil
+		return nil, err
 	}
 
 	// Create Comment Votes table
@@ -136,8 +147,8 @@ func Init() *sql.DB {
     `)
 	if err != nil {
 		logger.Error("Failed to create comment_votes table: %v", err)
-		return nil
+		return nil, err
 	}
 
-	return DB
+	return DB, nil
 }
