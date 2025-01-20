@@ -196,3 +196,42 @@ func (lc *LikesController) GetUserVotes(userID int) (map[string]string, error) {
 
 	return userVotes, nil
 }
+
+func (lc *LikesController) GetUserLikesPosts(userID int) ([]models.Post, error) {
+	// Query the database to get the user's liked posts
+	query := `
+        SELECT p.id, p.title, p.author, p.user_id, p.category, p.likes, p.dislikes, p.user_vote, p.content, p.image_url, p.timestamp
+        FROM posts p
+        INNER JOIN likes l ON p.id = l.post_id
+        WHERE l.user_id = ? AND l.user_vote = 'like';
+    `
+	rows, err := lc.DB.Query(query, userID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query user likes: %v", err)
+	}
+	defer rows.Close()
+
+	// Create a slice to store the user's liked posts
+	var userLikes []models.Post
+	for rows.Next() {
+		var post models.Post
+		if err := rows.Scan(
+			&post.ID,
+			&post.Title,
+			&post.Author,
+			&post.UserID,
+			&post.Category,
+			&post.Likes,
+			&post.Dislikes,
+			&post.UserVote,
+			&post.Content,
+			&post.ImageUrl,
+			&post.Timestamp,
+		); err != nil {
+			return nil, fmt.Errorf("failed to scan user likes: %v", err)
+		}
+		userLikes = append(userLikes, post)
+	}
+
+	return userLikes, nil
+}
