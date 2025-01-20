@@ -407,13 +407,30 @@ body {
     font-weight: 600;
     color: var(--text-primary);
 }
-.post-category {
+/* .post-category {
     padding: 2px 8px;
     border-radius: 12px;
     font-size: 12px;
     border: 1px solid var(--border-color);
     color: var(--text-primary);
+} */
+
+.horizontal {
+    list-style-type: none; /* Remove bullet points */
+    padding: 0;
+    margin: 0;
+    display: flex; /* Display list items in a row */
 }
+
+.horizontal .tag {
+    margin-right: 10px; /* Space between tags */
+    text-decoration: none; /* Remove text decoration */
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    color: var(--text-primary);
+    padding: 2px 8px;
+}
+
 .post-title {
     cursor: pointer;
 }
