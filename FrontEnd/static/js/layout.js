@@ -49,7 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
         
         posts.forEach(post => {
             const postCategory = post.getAttribute("data-category")?.toLowerCase() || "";
-            if (selectedCategory === "all" || selectedCategory === "home" || postCategory === selectedCategory) {
+            if (selectedCategory === "all" || selectedCategory === "home" || postCategory.includes(selectedCategory)) {
                 post.style.display = "block";
             } else {
                 post.style.display = "none";
