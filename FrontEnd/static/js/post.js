@@ -146,7 +146,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const formData = new FormData();
         formData.append('title', title);
         formData.append('content', content);
-        formData.append('category', categories.join(',')); 
+        formData.append('category', categories.join(",")); 
+
 
         // Append the file if selected
         if (fileInput.files.length > 0) {

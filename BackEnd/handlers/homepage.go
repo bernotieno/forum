@@ -3,6 +3,7 @@ package handlers
 import (
 	"database/sql"
 	"net/http"
+	"strings"
 	"text/template"
 	"time"
 
@@ -69,7 +70,10 @@ func (h *HomePageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		"formatTime": func(t time.Time) string {
 			return t.Format("Jan 02, 2006 at 15:04")
 		},
+		"split": strings.Split,
+		"trim":  strings.TrimSpace,
 	}
+
 	// Create template with function map
 	tmpl, err := template.New("layout.html").Funcs(funcMap).ParseFiles(
 		"./FrontEnd/templates/layout.html",
