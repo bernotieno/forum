@@ -33,9 +33,9 @@
     </div>
         <div id="userSection" class="profile-section">
             {{if .IsAuthenticated}}
-                <a href="/create-post" class="button-primary-user">
+                <a href="/create-post" class="button-post">
                     <i class="fas fa-plus"></i>
-                    Post
+                    New Post
                 </a>
                 <div class="profile-image">
                     <img src="../static/images/default-avatar.png" alt="Profile" class="avatar" onclick="toggleDropdown()">
@@ -56,7 +56,6 @@
         </div>
         
     </header>
-
     <!-- Common Sidebar -->
     <div class="container">
         <aside class="sidebar">
@@ -75,7 +74,6 @@
                     All
                 </a>
             </div>
-
             <div class="sidebar-section">
                 <h3 class="sidebar-title">COMMUNITIES</h3>
                 <a href="#" class="sidebar-link">
@@ -124,18 +122,15 @@
                 </a>
             </div>
         </aside>
-
         <!-- Content Area -->
         <main class="main-content">
             {{template "content" .}}
         </main>
     </div>
-
     <!-- Common Footer -->
     <footer class="footer">
         <!-- Add your footer content here -->
     </footer>
-
     <!-- Common Scripts -->
     {{template "scripts" .}}
     <script src="../static/js/layout.js"></script>
