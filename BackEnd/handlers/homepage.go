@@ -10,12 +10,15 @@ import (
 	"github.com/Raymond9734/forum.git/BackEnd/logger"
 	"github.com/Raymond9734/forum.git/BackEnd/models"
 )
+
 type HomePageHandler struct {
 	db *sql.DB
 }
+
 func NewHomePageHandler(db *sql.DB) http.HandlerFunc {
 	return (&HomePageHandler{db: db}).ServeHTTP
 }
+
 func (h *HomePageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 	// Check if user is logged in
@@ -45,12 +48,11 @@ func (h *HomePageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	
-    // Add IsAuthor field to each post and fetch comment count
-    commentController := controllers.NewCommentController(h.db)
+	// Add IsAuthor field to each post and fetch comment count
+	commentController := controllers.NewCommentController(h.db)
 	for i := range posts {
 		posts[i].IsAuthor = loggedIn && posts[i].UserID == userID
-	
+
 		// Fetch total comment count including replies
 		commentCount, err := commentController.GetCommentCountByPostID(posts[i].ID)
 		if err != nil {
@@ -58,8 +60,8 @@ func (h *HomePageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Failed to fetch comment count", http.StatusInternalServerError)
 			return
 		}
-		posts[i].Comments = make([]models.Comment, 0) 
-		posts[i].CommentCount = commentCount         
+		posts[i].Comments = make([]models.Comment, 0)
+		posts[i].CommentCount = commentCount
 	}
 
 	// Create template function map
@@ -81,10 +83,12 @@ func (h *HomePageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		IsAuthenticated bool
 		CSRFToken       string
 		Posts           []models.Post
+		UserID          int
 	}{
 		IsAuthenticated: loggedIn,
 		CSRFToken:       csrfToken,
 		Posts:           posts,
+		UserID:          userID,
 	}
 	// Execute template with data
 	err = tmpl.ExecuteTemplate(w, "layout.html", data)
