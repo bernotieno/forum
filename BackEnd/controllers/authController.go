@@ -21,6 +21,11 @@ func NewAuthController(db *sql.DB) *AuthController {
 }
 
 func (ac *AuthController) RegisterUser(email, username, password string) (int64, error) {
+	
+	if email == "" || username == "" || password == "" {
+		logger.Warning("Registration failed - missing required fields")
+		return 0, errors.New("missing required fields")
+	}
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		logger.Error("Failed to hash password: %v", err)
