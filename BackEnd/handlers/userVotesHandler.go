@@ -4,9 +4,13 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"strings"
+	"text/template"
+	"time"
 
 	"github.com/Raymond9734/forum.git/BackEnd/controllers"
 	"github.com/Raymond9734/forum.git/BackEnd/logger"
+	"github.com/Raymond9734/forum.git/BackEnd/models"
 )
 
 func CreateUserVoteHandler(lc *controllers.LikesController) http.HandlerFunc {
@@ -161,5 +165,90 @@ func GetUserVotesHandler(lc *controllers.LikesController) http.HandlerFunc {
 		// Return the user's votes as JSON
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(userVote)
+	}
+}
+
+func GetUserPostLikesHandler(lc *controllers.LikesController) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html")
+
+		// Check if user is logged in
+		loggedIn, userID := isLoggedIn(lc.DB, r)
+		var csrfToken string
+		if loggedIn {
+			sessionToken, err := controllers.GetSessionToken(r)
+			if err != nil {
+				logger.Error("Error getting session token: %s", err)
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				return
+			}
+			// Generate CSRF token for the session
+			csrfToken, err = controllers.GenerateCSRFToken(lc.DB, sessionToken)
+			if err != nil {
+				logger.Error("Error generating CSRF token: %V", err)
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				return
+			}
+		}
+		// Fetch posts created by the logged-in user
+		userPosts, err := lc.GetUserLikesPosts(userID)
+		if err != nil {
+			http.Error(w, "Failed to fetch user posts", http.StatusInternalServerError)
+			return
+		}
+
+		// Add IsAuthor field to each post and fetch comment count
+		commentController := controllers.NewCommentController(lc.DB)
+		for i := range userPosts {
+			userPosts[i].IsAuthor = loggedIn && userPosts[i].UserID == userID
+
+			// Fetch total comment count including replies
+			commentCount, err := commentController.GetCommentCountByPostID(userPosts[i].ID)
+			if err != nil {
+				logger.Error("Failed to fetch comment count for post %d: %v", userPosts[i].ID, err)
+				http.Error(w, "Failed to fetch comment count", http.StatusInternalServerError)
+				return
+			}
+			userPosts[i].Comments = make([]models.Comment, 0)
+			userPosts[i].CommentCount = commentCount
+		}
+
+		// Create template function map
+		funcMap := template.FuncMap{
+			"formatTime": func(t time.Time) string {
+				return t.Format("Jan 02, 2006 at 15:04")
+			},
+			"split": strings.Split,
+			"trim":  strings.TrimSpace,
+		}
+
+		// Create template with function map
+		tmpl, err := template.New("layout.html").Funcs(funcMap).ParseFiles(
+			"./FrontEnd/templates/layout.html",
+			"./FrontEnd/templates/homepage.html",
+		)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		// Prepare data for the template
+		data := struct {
+			IsAuthenticated bool
+			CSRFToken       string
+			Posts           []models.Post
+			UserID          int
+		}{
+			IsAuthenticated: loggedIn,
+			CSRFToken:       csrfToken,
+			Posts:           userPosts, // Only the user's posts
+			UserID:          userID,
+		}
+
+		// Execute template with data
+		err = tmpl.ExecuteTemplate(w, "layout.html", data)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 	}
 }
