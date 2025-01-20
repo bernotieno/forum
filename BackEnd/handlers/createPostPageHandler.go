@@ -11,7 +11,7 @@ import (
 
 func CreatePostPageHandler(w http.ResponseWriter, r *http.Request) {
 	// Check if user is logged in
-	loggedIn, _ := isLoggedIn(database.GloabalDB, r)
+	loggedIn, UserID := isLoggedIn(database.GloabalDB, r)
 	if !loggedIn {
 		http.Redirect(w, r, "/login_Page", http.StatusSeeOther)
 		return
@@ -35,9 +35,11 @@ func CreatePostPageHandler(w http.ResponseWriter, r *http.Request) {
 	data := struct {
 		IsAuthenticated bool
 		CSRFToken       string
+		UserID          int
 	}{
 		IsAuthenticated: loggedIn,
 		CSRFToken:       csrfToken,
+		UserID:          UserID,
 	}
 
 	tmpl, err := template.ParseFiles(

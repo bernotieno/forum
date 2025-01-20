@@ -31,7 +31,7 @@
             <input type="text" class="search-input" placeholder="Search...">
         </div>
     </div>
-        <div id="userSection" class="profile-section">
+        <div id="userSection" data-user-id="{{.UserID}}"  class="profile-section">
             {{if .IsAuthenticated}}
                 <a href="/create-post" class="button-post">
                     <i class="fas fa-plus"></i>
@@ -39,8 +39,13 @@
                 </a>
                 <div class="profile-image">
                     <img src="../static/images/default-avatar.png" alt="Profile" class="avatar" onclick="toggleDropdown()">
-                    <div class="dropdown-content">
-                        <a href="/edit-profile">Edit Profile</a>
+                    <div class="dropdown-content hidden">
+                        <a href="#" onclick="toggleSubDropdown(event)">My Activities <i id="activitiesIcon" class="fas fa-chevron-right"></i></a>
+                        <div id="myActivitiesDropdown" class="sub-dropdown hidden">
+                            <a href="#" onclick="filterContent('posts')">My Posts</a>
+                            <a href="#" onclick="filterContent('likes')">My Likes</a>
+                            <a href="#" onclick="filterContent('comments')">My Comments</a>
+                        </div>
                         <a id="logoutButton">Logout</a>
                     </div>
                 </div>
@@ -124,6 +129,9 @@
         </aside>
         <!-- Content Area -->
         <main class="main-content">
+            <div id="contentContainer">
+                <!-- Filtered content will be displayed here -->
+            </div>
             {{template "content" .}}
         </main>
     </div>
