@@ -74,6 +74,9 @@ func (cc *CommentController) GetCommentsByPostID(postID string) ([]models.Commen
 	if err != nil {
 		return nil, fmt.Errorf("invalid post ID: %w", err)
 	}
+	if postIDInt <= 0 {
+		return nil, fmt.Errorf("invalid post ID")
+	}
 
 	rows, err := cc.DB.Query(`
         WITH RECURSIVE CommentTree AS (
@@ -227,7 +230,6 @@ func (cc *CommentController) IsCommentAuthor(commentID, userID int) (bool, error
         FROM comments 
         WHERE id = ? AND user_id = ?
     `, commentID, userID).Scan(&count)
-
 	if err != nil {
 		return false, fmt.Errorf("failed to check comment author: %w", err)
 	}
@@ -256,3 +258,4 @@ func (cc *CommentController) UpdateComment(commentID int, content string) error 
 
 	return nil
 }
+
