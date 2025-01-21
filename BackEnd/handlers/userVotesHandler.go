@@ -15,13 +15,6 @@ import (
 
 func CreateUserVoteHandler(lc *controllers.LikesController) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// Ensure the request method is POST
-		if r.Method != http.MethodPost {
-			logger.Error("Invalid method %s for Like attempt in Like Handler", r.Method)
-			http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
-			return
-		}
-
 		// Check if the user is logged in
 		loggedIn, userID := isLoggedIn(lc.DB, r)
 		if !loggedIn {
@@ -179,21 +172,21 @@ func GetUserPostLikesHandler(lc *controllers.LikesController) http.HandlerFunc {
 			sessionToken, err := controllers.GetSessionToken(r)
 			if err != nil {
 				logger.Error("Error getting session token: %s", err)
-				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
 			// Generate CSRF token for the session
 			csrfToken, err = controllers.GenerateCSRFToken(lc.DB, sessionToken)
 			if err != nil {
 				logger.Error("Error generating CSRF token: %V", err)
-				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
 		}
 		// Fetch posts created by the logged-in user
 		userPosts, err := lc.GetUserLikesPosts(userID)
 		if err != nil {
-			http.Error(w, "Failed to fetch user posts", http.StatusInternalServerError)
+			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
@@ -206,7 +199,7 @@ func GetUserPostLikesHandler(lc *controllers.LikesController) http.HandlerFunc {
 			commentCount, err := commentController.GetCommentCountByPostID(userPosts[i].ID)
 			if err != nil {
 				logger.Error("Failed to fetch comment count for post %d: %v", userPosts[i].ID, err)
-				http.Error(w, "Failed to fetch comment count", http.StatusInternalServerError)
+				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
 			userPosts[i].Comments = make([]models.Comment, 0)
@@ -228,7 +221,8 @@ func GetUserPostLikesHandler(lc *controllers.LikesController) http.HandlerFunc {
 			"./FrontEnd/templates/homepage.html",
 		)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			logger.Error("An Error Occured while Rendering template %v", err)
+			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
