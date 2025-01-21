@@ -15,12 +15,6 @@ import (
 // RegisterHandler registers a new user
 func RegisterHandler(ac *controllers.AuthController) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodPost {
-			logger.Warning("Invalid method %s for registration attempt", r.Method)
-			http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
-			return
-		}
-
 		var req models.RegisterRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			logger.Error("Failed to decode registration request: %v", err)
@@ -96,12 +90,6 @@ func RegisterHandler(ac *controllers.AuthController) http.HandlerFunc {
 // LoginHandler authenticates and creates a session
 func LoginHandler(ac *controllers.AuthController) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodPost {
-			logger.Warning("Invalid method %s for login attempt", r.Method)
-			http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
-			return
-		}
-
 		var req struct {
 			Username string `json:"username"`
 			Password string `json:"password"`
@@ -175,7 +163,7 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("session_token")
 	if err != nil {
 		logger.Debug("Logout attempted with no active session")
-		http.Error(w, "No active session", http.StatusUnauthorized)
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
@@ -184,7 +172,7 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	err = controllers.DeleteSession(database.GloabalDB, sessionToken)
 	if err != nil {
 		logger.Error("Failed to delete session: %v", err)
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
