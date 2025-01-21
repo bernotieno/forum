@@ -60,7 +60,7 @@ func UploadFile(r *http.Request, formName string, userID int) (string, error) {
 	return filePath, nil
 }
 
-func removeImages(imagePaths []string) error {
+func RemoveImages(imagePaths []string) error {
 	for _, imagePath := range imagePaths {
 		// Remove the "uploads/" prefix if it exists in the imagePath
 		cleanedPath := strings.TrimPrefix(imagePath, "/")
