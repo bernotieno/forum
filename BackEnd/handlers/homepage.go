@@ -29,14 +29,14 @@ func (h *HomePageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		sessionToken, err := controllers.GetSessionToken(r)
 		if err != nil {
 			logger.Error("Error getting session token: %s", err)
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 		// Generate CSRF token for the session
 		csrfToken, err = controllers.GenerateCSRFToken(h.db, sessionToken)
 		if err != nil {
 			logger.Error("Error generating CSRF token: %V", err)
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 	}
@@ -45,7 +45,8 @@ func (h *HomePageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Fetch posts from the database using the controller
 	posts, err := postController.GetAllPosts()
 	if err != nil {
-		http.Error(w, "Failed to fetch posts", http.StatusInternalServerError)
+		logger.Error("Failed to fetch Posts %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
@@ -58,7 +59,7 @@ func (h *HomePageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		commentCount, err := commentController.GetCommentCountByPostID(posts[i].ID)
 		if err != nil {
 			logger.Error("Failed to fetch comment count for post %d: %v", posts[i].ID, err)
-			http.Error(w, "Failed to fetch comment count", http.StatusInternalServerError)
+			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 		posts[i].Comments = make([]models.Comment, 0)
@@ -80,7 +81,7 @@ func (h *HomePageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		"./FrontEnd/templates/homepage.html",
 	)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	data := struct {
@@ -97,6 +98,6 @@ func (h *HomePageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Execute template with data
 	err = tmpl.ExecuteTemplate(w, "layout.html", data)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		w.WriteHeader(http.StatusInternalServerError)
 	}
 }
