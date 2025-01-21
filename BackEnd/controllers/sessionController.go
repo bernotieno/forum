@@ -6,6 +6,8 @@ import (
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/Raymond9734/forum.git/BackEnd/logger"
 )
 
 // Helper function to check if a session is valid
@@ -69,16 +71,24 @@ func DeleteUserSessions(db *sql.DB, userID int) error {
 
 // Cleanup expired sessions (replace with your actual cleanup logic)
 func CleanupExpiredSessions(ctx context.Context, db *sql.DB) {
-	ticker := time.NewTicker(1 * time.Hour) // Run cleanup every hour
+	// Run cleanup immediately when the function is called
+	logger.Info("Running initial cleanup of expired sessions...")
+	_, err := db.Exec("DELETE FROM sessions WHERE expires_at < ?", time.Now())
+	if err != nil {
+		log.Printf("Failed to clean up expired sessions: %v\n", err)
+	}
+
+	// Start a ticker to run cleanup at intervals of one hour
+	ticker := time.NewTicker(1 * time.Hour)
 	defer ticker.Stop()
 
 	for {
 		select {
 		case <-ctx.Done():
-			log.Println("Stopping session cleanup task...")
+			logger.Info("Stopping session cleanup task...")
 			return
 		case <-ticker.C:
-			log.Println("Cleaning up expired sessions...")
+			logger.Info("Cleaning up expired sessions...")
 			_, err := db.Exec("DELETE FROM sessions WHERE expires_at < ?", time.Now())
 			if err != nil {
 				log.Printf("Failed to clean up expired sessions: %v\n", err)
