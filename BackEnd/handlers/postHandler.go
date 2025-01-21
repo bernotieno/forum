@@ -3,7 +3,6 @@ package handlers
 import (
 	"database/sql"
 	"encoding/json"
-	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -15,13 +14,6 @@ import (
 
 func CreatePostHandler(pc *controllers.PostController) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// Ensure the request method is POST
-		if r.Method != http.MethodPost {
-			logger.Error("Invalid method %s for Post attempt in Post Handler", r.Method)
-			http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
-			return
-		}
-
 		// Check if the user is logged in
 		loggedIn, userID := isLoggedIn(pc.DB, r)
 		if !loggedIn {
@@ -135,13 +127,6 @@ func CreatePostHandler(pc *controllers.PostController) http.HandlerFunc {
 // UpdatePostHandler handles PUT requests for updating a post
 func UpdatePostHandler(pc *controllers.PostController) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// Ensure the request method is PUT
-		if r.Method != http.MethodPut {
-			log.Printf("Invalid method %s for Update attempt in UpdatePostHandler", r.Method)
-			http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
-			return
-		}
-
 		// Check if the user is logged in
 		loggedIn, userID := isLoggedIn(pc.DB, r)
 		if !loggedIn {
@@ -174,7 +159,8 @@ func UpdatePostHandler(pc *controllers.PostController) http.HandlerFunc {
 		// Extract post ID from URL
 		postID := r.URL.Query().Get("id")
 		if postID == "" {
-			http.Error(w, "Post ID is required", http.StatusBadRequest)
+			logger.Warning("Post Id Is empty")
+			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
@@ -278,13 +264,6 @@ func UpdatePostHandler(pc *controllers.PostController) http.HandlerFunc {
 // DeletePostHandler handles DELETE requests for deleting a post
 func DeletePostHandler(pc *controllers.PostController) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// Ensure the request method is DELETE
-		if r.Method != http.MethodDelete {
-			logger.Warning("Invalid method %s for Delete attempt in DeletePostHandler", r.Method)
-			http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
-			return
-		}
-
 		// Check if the user is logged in
 		loggedIn, userID := isLoggedIn(pc.DB, r)
 		if !loggedIn {
