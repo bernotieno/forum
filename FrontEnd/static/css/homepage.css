@@ -603,6 +603,13 @@ body {
 .button-primary {
     background-color: var(--accent-color);
     color: white;
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-primary);
+    padding: 8px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 .button-secondary {
     background-color: transparent;
@@ -824,8 +831,15 @@ body {
 }
 .button-primary {
     background-color: var(--accent-color);
-    color: white;
+    /* color: white; */
     border: none;
+    border: 1px solid var(--border-color);
+    /* background: transparent; */
+    color: var(--text-primary);
+    padding: 8px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 .button-secondary {
     background-color: transparent;
