@@ -3,10 +3,10 @@ package middleware
 import (
 	"database/sql"
 	"encoding/json"
-	"log"
 	"net/http"
 
 	"github.com/Raymond9734/forum.git/BackEnd/controllers"
+	"github.com/Raymond9734/forum.git/BackEnd/logger"
 )
 
 // VerifyCSRFMiddleware is a middleware function to verify CSRF tokens
@@ -21,7 +21,7 @@ func VerifyCSRFMiddleware(db *sql.DB) func(http.Handler) http.Handler {
 
 			// Verify the CSRF token
 			if !controllers.VerifyCSRFToken(db, r) {
-				log.Printf("Invalid CSRF token in request - remote_addr: %s, method: %s, path: %s",
+				logger.Warning("Invalid CSRF token in request - remote_addr: %s, method: %s, path: %s",
 					r.RemoteAddr,
 					r.Method,
 					r.URL.Path,
