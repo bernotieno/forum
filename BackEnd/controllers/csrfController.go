@@ -5,9 +5,12 @@ import (
 	"crypto/rand"
 	"database/sql"
 	"encoding/base64"
+	"errors"
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/Raymond9734/forum.git/BackEnd/logger"
 )
 
 func GenerateCSRFToken(db *sql.DB, sessionToken string) (string, error) {
@@ -79,6 +82,9 @@ func VerifyCSRFToken(db *sql.DB, r *http.Request) bool {
 
 // AddCSRFToken stores a new CSRF token in the database
 func AddCSRFToken(db *sql.DB, sessionToken string, csrfToken string, expiresAt time.Time) error {
+	if sessionToken == "" {
+		return errors.New("session token is empty")
+	}
 	_, err := db.Exec("INSERT OR REPLACE INTO csrf_tokens (session_token, csrf_token, expires_at) VALUES (?, ?, ?)",
 		sessionToken, csrfToken, expiresAt)
 	return err
@@ -86,6 +92,9 @@ func AddCSRFToken(db *sql.DB, sessionToken string, csrfToken string, expiresAt t
 
 // GetCSRFToken retrieves the CSRF token for a session from the database
 func GetCSRFToken(db *sql.DB, sessionToken string) (string, time.Time, error) {
+	if sessionToken == "" {
+		return "", time.Time{}, errors.New("session token is empty")
+	}
 	var token string
 	var expiresAt time.Time
 	err := db.QueryRow("SELECT csrf_token, expires_at FROM csrf_tokens WHERE session_token = ?", sessionToken).
@@ -101,16 +110,24 @@ func DeleteCSRFToken(db *sql.DB, sessionToken string) error {
 
 // Cleanup expired CSRF tokens (replace with your actual cleanup logic)
 func CleanupExpiredCSRFTokens(ctx context.Context, db *sql.DB) {
-	ticker := time.NewTicker(1 * time.Hour) // Run cleanup every hour
+	// Run cleanup immediately when the function is called
+	logger.Info("Running initial cleanup of expired CSRF tokens...")
+	_, err := db.Exec("DELETE FROM csrf_tokens WHERE expires_at < ?", time.Now())
+	if err != nil {
+		log.Printf("Failed to clean up expired CSRF tokens: %v\n", err)
+	}
+
+	// Start a ticker to run cleanup at intervals of one hour
+	ticker := time.NewTicker(1 * time.Hour)
 	defer ticker.Stop()
 
 	for {
 		select {
 		case <-ctx.Done():
-			log.Println("Stopping CSRF token cleanup task...")
+			logger.Info("Stopping CSRF token cleanup task...")
 			return
 		case <-ticker.C:
-			log.Println("Cleaning up expired CSRF tokens...")
+			logger.Info("Cleaning up expired CSRF tokens...")
 			_, err := db.Exec("DELETE FROM csrf_tokens WHERE expires_at < ?", time.Now())
 			if err != nil {
 				log.Printf("Failed to clean up expired CSRF tokens: %v\n", err)

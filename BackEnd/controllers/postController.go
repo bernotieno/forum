@@ -18,6 +18,9 @@ func NewPostController(db *sql.DB) *PostController {
 }
 
 func (pc *PostController) InsertPost(post models.Post) (int, error) {
+	if post.Title == "" {
+		return 0, errors.New("post title is required")
+	}
 	// Insert the post with the UserID
 	result, err := pc.DB.Exec(`
 		INSERT INTO posts (title, user_id, author, category, likes, dislikes, user_vote, content, timestamp, image_url)
@@ -89,12 +92,12 @@ func (pc *PostController) UpdatePost(post models.Post) error {
 	// Prepare the SQL statement for updating the post
 	query := `
 	UPDATE posts
-	SET Title = ?, Author = ?, UserID = ?, Category = ?, Likes = ?, Dislikes = ?, UserVote = ?, Content = ?, ImageUrl = ?, Timestamp = ?
-	WHERE ID = ?;
+	SET title = ?, author = ?, user_id = ?, category = ?, likes = ?, dislikes = ?, user_vote = ?, content = ?, image_url = ?, timestamp = ?
+	WHERE id = ?;
 	`
 
 	// Execute the SQL statement with the post data
-	_, err := pc.DB.Exec(query,
+	result, err := pc.DB.Exec(query,
 		post.Title,
 		post.Author,
 		post.UserID,
@@ -108,7 +111,16 @@ func (pc *PostController) UpdatePost(post models.Post) error {
 		post.ID,
 	)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to update post: %w", err)
+	}
+
+	// Check if any rows were affected
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("failed to check rows affected: %w", err)
+	}
+	if rowsAffected == 0 {
+		return fmt.Errorf("no post found with ID %d", post.ID)
 	}
 
 	return nil
@@ -177,7 +189,7 @@ func (pc *PostController) DeletePost(postID, userID int) error {
 	}
 
 	// Step 4: Delete the image files from the upload folder
-	err = removeImages(imagePaths)
+	err = RemoveImages(imagePaths)
 	if err != nil {
 		return fmt.Errorf("failed to delete image files: %w", err)
 	}

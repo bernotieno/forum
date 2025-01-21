@@ -1,10 +1,11 @@
-package controllers
+package Test
 
 import (
 	"database/sql"
 	"testing"
 	"time"
 
+	"github.com/Raymond9734/forum.git/BackEnd/controllers"
 	"github.com/Raymond9734/forum.git/BackEnd/database"
 	"github.com/Raymond9734/forum.git/BackEnd/models"
 )
@@ -32,7 +33,7 @@ func TestCommentController_InsertComment(t *testing.T) {
 	defer db.Close()
 
 	// Create a CommentController instance
-	cCtrl := NewCommentController(db)
+	cCtrl := controllers.NewCommentController(db)
 
 	// Define a base comment for testing
 	baseComment := models.Comment{
@@ -206,7 +207,7 @@ func TestCommentController_GetCommentsByPostID(t *testing.T) {
 	defer db.Close()
 
 	// Create a CommentController instance
-	cCtrl := NewCommentController(db)
+	cCtrl := controllers.NewCommentController(db)
 
 	// Define a base comment for testing
 	baseComment := models.Comment{
@@ -362,7 +363,7 @@ func TestCommentController_GetCommentCountByPostID(t *testing.T) {
 	defer db.Close()
 
 	// Create a CommentController instance
-	cCtrl := NewCommentController(db)
+	cCtrl := controllers.NewCommentController(db)
 
 	// Insert test comments
 	comment := models.Comment{
@@ -448,7 +449,7 @@ func TestCommentController_DeleteComment(t *testing.T) {
 	defer db.Close()
 
 	// Create a CommentController instance
-	cCtrl := NewCommentController(db)
+	cCtrl := controllers.NewCommentController(db)
 
 	// Insert a test comment
 	comment := models.Comment{
@@ -527,7 +528,7 @@ func TestCommentController_IsCommentAuthor(t *testing.T) {
 	defer db.Close()
 
 	// Create a CommentController instance
-	cCtrl := NewCommentController(db)
+	cCtrl := controllers.NewCommentController(db)
 
 	// Insert a test comment
 	comment := models.Comment{
@@ -624,7 +625,7 @@ func TestCommentController_UpdateComment(t *testing.T) {
 	defer db.Close()
 
 	// Create a CommentController instance
-	cCtrl := NewCommentController(db)
+	cCtrl := controllers.NewCommentController(db)
 
 	// Insert a test comment
 	comment := models.Comment{

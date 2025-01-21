@@ -1,9 +1,10 @@
-package controllers
+package Test
 
 import (
 	"database/sql"
 	"testing"
 
+	"github.com/Raymond9734/forum.git/BackEnd/controllers"
 	"github.com/Raymond9734/forum.git/BackEnd/database"
 	"github.com/Raymond9734/forum.git/BackEnd/logger"
 	"github.com/Raymond9734/forum.git/BackEnd/models"
@@ -81,7 +82,7 @@ func TestAuthController_RegisterUser(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ac := &AuthController{
+			ac := &controllers.AuthController{
 				DB: tt.fields.DB,
 			}
 			got, err := ac.RegisterUser(tt.args.email, tt.args.username, tt.args.password)
@@ -180,7 +181,7 @@ func TestAuthController_AuthenticateUser(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ac := &AuthController{
+			ac := &controllers.AuthController{
 				DB: tt.fields.DB,
 			}
 			got, err := ac.AuthenticateUser(tt.args.username, tt.args.password)
@@ -247,7 +248,7 @@ func TestAuthController_IsValidEmail(t *testing.T) {
 		},
 	}
 
-	ac := &AuthController{}
+	ac := &controllers.AuthController{}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -307,7 +308,7 @@ func TestAuthController_IsValidUsername(t *testing.T) {
 		},
 	}
 
-	ac := &AuthController{}
+	ac := &controllers.AuthController{}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -367,7 +368,7 @@ func TestAuthController_IsValidPassword(t *testing.T) {
 		},
 	}
 
-	ac := &AuthController{}
+	ac := &controllers.AuthController{}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -429,7 +430,7 @@ func TestGetUsernameByID(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := GetUsernameByID(db, tt.userID)
+			got := controllers.GetUsernameByID(db, tt.userID)
 			if got != tt.want {
 				t.Errorf("GetUsernameByID() = %v, want %v", got, tt.want)
 			}
