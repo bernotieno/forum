@@ -1,3 +1,4 @@
+// models/userModel.go:
 package models
 
 type User struct {
