@@ -21,17 +21,12 @@ func NewViewPostHandler(db *sql.DB) http.HandlerFunc {
 }
 
 func (h *ViewPostHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
 	w.Header().Set("Content-Type", "text/html")
 
 	// Extract post ID from URL
 	postID := r.URL.Query().Get("id")
 	if postID == "" {
-		http.Error(w, "Post ID is required", http.StatusBadRequest)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -44,7 +39,7 @@ func (h *ViewPostHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		sessionToken, err := controllers.GetSessionToken(r)
 		if err != nil {
 			logger.Error("Error getting session token: %s", err)
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 		csrfToken, _ = controllers.GenerateCSRFToken(h.db, sessionToken)
@@ -56,7 +51,8 @@ func (h *ViewPostHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Fetch the post from the database
 	post, err := postController.GetPostByID(postID)
 	if err != nil {
-		http.Error(w, "Failed to fetch post", http.StatusInternalServerError)
+		logger.Error("Failed to fetch Posts %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
@@ -68,7 +64,7 @@ func (h *ViewPostHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	comments, err := commentController.GetCommentsByPostID(postID)
 	if err != nil {
 		logger.Error("Failed to fetch comments: %v", err)
-		http.Error(w, "Failed to fetch comments", http.StatusInternalServerError)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
@@ -76,7 +72,7 @@ func (h *ViewPostHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	commentCount, err := commentController.GetCommentCountByPostID(post.ID)
 	if err != nil {
 		logger.Error("Failed to fetch comment count: %v", err)
-		http.Error(w, "Failed to fetch comment count", http.StatusInternalServerError)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	post.CommentCount = commentCount
@@ -108,7 +104,8 @@ func (h *ViewPostHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		"./FrontEnd/templates/viewPost.html",
 	)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		logger.Error("An error occured while rendering template %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
@@ -133,6 +130,7 @@ func (h *ViewPostHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	err = tmpl.ExecuteTemplate(w, "layout.html", data)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		logger.Error("An error occured while rendering template %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
 	}
 }
