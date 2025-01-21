@@ -1,3 +1,4 @@
+// handles/auth.go
 package handlers
 
 import (
@@ -97,6 +98,17 @@ func LoginHandler(ac *controllers.AuthController) http.HandlerFunc {
 
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			logger.Error("Failed to decode login request: %v", err)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(map[string]string{
+				"error": "Invalid input",
+			})
+			return
+		}
+
+		// Check for missing fields
+		if req.Username == "" || req.Password == "" {
+			logger.Warning("Login attempt with missing fields")
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(w).Encode(map[string]string{
