@@ -18,6 +18,8 @@ func HomeRoute(db *sql.DB) {
 		middleware.SetCSPHeaders,
 		middleware.CORSMiddleware,
 		homePageLimiter.RateLimit,
+		middleware.ErrorHandler,
+		middleware.ValidatePathAndMethod("/", http.MethodGet),
 	))
 
 	// http.HandleFunc("/",handlers.NewHomePageHandler(db))
