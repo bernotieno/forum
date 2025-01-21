@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.ErrorTitle}}</title>
+    <link rel="stylesheet" href="../static/css/errorPage.css">
+</head>
+<body>
+    <div class="container">
+        <svg class="error-icon" viewBox="0 0 24 24">
+            <path d="M12 5.99L19.53 19H4.47L12 5.99M12 2L1 21h22L12 2zm1 14h-2v2h2v-2zm0-6h-2v4h2v-4z"/>
+        </svg>
+        
+        <div class="error-code" id="errorCode">{{.ErrorCode}}</div>
+        <h1 class="error-title" id="errorTitle">{{.ErrorTitle}}</h1>
+        <p class="error-message" id="errorMessage">
+            {{.ErrorMessage}}
+        </p>
+        <button class="home-button" onclick="window.location.href='/'">
+            Back to Home
+        </button>
+    </div>
+</body>
+</html>
