@@ -24,6 +24,8 @@ func UserRegAndLogin(db *sql.DB) {
 		middleware.SetCSPHeaders,
 		middleware.CORSMiddleware,
 		authLimiter.RateLimit,
+		middleware.ErrorHandler,
+		middleware.ValidatePathAndMethod("/login", http.MethodPost),
 	))
 
 	http.Handle("/register", middleware.ApplyMiddleware(
@@ -31,6 +33,8 @@ func UserRegAndLogin(db *sql.DB) {
 		middleware.SetCSPHeaders,
 		middleware.CORSMiddleware,
 		authLimiter.RateLimit,
+		middleware.ErrorHandler,
+		middleware.ValidatePathAndMethod("/register", http.MethodPost),
 	))
 
 	http.Handle("/login_Page", middleware.ApplyMiddleware(
@@ -38,6 +42,8 @@ func UserRegAndLogin(db *sql.DB) {
 		middleware.SetCSPHeaders,
 		middleware.CORSMiddleware,
 		pageLimiter.RateLimit,
+		middleware.ErrorHandler,
+		middleware.ValidatePathAndMethod("/login_Page", http.MethodGet),
 	))
 
 	http.Handle("/checkLoginStatus", middleware.ApplyMiddleware(
@@ -45,6 +51,8 @@ func UserRegAndLogin(db *sql.DB) {
 		middleware.SetCSPHeaders,
 		middleware.CORSMiddleware,
 		pageLimiter.RateLimit,
+		middleware.ErrorHandler,
+		middleware.ValidatePathAndMethod("/checkLoginStatus", http.MethodGet),
 	))
 
 	http.Handle("/logout", middleware.ApplyMiddleware(
@@ -52,6 +60,8 @@ func UserRegAndLogin(db *sql.DB) {
 		middleware.SetCSPHeaders,
 		middleware.CORSMiddleware,
 		pageLimiter.RateLimit,
+		middleware.ErrorHandler,
 		middleware.VerifyCSRFMiddleware(db),
+		middleware.ValidatePathAndMethod("/logout", http.MethodPost),
 	))
 }
