@@ -3,7 +3,6 @@ package handlers
 import (
 	"database/sql"
 	"encoding/json"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -17,13 +16,6 @@ import (
 // CommentHandler handles requests for creating comments
 func CommentHandler(cCtrl *controllers.CommentController) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// Ensure the request method is POST
-		if r.Method != http.MethodPost {
-			log.Printf("Invalid method %s for comment creation attempt", r.Method)
-			http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
-			return
-		}
-
 		// Check if the user is logged in
 		loggedIn, userID := isLoggedIn(cCtrl.DB, r)
 		if !loggedIn {
@@ -132,13 +124,6 @@ func CommentHandler(cCtrl *controllers.CommentController) http.HandlerFunc {
 // DeleteCommentHandler handles requests for deleting comments
 func DeleteCommentHandler(cCtrl *controllers.CommentController) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// Ensure the request method is DELETE
-		if r.Method != http.MethodDelete {
-			log.Printf("Invalid method %s for comment deletion attempt", r.Method)
-			http.Error(w, "Invalid method", http.StatusMethodNotAllowed)
-			return
-		}
-
 		// Check if the user is logged in
 		loggedIn, userID := isLoggedIn(cCtrl.DB, r)
 		if !loggedIn {
@@ -234,22 +219,17 @@ func DeleteCommentHandler(cCtrl *controllers.CommentController) http.HandlerFunc
 
 func UpdateCommentHandler(cc *controllers.CommentController) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodPost {
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-			return
-		}
-
 		// Get comment ID from query parameters
 		commentID, err := strconv.Atoi(r.URL.Query().Get("id"))
 		if err != nil {
-			http.Error(w, "Invalid comment ID", http.StatusBadRequest)
+			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
 		// Check if user is logged in
 		loggedIn, userID := isLoggedIn(cc.DB, r)
 		if !loggedIn {
-			http.Error(w, "Must be logged in to edit comment", http.StatusUnauthorized)
+			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
 
@@ -258,7 +238,7 @@ func UpdateCommentHandler(cc *controllers.CommentController) http.HandlerFunc {
 			Content string `json:"content"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&updateReq); err != nil {
-			http.Error(w, "Invalid request body", http.StatusBadRequest)
+			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
@@ -266,7 +246,7 @@ func UpdateCommentHandler(cc *controllers.CommentController) http.HandlerFunc {
 		isAuthor, err := cc.IsCommentAuthor(commentID, userID)
 		if err != nil {
 			logger.Error("Failed to verify comment author: %v", err)
-			http.Error(w, "Failed to verify comment author", http.StatusInternalServerError)
+			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
@@ -279,7 +259,7 @@ func UpdateCommentHandler(cc *controllers.CommentController) http.HandlerFunc {
 		err = cc.UpdateComment(commentID, updateReq.Content)
 		if err != nil {
 			logger.Error("Failed to update comment: %v", err)
-			http.Error(w, "Failed to update comment", http.StatusInternalServerError)
+			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
