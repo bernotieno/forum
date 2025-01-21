@@ -14,6 +14,14 @@ func NewCommentVotesController(db *sql.DB) *CommentVotesController {
 }
 
 func (cc *CommentVotesController) UpdateCommentVotes(commentID int) error {
+	var commentExists bool
+	err := cc.DB.QueryRow(`SELECT EXISTS(SELECT 1 FROM comments WHERE id = ?)`, commentID).Scan(&commentExists)
+	if err != nil {
+		return fmt.Errorf("failed to check if comment exists: %w", err)
+	}
+	if !commentExists {
+		return fmt.Errorf("comment with ID %d does not exist", commentID)
+	}
 	query := `
         SELECT 
             COALESCE(SUM(CASE WHEN vote_type = 'like' THEN 1 ELSE 0 END), 0) AS likes_count,
@@ -23,7 +31,7 @@ func (cc *CommentVotesController) UpdateCommentVotes(commentID int) error {
     `
 
 	var likesCount, dislikesCount int
-	err := cc.DB.QueryRow(query, commentID).Scan(&likesCount, &dislikesCount)
+	err = cc.DB.QueryRow(query, commentID).Scan(&likesCount, &dislikesCount)
 	if err != nil {
 		return fmt.Errorf("failed to retrieve vote counts for comment %d: %w", commentID, err)
 	}
