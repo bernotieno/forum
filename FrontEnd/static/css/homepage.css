@@ -170,31 +170,7 @@ body {
     object-fit: cover;
 } */
 
-.dropdown-content {
-    display: none;
-    position: absolute;
-    top: 100%;
-    right: 0;
-    background-color: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    width: 200px;
-    z-index: 1000;
-}
 
-.dropdown-content a {
-    display: block;
-    padding: 10px;
-    text-decoration: none;
-    color: var(--text-primary);
-    font-size: 14px;
-    font-weight: 600;
-    transition: background-color 0.2s ease;
-}
-
-.dropdown-content a:hover {
-    background-color: var(--hover-bg);
-}
 
 .profile-image:hover .dropdown-content {
     display: block;
@@ -711,14 +687,30 @@ body {
     display: none;
 }
 
-/* Dropdown styles */
 .dropdown-content {
-    display: none; /* Hidden by default */
+    display: none;
     position: absolute;
-    background-color: #f9f9f9;
-    min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 1;
+    top: 100%;
+    right: 0;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    width: 200px;
+    z-index: 1000;
+}
+
+.dropdown-content a {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 600;
+    transition: background-color 0.2s ease;
+}
+
+.dropdown-content a:hover {
+    background-color: var(--hover-bg);
 }
 
 /* Show dropdown when it has the 'hidden' class removed */
@@ -729,18 +721,6 @@ body {
 /* Sub-dropdown styles */
 .sub-dropdown {
     padding-left: 20px;
-}
-
-/* Link styles */
-.dropdown-content a {
-    color: black;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
-}
-
-.dropdown-content a:hover {
-    background-color: #f1f1f1;
 }
 
 .fas.fa-chevron-right {

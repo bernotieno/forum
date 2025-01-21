@@ -42,14 +42,19 @@ if (logoutButton) {
 document.addEventListener("DOMContentLoaded", () => {
     // Select all sidebar links
     const communityLinks = document.querySelectorAll(".sidebar .sidebar-link");
-    // Select the posts container
+    // Select all posts
+    const posts = document.querySelectorAll(".post");
 
     // Function to filter posts on the homepage
     const filterPosts = (selectedCategory) => {
-        
         posts.forEach(post => {
-            const postCategory = post.getAttribute("data-category")?.toLowerCase() || "";
-            if (selectedCategory === "all" || selectedCategory === "home" || postCategory.includes(selectedCategory)) {
+            // Get the categories for the post and split into an array
+            const postCategories = post.getAttribute("data-category")?.toLowerCase() || "";
+            const categoriesArray = postCategories.split(",").map(cat => cat.trim());
+
+            // Check if the selected category matches any in the array
+            if (selectedCategory === "all" || selectedCategory === "home" || categoriesArray.includes(selectedCategory)) {
+                console.log(categoriesArray.includes(selectedCategory))
                 post.style.display = "block";
             } else {
                 post.style.display = "none";
@@ -78,17 +83,14 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // On homepage, check for saved category in sessionStorage
-    if (window.location.pathname === "/") {
-        const savedCategory = sessionStorage.getItem("filterCategory");
-        if (savedCategory) {
-            filterPosts(savedCategory);
-            sessionStorage.removeItem("filterCategory");
-        } else {
-            filterPosts("all");
-        }
+    // On page load, apply the filter if redirected
+    const filterCategory = sessionStorage.getItem("filterCategory");
+    if (filterCategory) {
+        filterPosts(filterCategory);
+        sessionStorage.removeItem("filterCategory");
     }
 });
+
 
 
 // Toggle the main dropdown on click
