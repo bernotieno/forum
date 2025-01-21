@@ -11,45 +11,44 @@ import (
 
 func CreateCommentVoteHandler(cc *controllers.CommentVotesController) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodPost {
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-			return
-		}
-
 		loggedIn, userID := isLoggedIn(cc.DB, r)
 		if !loggedIn {
-			http.Error(w, "Must be logged in to vote", http.StatusUnauthorized)
+			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
 
 		err := r.ParseForm()
 		if err != nil {
-			http.Error(w, "Failed to parse form data", http.StatusBadRequest)
+			logger.Error("Error while Parsing Form %v", err)
+			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
 		commentID, err := strconv.Atoi(r.FormValue("comment_id"))
 		if err != nil {
-			http.Error(w, "Invalid comment ID", http.StatusBadRequest)
+			logger.Error("Invalid Comment Id %v", err)
+			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
 		voteType := r.FormValue("vote")
 		if voteType != "like" && voteType != "dislike" {
-			http.Error(w, "Invalid vote type", http.StatusBadRequest)
+			logger.Warning("Invalid Vote Type request")
+			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
 		err = cc.HandleCommentVote(commentID, userID, voteType)
 		if err != nil {
 			logger.Error("Failed to handle comment vote: %v", err)
-			http.Error(w, "Failed to process vote", http.StatusInternalServerError)
+			w.WriteHeader(http.StatusInternalServerError)
+
 			return
 		}
 
 		likes, dislikes, err := cc.GetCommentVotes(commentID)
 		if err != nil {
-			http.Error(w, "Failed to get updated vote counts", http.StatusInternalServerError)
+			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
@@ -63,15 +62,10 @@ func CreateCommentVoteHandler(cc *controllers.CommentVotesController) http.Handl
 
 func GetUserCommentVotesHandler(cc *controllers.CommentVotesController) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodGet {
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-			return
-		}
-
 		// Check if user is logged in
 		loggedIn, userID := isLoggedIn(cc.DB, r)
 		if !loggedIn {
-			http.Error(w, "Must be logged in to get votes", http.StatusUnauthorized)
+			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
 
@@ -84,7 +78,7 @@ func GetUserCommentVotesHandler(cc *controllers.CommentVotesController) http.Han
 		rows, err := cc.DB.Query(query, userID)
 		if err != nil {
 			logger.Error("Failed to fetch user comment votes: %v", err)
-			http.Error(w, "Failed to fetch votes", http.StatusInternalServerError)
+			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 		defer rows.Close()
