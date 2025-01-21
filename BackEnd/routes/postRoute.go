@@ -24,6 +24,8 @@ func PostRoutes(db *sql.DB) {
 		middleware.SetCSPHeaders,
 		middleware.CORSMiddleware,
 		viewLimiter.RateLimit,
+		middleware.ErrorHandler,
+		middleware.ValidatePathAndMethod("/viewPost", http.MethodGet),
 	))
 
 	http.Handle("/create-post", middleware.ApplyMiddleware(
@@ -32,6 +34,8 @@ func PostRoutes(db *sql.DB) {
 		middleware.AuthMiddleware,
 		middleware.CORSMiddleware,
 		postLimiter.RateLimit,
+		middleware.ErrorHandler,
+		middleware.ValidatePathAndMethod("/create-post", http.MethodGet),
 	))
 
 	http.Handle("/createPost", middleware.ApplyMiddleware(
@@ -40,7 +44,9 @@ func PostRoutes(db *sql.DB) {
 		middleware.AuthMiddleware,
 		middleware.CORSMiddleware,
 		postLimiter.RateLimit,
+		middleware.ErrorHandler,
 		middleware.VerifyCSRFMiddleware(db),
+		middleware.ValidatePathAndMethod("/createPost", http.MethodPost),
 	))
 
 	http.Handle("/updatePost", middleware.ApplyMiddleware(
@@ -49,7 +55,9 @@ func PostRoutes(db *sql.DB) {
 		middleware.AuthMiddleware,
 		middleware.CORSMiddleware,
 		postLimiter.RateLimit,
+		middleware.ErrorHandler,
 		middleware.VerifyCSRFMiddleware(db),
+		middleware.ValidatePathAndMethod("/updatePost", http.MethodPut),
 	))
 
 	http.Handle("/deletePost", middleware.ApplyMiddleware(
@@ -58,6 +66,8 @@ func PostRoutes(db *sql.DB) {
 		middleware.AuthMiddleware,
 		middleware.CORSMiddleware,
 		postLimiter.RateLimit,
+		middleware.ErrorHandler,
 		middleware.VerifyCSRFMiddleware(db),
+		middleware.ValidatePathAndMethod("/deletePost", http.MethodDelete),
 	))
 }
