@@ -1,3 +1,4 @@
+// models/commentModel.go
 package models
 
 import (
