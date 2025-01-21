@@ -20,7 +20,7 @@ func CreatePostPageHandler(w http.ResponseWriter, r *http.Request) {
 	sessioToken, err := controllers.GetSessionToken(r)
 	if err != nil {
 		logger.Error("Error getting session token: %s", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
@@ -28,7 +28,7 @@ func CreatePostPageHandler(w http.ResponseWriter, r *http.Request) {
 	csrfToken, err := controllers.GenerateCSRFToken(database.GloabalDB, sessioToken)
 	if err != nil {
 		logger.Error("Error generating CSRF token: %s", err)
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
@@ -47,12 +47,14 @@ func CreatePostPageHandler(w http.ResponseWriter, r *http.Request) {
 		"./FrontEnd/templates/post.html",
 	)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		logger.Error("An error Occurred While rendering Template %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	err = tmpl.Execute(w, data)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		logger.Error("An error Occurred While rendering Template %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
 	}
 }
