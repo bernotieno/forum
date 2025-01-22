@@ -11,7 +11,6 @@ type responseWriter struct {
 
 func (rw *responseWriter) WriteHeader(code int) {
 	rw.status = code
-	rw.ResponseWriter.WriteHeader(code)
 }
 
 // ErrorHandler takes a ServeErrorPageFunc as a dependency
