@@ -1450,6 +1450,13 @@ body {
         margin: 0 8px;
         max-width: none;
     }
+    .button-post .button-text {
+        display: none;
+    }
+    .button-post {
+        min-width: 0px;
+        padding-block: 8px;
+    }
 }
 
 /* For screens smaller than 480px */
