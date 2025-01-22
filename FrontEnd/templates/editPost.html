@@ -1,0 +1,88 @@
+{{define "title"}}Edit Post - Forum{{end}}
+
+{{define "content"}}
+<div class="post-editor-container">
+    <div class="post-editor-header">
+        <h2>Edit Post</h2>
+    </div>
+    
+    <form id="postForm" method="POST" action="/updatePost" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+        <input type="hidden" name="id" value="{{.Post.ID}}">
+        
+        <div class="input-group">
+            <input type="text" id="post-title" name="title" class="input-field" 
+                   placeholder="Title" maxlength="300" value="{{.Post.Title}}" required>
+        </div>
+
+        <div class="tab-container">
+            <div class="tabs">
+                <button type="button" id="text-tab" class="tab active">Text</button>
+                <button type="button" id="media-tab" class="tab">Media</button>
+            </div>
+
+            <div id="text-content" class="tab-content active">
+                <div class="post-body" id="post-body" contenteditable="true" 
+                     data-placeholder="Share your thoughts...">{{.Post.Content}}</div>
+            </div>
+
+            <div id="media-content" class="tab-content">
+                <div class="media-upload-area" id="dropzone">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Drag and drop images/videos here</p>
+                    <p class="small">or click to upload</p>
+                    <input type="file" id="file-input" name="post-file" hidden accept="image/*,video/*">
+                </div>
+                {{if .Post.ImageUrl.Valid}}
+                    <div class="current-media">
+                        <p>Current Media:</p>
+                        <img src="{{.Post.ImageUrl.String}}" alt="Current Post Media" style="max-width: 100%;">
+                    </div>
+                {{end}}
+            </div>
+        </div>
+
+        <div class="category-section">
+            <select id="category-select" class="input-field" name="category">
+                <option value="">Select a category...</option>
+                <option value="technology" {{if eq .Post.Category "technology"}}selected{{end}}>Technology</option>
+                <option value="programming" {{if eq .Post.Category "programming"}}selected{{end}}>Programming</option>
+                <option value="gaming" {{if eq .Post.Category "gaming"}}selected{{end}}>Gaming</option>
+                <option value="science" {{if eq .Post.Category "science"}}selected{{end}}>Science</option>
+                <option value="movies" {{if eq .Post.Category "movies"}}selected{{end}}>Movies</option>
+                <option value="music" {{if eq .Post.Category "music"}}selected{{end}}>Music</option>
+                <option value="art" {{if eq .Post.Category "art"}}selected{{end}}>Art</option>
+                <option value="food" {{if eq .Post.Category "food"}}selected{{end}}>Food</option>
+                <option value="news" {{if eq .Post.Category "news"}}selected{{end}}>News</option>
+                <option value="fashion" {{if eq .Post.Category "fashion"}}selected{{end}}>Fashion</option>
+                <option value="business" {{if eq .Post.Category "business"}}selected{{end}}>Business</option>
+                <option value="sports" {{if eq .Post.Category "sports"}}selected{{end}}>Sports</option>
+            </select>
+            <div id="selected-categories" class="selected-categories">
+                {{if .Post.Category}}
+                    {{range split .Post.Category ","}}
+                        <div class="category-tag">
+                            {{.}}
+                            <span class="remove-category" data-value="{{.}}">×</span>
+                        </div>
+                    {{end}}
+                {{end}}
+            </div>
+        </div>
+
+        <div class="post-actions">
+            <button type="submit" class="button-primary">Update</button>
+            <button type="button" class="button-outline" onclick="window.location.href='/'">Cancel</button>
+        </div>
+    </form>
+</div>
+
+<div id="toast" class="toast">
+    <div id="toastMessage" class="toast-message"></div>
+</div>
+{{end}}
+
+{{define "scripts"}}
+<script src="../static/js/post.js"></script>
+<script src="../static/js/theme.js"></script>
+{{end}}
