@@ -25,7 +25,7 @@ func LikesRoutes(db *sql.DB) {
 		middleware.AuthMiddleware,
 		middleware.CORSMiddleware,
 		likesLimiter.RateLimit,
-		middleware.ErrorHandler,
+		middleware.ErrorHandler(handlers.ServeErrorPage),
 		middleware.VerifyCSRFMiddleware(db),
 		middleware.ValidatePathAndMethod("/likePost", http.MethodPost),
 	))
@@ -35,7 +35,7 @@ func LikesRoutes(db *sql.DB) {
 		middleware.SetCSPHeaders,
 		middleware.AuthMiddleware,
 		middleware.CORSMiddleware,
-		middleware.ErrorHandler,
+		middleware.ErrorHandler(handlers.ServeErrorPage),
 		middleware.VerifyCSRFMiddleware(db),
 		middleware.ValidatePathAndMethod("/getUserVotes", http.MethodGet),
 	))
@@ -44,7 +44,7 @@ func LikesRoutes(db *sql.DB) {
 	http.Handle("/commentVote", middleware.ApplyMiddleware(
 		handlers.CreateCommentVoteHandler(CommentVotesController),
 		middleware.AuthMiddleware,
-		middleware.ErrorHandler,
+		middleware.ErrorHandler(handlers.ServeErrorPage),
 		middleware.VerifyCSRFMiddleware(db),
 		middleware.ValidatePathAndMethod("/commentVote", http.MethodPost),
 	))
@@ -52,14 +52,14 @@ func LikesRoutes(db *sql.DB) {
 	http.Handle("/getUserCommentVotes", middleware.ApplyMiddleware(
 		handlers.GetUserCommentVotesHandler(CommentVotesController),
 		middleware.AuthMiddleware,
-		middleware.ErrorHandler,
+		middleware.ErrorHandler(handlers.ServeErrorPage),
 		middleware.ValidatePathAndMethod("/getUserCommentVotes", http.MethodGet),
 	))
 
 	http.Handle("/getUserLikePosts", middleware.ApplyMiddleware(
 		handlers.GetUserPostLikesHandler(LikesController),
 		middleware.AuthMiddleware,
-		middleware.ErrorHandler,
+		middleware.ErrorHandler(handlers.ServeErrorPage),
 		likesLimiter.RateLimit,
 		middleware.ValidatePathAndMethod("/getUserLikePosts", http.MethodGet),
 	))
