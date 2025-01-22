@@ -127,6 +127,7 @@ function filterContent(type) {
 
     let itemsToFilter;
 
+
     switch (type) {
         case 'posts':
             itemsToFilter = posts;
@@ -138,8 +139,7 @@ function filterContent(type) {
 
     // Filter and display the items
     itemsToFilter.forEach(item => {
-        const itemUserId = item.getAttribute('data-post-id');
-
+        const itemUserId = item.getAttribute('data-post-user-id');
         if (itemUserId === userId) {
             item.style.display = "block";
         } else {
