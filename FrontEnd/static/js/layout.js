@@ -1,6 +1,4 @@
 const logoutButton = document.getElementById('logoutButton');
-const postsContainer = document.querySelector(".posts-container");
-const posts = postsContainer.querySelectorAll(".post");
 
 if (logoutButton) {
     logoutButton.addEventListener('click', function () {
@@ -51,10 +49,8 @@ document.addEventListener("DOMContentLoaded", () => {
             // Get the categories for the post and split into an array
             const postCategories = post.getAttribute("data-category")?.toLowerCase() || "";
             const categoriesArray = postCategories.split(",").map(cat => cat.trim());
-
             // Check if the selected category matches any in the array
             if (selectedCategory === "all" || selectedCategory === "home" || categoriesArray.includes(selectedCategory)) {
-                console.log(categoriesArray.includes(selectedCategory))
                 post.style.display = "block";
             } else {
                 post.style.display = "none";
@@ -70,12 +66,13 @@ document.addEventListener("DOMContentLoaded", () => {
             // Get the clicked category name
             const selectedCategory = link.textContent.trim().toLowerCase();
             const currentPath = window.location.pathname;
+            console.log(currentPath);
 
             if (currentPath === "/") {
                 // If on the homepage, directly filter posts
                 filterPosts(selectedCategory);
                 history.pushState(null, "", "/");
-            } else if (currentPath === "/viewPost") {
+            } else if (currentPath === "/viewPost" || currentPath === "/create-post") {
                 // If on the viewPost page, redirect to the homepage
                 sessionStorage.setItem("filterCategory", selectedCategory);
                 window.location.href = "/";
@@ -90,6 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
         sessionStorage.removeItem("filterCategory");
     }
 });
+
 
 
 
@@ -124,9 +122,7 @@ document.addEventListener('click', function(event) {
 function filterContent(type) {
     // Get the logged-in user's ID
     const userId = document.getElementById('userSection').getAttribute('data-user-id');
-    console.log("User ID:", userId); // Debugging line
 
-    // Get all posts, likes, and comments from the DOM
     const posts = document.querySelectorAll('.post');
 
     let itemsToFilter;
