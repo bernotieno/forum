@@ -85,14 +85,64 @@ document.addEventListener('DOMContentLoaded', function() {
         fileInput.click();
     });
 
-    fileInput.addEventListener('change', (e) => {
-        handleFiles(e.target.files);
+    function validateAndOptimizeImage(file) {
+        return new Promise((resolve, reject) => {
+            const maxSize = 5 * 1024 * 1024; // 5MB
+            if (file.size > maxSize) {
+                reject('File size should be less than 5MB');
+                return;
+            }
+
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                // Maintain aspect ratio while resizing if needed
+                let width = img.width;
+                let height = img.height;
+                const maxDim = 2000;
+                
+                if (width > maxDim || height > maxDim) {
+                    if (width > height) {
+                        height = (height / width) * maxDim;
+                        width = maxDim;
+                    } else {
+                        width = (width / height) * maxDim;
+                        height = maxDim;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                ctx.drawImage(img, 0, 0, width, height);
+
+                canvas.toBlob((blob) => {
+                    resolve(new File([blob], file.name, {
+                        type: 'image/jpeg',
+                        lastModified: Date.now()
+                    }));
+                }, 'image/jpeg', 0.9); // 90% quality
+            };
+
+            img.onerror = () => reject('Invalid image file');
+            img.src = URL.createObjectURL(file);
+        });
+    }
+
+    fileInput.addEventListener('change', async (e) => {
+        try {
+            const optimizedFile = await validateAndOptimizeImage(e.target.files[0]);
+            handleFiles([optimizedFile]);
+        } catch (error) {
+            showToast(error);
+        }
     });
 
     function handleFiles(files) {
         Array.from(files).forEach(file => {
             if (!file.type.match('image.*') && !file.type.match('video.*')) {
-                showToast('Only image and video files are allowed');
+                showToast('Only image  files are allowed');
                 return;
             }
             
