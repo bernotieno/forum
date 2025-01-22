@@ -40,7 +40,7 @@ body {
     padding: 24px;
     position: relative;
     gap: 24px;
-    /* padding-top: 70px; */
+    padding-top: 70px;
 }
 /* Header styles */
 .header {
@@ -50,13 +50,14 @@ body {
     align-items: center;
     position: fixed;
     top: 0;
+    bottom: 5px;
     left: 0;
     right: 0;
     z-index: 100;
     border-bottom: 1px solid var(--border-color);
     justify-content: space-between;
     height: 50px;
-    position: relative;
+    /* position: relative; */
 }
 .logo {
     display: flex;
@@ -218,8 +219,8 @@ body {
 .sidebar {
     position: fixed;
     background-color: var(--bg-secondary);
-    top: 50px;
-    left: 0;
+    /* top: 50px; */
+    left: 10;
     height: calc(100vh - 50px);
     overflow-y: auto;
     width: 275px;
@@ -1381,12 +1382,21 @@ body {
         grid-template-columns: 200px 1fr 260px;
         gap: 20px;
         padding: 16px;
+        margin-top: 70px;
+    }
+    .sidebar {
+        position: relative;
+        top: 0;
+        left: 0;
+        /* width: 100%; */
+        /* margin-top: 20px; */
     }
 }
 /* For screens smaller than 1024px */
 @media (max-width: 1024px) {
     .container {
         grid-template-columns: 200px 1fr;
+        margin-top: 70px;
         padding: 12px;
     }
     .trending {
@@ -1410,6 +1420,7 @@ body {
 @media (max-width: 768px) {
     .container {
         grid-template-columns: 1fr;
+        margin-top: 70px;
         padding: 12px;
     }
     .sidebar {
