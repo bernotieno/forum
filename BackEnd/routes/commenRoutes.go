@@ -22,7 +22,7 @@ func CommentRoute(db *sql.DB) {
 		middleware.AuthMiddleware,
 		middleware.CORSMiddleware,
 		commentLimiter.RateLimit,
-		middleware.ErrorHandler,
+		middleware.ErrorHandler(handlers.ServeErrorPage),
 		middleware.VerifyCSRFMiddleware(db),
 	))
 
@@ -32,7 +32,7 @@ func CommentRoute(db *sql.DB) {
 		middleware.AuthMiddleware,
 		middleware.CORSMiddleware,
 		commentLimiter.RateLimit,
-		middleware.ErrorHandler,
+		middleware.ErrorHandler(handlers.ServeErrorPage),
 		middleware.VerifyCSRFMiddleware(db),
 	))
 
@@ -42,7 +42,7 @@ func CommentRoute(db *sql.DB) {
 		middleware.AuthMiddleware,
 		middleware.CORSMiddleware,
 		commentLimiter.RateLimit,
-		middleware.ErrorHandler,
+		middleware.ErrorHandler(handlers.ServeErrorPage),
 		middleware.VerifyCSRFMiddleware(db),
 	))
 }
