@@ -70,4 +70,15 @@ func PostRoutes(db *sql.DB) {
 		middleware.VerifyCSRFMiddleware(db),
 		middleware.ValidatePathAndMethod("/deletePost", http.MethodDelete),
 	))
+
+	http.Handle("/editPost", middleware.ApplyMiddleware(
+		handlers.EditPostHandler(PostController),
+		middleware.SetCSPHeaders,
+		middleware.AuthMiddleware,
+		middleware.CORSMiddleware,
+		postLimiter.RateLimit,
+		middleware.ErrorHandler(handlers.ServeErrorPage),
+		middleware.VerifyCSRFMiddleware(db),
+		middleware.ValidatePathAndMethod("/editPost", http.MethodGet),
+	))
 }
