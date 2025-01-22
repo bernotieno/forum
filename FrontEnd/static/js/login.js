@@ -68,13 +68,32 @@ document.getElementById('signupForm').querySelector('button').addEventListener('
     event.preventDefault(); // Prevent the default form submission
     hideToast(); // Hide any previous errors
 
-    // Retrieve form data
-    const username = document.getElementById('signupForm').querySelector('input[type="text"]').value;
-    const email = document.getElementById('signupForm').querySelector('input[type="email"]').value;
-    const password = document.getElementById('signupForm').querySelector('input[type="password"]').value;
-    const confirmPassword = document.getElementById('signupForm').querySelectorAll('input[type="password"]')[1].value;
+    // Get form elements using more specific selectors
+    const usernameInput = document.getElementById('signupUsername');
+    const emailInput = document.getElementById('signupEmail');
+    const passwordInput = document.getElementById('signupPassword');
+    const confirmPasswordInput = document.getElementById('signupConfirmPassword');
+    
 
-    // Validate the form data (optional)
+    // Check if all elements exist
+    if (!usernameInput || !emailInput || !passwordInput || !confirmPasswordInput) {
+        console.error('One or more form elements not found');
+        showToast('Form error: Missing elements');
+        return;
+    }
+
+    // Retrieve form data
+    const username = usernameInput.value;
+    const email = emailInput.value;
+    const password = passwordInput.value;
+    const confirmPassword = confirmPasswordInput.value;
+
+    // Validate the form data
+    if (!username || !email || !password || !confirmPassword) {
+        showToast('Please fill in all fields');
+        return;
+    }
+
     if (password !== confirmPassword) {
         showToast('Passwords do not match!');
         return;
@@ -92,7 +111,8 @@ document.getElementById('signupForm').querySelector('button').addEventListener('
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            // 'X-CSRF-Token': getCSRFToken() // Include the CSRF token in the headers
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
         },
         body: JSON.stringify(signupData)
     })
@@ -102,8 +122,7 @@ document.getElementById('signupForm').querySelector('button').addEventListener('
             showToast(data.error); 
         } else {
             console.log('Success:', data);
-            window.location.href = data.redirect
-            alert('Signup successful!');
+            window.location.href = data.redirect;
         }
     })
     .catch((error) => {
@@ -129,6 +148,8 @@ document.getElementById('loginForm').querySelector('button').addEventListener('c
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
         },
         body: JSON.stringify(loginData)
     })
