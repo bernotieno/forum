@@ -3,6 +3,7 @@ package database
 
 import (
 	"database/sql"
+	"os"
 
 	"github.com/Raymond9734/forum.git/BackEnd/logger"
 	_ "github.com/mattn/go-sqlite3"
@@ -10,17 +11,34 @@ import (
 
 var GloabalDB *sql.DB
 
+func ensureStorageDirectory() error {
+	storageDir := "./BackEnd/database/storage"
+	if err := os.MkdirAll(storageDir, 0o755); err != nil {
+		logger.Error("Failed to create storage directory: %v", err)
+		return err
+	}
+	return nil
+}
+
 func Init(env string) (*sql.DB, error) {
 	var DB *sql.DB
 	var err error
+
+	// Ensure storage directory exists
+	if err := ensureStorageDirectory(); err != nil {
+		return nil, err
+	}
+
 	if env == "Test" {
-		DB, err = sql.Open("sqlite3", ":memory:")
+		dbPath := "./BackEnd/database/storage/test_forum.db"
+		DB, err = sql.Open("sqlite3", dbPath)
 		if err != nil {
 			logger.Error("Failed to open Test database connection: %v", err)
 			return nil, err
 		}
 	} else {
-		DB, err = sql.Open("sqlite3", "./BackEnd/database/storage/forum.db")
+		dbPath := "./BackEnd/database/storage/forum.db"
+		DB, err = sql.Open("sqlite3", dbPath)
 		if err != nil {
 			logger.Error("Failed to open database connection: %v", err)
 			return nil, err
