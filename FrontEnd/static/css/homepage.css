@@ -1390,3 +1390,110 @@ body {
     border-color: var(--accent-color);
     background: var(--hover-bg);
 }
+
+/* Responsive styles */
+@media (max-width: 1200px) {
+    .container {
+        grid-template-columns: 200px 1fr 260px;
+        gap: 20px;
+        padding: 16px;
+    }
+}
+/* For screens smaller than 1024px */
+@media (max-width: 1024px) {
+    .container {
+        grid-template-columns: 200px 1fr;
+        padding: 12px;
+    }
+    .trending {
+        display: none;
+    }
+    .main-content {
+        /* padding-left: 24px; */
+        width: 100%;
+    }
+    .post {
+        padding: 12px 12px 0 12px;
+        margin-bottom: 20px;
+    }
+    .sidebar {
+        display: none;
+    }
+}
+
+
+/* For screens smaller than 768px */
+@media (max-width: 768px) {
+    .container {
+        grid-template-columns: 1fr;
+        padding: 12px;
+    }
+    .sidebar {
+        display: none;
+    }
+    .header {
+        padding: 8px 16px;
+    }
+    .search-bar {
+        margin: 0 12px;
+    }
+    #postEditorContainer {
+        width: 95%;
+    }
+    .post {
+        padding: 10px 10px 0 10px;
+        margin-bottom: 15px;
+    }
+    .logo span {
+        display: none;
+    }
+    
+    .logo {
+        gap: 0;
+    }
+    .search-bar {
+        margin: 0 8px;
+        max-width: none;
+    }
+}
+
+/* For screens smaller than 480px */
+@media (max-width: 480px) {
+    .search-input {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+    .post {
+        padding: 8px 8px 0 8px;
+        margin-bottom: 10px;
+    }
+    .post-footer {
+        /* width: 80%; */
+        position: relative;
+    }
+    .search-input {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+    .header {
+        /* margin-bottom: 25px; */
+        position: relative;
+    }
+    .post-author {
+        margin-top: 2px;
+    }
+    .post-tags {
+        display: none;
+    }
+    .sidebar {
+        display: none;
+    }
+    .main-content {
+        padding-left: 0%;
+    }
+    .button-post {
+        /* padding: 4px 8px; */
+        /* min-width: 10px; */
+        font-size: small;
+    }
+}
