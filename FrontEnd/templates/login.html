@@ -35,15 +35,15 @@
             <div class="sign-up_header">
                 <h2>Create Account</h2>
             </div>
-            <input type="text" placeholder="Username" required />
-            <input type="email" placeholder="Email" required />
+            <input type="text" id="signupUsername" placeholder="Username" required />
+            <input type="email" id="signupEmail" placeholder="Email" required />
             <div class="password-container">
-                <input type="password" placeholder="Password" id="signupPassword" required />
+                <input type="password" id="signupPassword" placeholder="Password" required />
                 <i class="fa fa-eye" id="signupToggle" onclick="togglePassword('signupPassword', 'signupToggle')"></i>
             </div>
             <div class="password-container">
-                <input type="password" placeholder="Confirm Password" id="confirmPassword" required />
-                <i class="fa fa-eye" id="confirmToggle" onclick="togglePassword('confirmPassword', 'confirmToggle')"></i>
+                <input type="password" id="signupConfirmPassword" placeholder="Confirm Password" required />
+                <i class="fa fa-eye" id="signupConfirmToggle" onclick="togglePassword('signupConfirmPassword', 'signupConfirmToggle')"></i>
             </div>
             <div class="sign-up_button"><button>Sign Up</button></div>
             <div class="toggle">Already have an account? <a href="#" id="toLogin">Log In</a></div>
