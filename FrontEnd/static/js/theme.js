@@ -129,7 +129,7 @@ class ThemeManager {
     new ThemeManager();
   });
 
-      // Add event listener to all delete buttons
+// Add event listener to all delete buttons
 document.querySelectorAll('.delete-post-btn').forEach(button => {
   button.addEventListener('click', async () => {
       const postId = button.getAttribute('data-post-id');
@@ -153,5 +153,15 @@ document.querySelectorAll('.delete-post-btn').forEach(button => {
           console.error('Error:', error);
           showToast('An error occurred while deleting the comment');
       }
+  });
+});
+
+// Edit Post Button
+document.querySelectorAll('.edit-post-btn').forEach(button => {
+  console.log('Edit post button found');
+  button.addEventListener('click', () => {
+      const postId = button.getAttribute('data-post-id');
+      // Redirect to the edit page for the specific post
+      window.location.href = `/editPost?id=${postId}`;
   });
 });

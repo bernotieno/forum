@@ -1,16 +1,28 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const postForm = document.getElementById('postForm');
     const textTab = document.getElementById('text-tab');
     const mediaTab = document.getElementById('media-tab');
     const textContent = document.getElementById('text-content');
     const mediaContent = document.getElementById('media-content');
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('file-input');
+    const postForm = document.getElementById('postForm');
     const categorySelect = document.getElementById('category-select');
     const selectedCategories = document.getElementById('selected-categories');
     const selectedCats = new Set();
-    const dropzone = document.getElementById('dropzone');
-    const fileInput = document.getElementById('file-input');
     let uploadedFiles = new Set();
 
+    // Determine if the form is for creating or editing
+    const isEditForm = postForm.getAttribute('action') === '/updatePost';
+
+     // Pre-fill selected categories if editing
+     if (isEditForm) {
+         const preSelectedCategories = document.querySelectorAll('.category-tag');
+         console.log("preSelectedCategories",preSelectedCategories);
+        preSelectedCategories.forEach(categoryTag => {
+            const value = categoryTag.querySelector('.remove-category').dataset.value;
+            selectedCats.add(value);
+        });
+    }
     // Tab switching
     textTab.addEventListener('click', () => {
         textTab.classList.add('active');
@@ -128,14 +140,15 @@ document.addEventListener('DOMContentLoaded', function() {
         const title = document.getElementById('post-title').value;
         const content = document.getElementById('post-body').innerText;
         const categories = Array.from(selectedCats);
-        const fileInput = document.getElementById('file-input'); 
+        const fileInput = document.getElementById('file-input');
     
-         // Check if required fields are filled
+        // Check if required fields are filled
         if (!title || categories.length === 0) {
+            console.log('Title and categories are required', categories);
             showToast('Title and categories are required');
             return;
         }
-
+    
         // Check if at least one of content or file is provided
         if (!content && (!fileInput || fileInput.files.length === 0)) {
             showToast('Please provide either text content or an image');
@@ -146,39 +159,44 @@ document.addEventListener('DOMContentLoaded', function() {
         const formData = new FormData();
         formData.append('title', title);
         formData.append('content', content);
-        formData.append('category', categories.join(",")); 
-
-
+        formData.append('category', categories.join(","));
+    
         // Append the file if selected
         if (fileInput.files.length > 0) {
-            console.log("File selected:", fileInput.files[0]);
             formData.append('post-file', fileInput.files[0]);
-        }
-        for (let [key, value] of formData.entries()) {
-            console.log(key, value);
         }
     
         try {
             const csrfToken = document.querySelector('input[name="csrf_token"]').value;
             formData.append('csrf_token', csrfToken);
-
-            const response = await fetch('/createPost', {
-                method: 'POST',
+    
+            // Determine the endpoint and include postId in the URL if editing
+            let endpoint = '/createPost';
+            let method = 'POST';
+            if (isEditForm) {
+                const postId = document.querySelector('input[name="id"]').value;
+                endpoint = `/updatePost?id=${postId}`;
+                method = 'PUT';
+            }
+    
+            const response = await fetch(endpoint, {
+                method: method,
                 body: formData
             });
-
+    
             const data = await response.json();
-
+    
             if (response.ok) {
                 window.location.href = '/';
             } else {
-                showToast(data.error || 'Failed to create post');
+                showToast(data.error || 'Failed to submit post');
             }
         } catch (error) {
             console.error('Error:', error);
             showToast('An error occurred. Please try again.');
         }
     });
+
     // Toast notification
     function showToast(message) {
         const toast = document.getElementById('toast');
@@ -187,4 +205,4 @@ document.addEventListener('DOMContentLoaded', function() {
         toast.classList.add('show');
         setTimeout(() => toast.classList.remove('show'), 3000);
     }
-}); 
+});
