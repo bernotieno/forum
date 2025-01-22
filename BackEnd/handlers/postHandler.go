@@ -167,51 +167,45 @@ func UpdatePostHandler(pc *controllers.PostController) http.HandlerFunc {
 			return
 		}
 
+		// Get existing post
+		existingPost, err := pc.GetPostByID(postID)
+		if err != nil {
+			logger.Error("Failed to fetch existing post: %v", err)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(map[string]string{
+				"error": "Failed to fetch existing post",
+			})
+			return
+		}
+
 		// Extract form fields
 		title := r.FormValue("title")
 		content := r.FormValue("content")
 		categories := r.FormValue("category")
 
-		// Validate required fields
-		if postID == "" || title == "" || categories == "" {
-			logger.Error("Invalid post update request: missing or empty required fields - remote_addr: %s, method: %s, path: %s",
-				r.RemoteAddr,
-				r.Method,
-				r.URL.Path,
-			)
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(map[string]string{
-				"message": "Post ID, title, and categories are required",
-			})
-			return
+		// Only update fields that have been changed
+		if title != "" {
+			existingPost.Title = title
 		}
-
-		// Convert postID to int
-		postIDInt, err := strconv.Atoi(postID)
-		if err != nil {
-			logger.Error("Invalid post ID: %v", err)
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(map[string]string{
-				"error": "Invalid post ID",
-			})
-			return
+		if content != "" {
+			existingPost.Content = content
+		}
+		if categories != "" {
+			existingPost.Category = categories
 		}
 
 		// Handle file upload (if a new file is provided)
 		filePath, err := controllers.UploadFile(r, "post-file", userID)
-		if err != nil {
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusInternalServerError)
-			json.NewEncoder(w).Encode(map[string]string{
-				"error": "Failed to save file",
-			})
-			return
+		if err == nil && filePath != "" {
+			existingPost.ImageUrl = sql.NullString{
+				String: filePath,
+				Valid:  true,
+			}
 		}
 
-		// Ensure at least one of content or file is provided
-		if content == "" && filePath == "" {
+		// Ensure at least content or image exists
+		if existingPost.Content == "" && !existingPost.ImageUrl.Valid {
 			logger.Warning("Invalid post update request: missing content and image fields - at least one is required - remote_addr: %s, method: %s, path: %s",
 				r.RemoteAddr,
 				r.Method,
@@ -225,26 +219,8 @@ func UpdatePostHandler(pc *controllers.PostController) http.HandlerFunc {
 			return
 		}
 
-		// Get the username of the logged-in user
-		userName := controllers.GetUsernameByID(pc.DB, userID)
-
-		// Create a Post object from the form data
-		updatePost := models.Post{
-			ID:        postIDInt,
-			Title:     title,
-			Author:    userName,
-			UserID:    userID,
-			Category:  categories,
-			Content:   content,
-			Timestamp: time.Now(),
-			ImageUrl: sql.NullString{
-				String: filePath,
-				Valid:  filePath != "",
-			},
-		}
-
 		// Update the post in the database
-		err = pc.UpdatePost(updatePost)
+		err = pc.UpdatePost(existingPost)
 		if err != nil {
 			logger.Error("Failed to update post: %v", err)
 			w.Header().Set("Content-Type", "application/json")
