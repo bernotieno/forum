@@ -40,7 +40,7 @@ body {
     padding: 24px;
     position: relative;
     gap: 24px;
-    padding-top: 70px;
+    /* padding-top: 70px; */
 }
 /* Header styles */
 .header {
@@ -164,15 +164,6 @@ body {
     object-fit: cover;
     margin-right: 5px;
 }
-
-/* .avatar {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    object-fit: cover;
-} */
-
-
 
 .profile-image:hover .dropdown-content {
     display: block;
@@ -360,13 +351,6 @@ body {
     font-weight: 600;
     color: var(--text-primary);
 }
-/* .post-category {
-    padding: 2px 8px;
-    border-radius: 12px;
-    font-size: 12px;
-    border: 1px solid var(--border-color);
-    color: var(--text-primary);
-} */
 
 .horizontal {
     list-style-type: none; /* Remove bullet points */
