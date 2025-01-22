@@ -125,7 +125,7 @@ func LoginHandler(ac *controllers.AuthController) http.HandlerFunc {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusUnauthorized)
 			json.NewEncoder(w).Encode(map[string]string{
-				"error": err.Error(),
+				"error": "Invalid username or password",
 			})
 			return
 		}
@@ -133,8 +133,11 @@ func LoginHandler(ac *controllers.AuthController) http.HandlerFunc {
 		auth.CreateSession(ac.DB, w, user.ID)
 		logger.Info("Successful login for user: %s (ID: %d)", user.Username, user.ID)
 
-		w.WriteHeader(302)
+		// Set headers first
 		w.Header().Set("Content-Type", "application/json")
+		// Then set status code
+		w.WriteHeader(http.StatusFound) // 302 Found
+		// Finally write the response body
 		json.NewEncoder(w).Encode(map[string]string{
 			"redirect": "/",
 		})
