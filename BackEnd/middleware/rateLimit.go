@@ -1,75 +1,84 @@
 package middleware
 
 import (
+	"context"
 	"net/http"
 	"sync"
 	"time"
 )
 
-type visitor struct {
-	lastSeen time.Time
-	count    int
+type Visitor struct {
+	LastSeen time.Time
+	Count    int
 }
 
 type RateLimiter struct {
-	visitors map[string]*visitor
-	mu       sync.RWMutex
-	rate     int           // Maximum requests per interval
-	interval time.Duration // Time interval for rate limiting
+	Visitors map[string]*Visitor
+	Mu       sync.RWMutex
+	Rate     int           // Maximum requests per interval
+	Interval time.Duration // Time interval for rate limiting
+	Ctx      context.Context
+	Cancel   context.CancelFunc
 }
 
 func NewRateLimiter(rate int, interval time.Duration) *RateLimiter {
+	ctx, cancel := context.WithCancel(context.Background())
 	return &RateLimiter{
-		visitors: make(map[string]*visitor),
-		rate:     rate,
-		interval: interval,
+		Visitors: make(map[string]*Visitor),
+		Rate:     rate,
+		Interval: interval,
+		Ctx:      ctx,
+		Cancel:   cancel,
 	}
 }
 
-func (rl *RateLimiter) cleanupVisitors() {
+func (rl *RateLimiter) CleanupVisitors(interval time.Duration) {
 	for {
-		time.Sleep(time.Minute)
-		rl.mu.Lock()
-		for ip, v := range rl.visitors {
-			if time.Since(v.lastSeen) > rl.interval {
-				delete(rl.visitors, ip)
+		select {
+		case <-rl.Ctx.Done():
+			return // Exit the goroutine when the context is canceled
+		case <-time.After(interval):
+			rl.Mu.Lock()
+			for ip, v := range rl.Visitors {
+				if time.Since(v.LastSeen) > rl.Interval {
+					delete(rl.Visitors, ip)
+				}
 			}
+			rl.Mu.Unlock()
 		}
-		rl.mu.Unlock()
 	}
 }
 
 func (rl *RateLimiter) RateLimit(next http.Handler) http.Handler {
-	go rl.cleanupVisitors()
-
+	go rl.CleanupVisitors(time.Minute)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ip := r.RemoteAddr
 
-		rl.mu.Lock()
-		v, exists := rl.visitors[ip]
+		rl.Mu.Lock()
+		v, exists := rl.Visitors[ip]
 		if !exists {
-			rl.visitors[ip] = &visitor{
-				lastSeen: time.Now(),
-				count:    1,
+			rl.Visitors[ip] = &Visitor{
+				LastSeen: time.Now(),
+				Count:    1,
 			}
-			rl.mu.Unlock()
+			rl.Mu.Unlock()
 			next.ServeHTTP(w, r)
 			return
 		}
 
-		if time.Since(v.lastSeen) > rl.interval {
-			v.count = 1
+		if time.Since(v.LastSeen) > rl.Interval {
+			v.Count = 1
 		} else {
-			v.count++
+			v.Count++
 		}
-		v.lastSeen = time.Now()
+		v.LastSeen = time.Now()
 
-		if v.count > rl.rate {
-			rl.mu.Unlock()
+		if v.Count > rl.Rate {
+			rl.Mu.Unlock()
 			http.Error(w, "Rate limit exceeded", http.StatusTooManyRequests)
 			return
 		}
-		rl.mu.Unlock()
+		rl.Mu.Unlock()
 
 		next.ServeHTTP(w, r)
 	})
