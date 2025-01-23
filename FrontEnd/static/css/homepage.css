@@ -294,7 +294,7 @@ body {
     font-weight: 500;
     border: 1px solid transparent;
     background-color: var(--bg-primary);
-    margin-left: auto; /* Push sign-in button to far right */
+    margin-left: auto;
 }
 .sign-btn:hover {
     background-color: var(--hover-bg);
@@ -306,7 +306,6 @@ body {
     border: none;
     padding: 8px;
     display: flex;
-    /* align-items: left; */
     justify-content: left;
     margin-right: 10px;
     cursor: pointer;
@@ -316,8 +315,8 @@ body {
     max-width: 750px;
     margin: 0 auto;
     padding: 0 30px;
-    max-height: 100vh; /* Adjust as needed */
-    overflow-y: auto;
+    max-height: 100vh;
+    /* overflow-y: auto; */
     overscroll-behavior: contain;
     padding-top: 10px;
 }
@@ -1567,7 +1566,6 @@ body {
         /* width: 120px; */
         width: 100%;
         opacity: 100%;
-        /* background-color: #fff; */
         z-index: 1000;
     }
 }
