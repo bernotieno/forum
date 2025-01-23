@@ -42,7 +42,11 @@ body {
     padding: 24px;
     position: relative;
     gap: 24px;
-    padding-top: 70px;
+    /* padding-top: 70px; */
+
+    margin-top: 30px;
+    padding-left: 0%;
+    padding-top: 19px;
 }
 /* Header styles */
 .header {
@@ -315,6 +319,7 @@ body {
     max-height: 100vh; /* Adjust as needed */
     overflow-y: auto;
     overscroll-behavior: contain;
+    padding-top: 10px;
 }
 
 .post {
@@ -1390,7 +1395,8 @@ body {
         grid-template-columns: 200px 1fr 260px;
         gap: 20px;
         padding: 16px;
-        margin-top: 70px;
+        margin-top: 30px;
+        padding-left: 0%;
     }
     .sidebar {
         position: relative;
@@ -1398,6 +1404,9 @@ body {
         left: 0;
         /* width: 100%; */
         /* margin-top: 20px; */
+    }
+    .posts-container {
+        padding-top: 20px;
     }
 
     /* .hamburger-menu {
