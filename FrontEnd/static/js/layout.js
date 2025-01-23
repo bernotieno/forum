@@ -62,6 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
     communityLinks.forEach(link => {
         link.addEventListener("click", (event) => {
             event.preventDefault();
+            toggleSidebar();
 
             // Get the clicked category name
             const selectedCategory = link.textContent.trim().toLowerCase();
@@ -178,3 +179,10 @@ function displayContent(data, type) {
     });
 }
 
+function toggleSidebar() {
+    const sidebar = document.querySelector('.sidebar');
+    const sidebarSection = document.querySelector('.sidebar-section');
+    sidebar.classList.toggle('active');
+    sidebarSection.classList.toggle('active');
+    console.log('Sidebar toggled');
+}
