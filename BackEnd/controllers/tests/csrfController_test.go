@@ -20,6 +20,15 @@ func TestGenerateCSRFToken(t *testing.T) {
 		t.Fatalf("Failed to create test database: %v", err)
 	}
 	defer db.Close()
+	defer func() {
+		db.Close()
+		cleanupTestResources()
+	}()
+
+	// Clear tables before test
+	if err := clearDatabaseTables(db); err != nil {
+		t.Fatalf("Failed to clear database tables: %v", err)
+	}
 
 	// Create a session token for testing
 	sessionToken := "test-session-token"
@@ -105,6 +114,15 @@ func TestVerifyCSRFToken(t *testing.T) {
 		t.Fatalf("Failed to create test database: %v", err)
 	}
 	defer db.Close()
+	defer func() {
+		db.Close()
+		cleanupTestResources()
+	}()
+
+	// Clear tables before test
+	if err := clearDatabaseTables(db); err != nil {
+		t.Fatalf("Failed to clear database tables: %v", err)
+	}
 
 	// Create a session token and CSRF token for testing
 	sessionToken := "test-session-token"
@@ -218,6 +236,15 @@ func TestCleanupExpiredCSRFTokens(t *testing.T) {
 		t.Fatalf("Failed to create test database: %v", err)
 	}
 	defer db.Close()
+	defer func() {
+		db.Close()
+		cleanupTestResources()
+	}()
+
+	// Clear tables before test
+	if err := clearDatabaseTables(db); err != nil {
+		t.Fatalf("Failed to clear database tables: %v", err)
+	}
 
 	// Insert expired and non-expired CSRF tokens into the database
 	_, err = db.Exec("INSERT INTO csrf_tokens (session_token, csrf_token, expires_at) VALUES (?, ?, ?)",
@@ -267,6 +294,15 @@ func TestAddCSRFToken(t *testing.T) {
 		t.Fatalf("Failed to create test database: %v", err)
 	}
 	defer db.Close()
+	defer func() {
+		db.Close()
+		cleanupTestResources()
+	}()
+
+	// Clear tables before test
+	if err := clearDatabaseTables(db); err != nil {
+		t.Fatalf("Failed to clear database tables: %v", err)
+	}
 
 	// Test data
 	sessionToken := "test-session-token"
@@ -355,6 +391,15 @@ func TestGetCSRFToken(t *testing.T) {
 		t.Fatalf("Failed to create test database: %v", err)
 	}
 	defer db.Close()
+	defer func() {
+		db.Close()
+		cleanupTestResources()
+	}()
+
+	// Clear tables before test
+	if err := clearDatabaseTables(db); err != nil {
+		t.Fatalf("Failed to clear database tables: %v", err)
+	}
 
 	// Test data
 	sessionToken := "test-session-token"
@@ -437,6 +482,15 @@ func TestDeleteCSRFToken(t *testing.T) {
 		t.Fatalf("Failed to create test database: %v", err)
 	}
 	defer db.Close()
+	defer func() {
+		db.Close()
+		cleanupTestResources()
+	}()
+
+	// Clear tables before test
+	if err := clearDatabaseTables(db); err != nil {
+		t.Fatalf("Failed to clear database tables: %v", err)
+	}
 
 	// Test data
 	sessionToken := "test-session-token"

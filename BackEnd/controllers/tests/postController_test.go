@@ -18,6 +18,15 @@ func TestPostController_InsertPost(t *testing.T) {
 		t.Fatalf("Failed to create test database: %v", err)
 	}
 	defer db.Close()
+	defer func() {
+		db.Close()
+		cleanupTestResources()
+	}()
+
+	// Clear tables before test
+	if err := clearDatabaseTables(db); err != nil {
+		t.Fatalf("Failed to clear database tables: %v", err)
+	}
 
 	// Create a PostController instance
 	pc := controllers.NewPostController(db)
@@ -102,6 +111,15 @@ func TestPostController_GetAllPosts(t *testing.T) {
 		t.Fatalf("Failed to create test database: %v", err)
 	}
 	defer db.Close()
+	defer func() {
+		db.Close()
+		cleanupTestResources()
+	}()
+
+	// Clear tables before test
+	if err := clearDatabaseTables(db); err != nil {
+		t.Fatalf("Failed to clear database tables: %v", err)
+	}
 
 	// Create a PostController instance
 	pc := controllers.NewPostController(db)
@@ -183,6 +201,15 @@ func TestPostController_GetPostByID(t *testing.T) {
 		t.Fatalf("Failed to create test database: %v", err)
 	}
 	defer db.Close()
+	defer func() {
+		db.Close()
+		cleanupTestResources()
+	}()
+
+	// Clear tables before test
+	if err := clearDatabaseTables(db); err != nil {
+		t.Fatalf("Failed to clear database tables: %v", err)
+	}
 
 	// Create a PostController instance
 	pc := controllers.NewPostController(db)
@@ -251,6 +278,15 @@ func TestPostController_UpdatePost(t *testing.T) {
 		t.Fatalf("Failed to create test database: %v", err)
 	}
 	defer db.Close()
+	defer func() {
+		db.Close()
+		cleanupTestResources()
+	}()
+
+	// Clear tables before test
+	if err := clearDatabaseTables(db); err != nil {
+		t.Fatalf("Failed to clear database tables: %v", err)
+	}
 
 	// Create a PostController instance
 	pc := controllers.NewPostController(db)
@@ -337,6 +373,15 @@ func TestPostController_DeletePost(t *testing.T) {
 		t.Fatalf("Failed to create test database: %v", err)
 	}
 	defer db.Close()
+	defer func() {
+		db.Close()
+		cleanupTestResources()
+	}()
+
+	// Clear tables before test
+	if err := clearDatabaseTables(db); err != nil {
+		t.Fatalf("Failed to clear database tables: %v", err)
+	}
 
 	// Create a PostController instance
 	pc := controllers.NewPostController(db)
@@ -398,6 +443,15 @@ func TestPostController_IsPostAuthor(t *testing.T) {
 		t.Fatalf("Failed to create test database: %v", err)
 	}
 	defer db.Close()
+	defer func() {
+		db.Close()
+		cleanupTestResources()
+	}()
+
+	// Clear tables before test
+	if err := clearDatabaseTables(db); err != nil {
+		t.Fatalf("Failed to clear database tables: %v", err)
+	}
 
 	// Create a PostController instance
 	pc := controllers.NewPostController(db)

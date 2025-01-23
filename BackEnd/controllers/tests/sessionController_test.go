@@ -22,6 +22,15 @@ func TestSessionFunctions(t *testing.T) {
 		t.Fatalf("Failed to create test database: %v", err)
 	}
 	defer db.Close()
+	defer func() {
+		db.Close()
+		cleanupTestResources()
+	}()
+
+	// Clear tables before test
+	if err := clearDatabaseTables(db); err != nil {
+		t.Fatalf("Failed to clear database tables: %v", err)
+	}
 
 	// Insert test data into the users table (if needed)
 	_, err = db.Exec("INSERT INTO users (id, username) VALUES (1, 'user1'), (2, 'user2')")
@@ -222,6 +231,15 @@ func TestCleanupExpiredSessions(t *testing.T) {
 		t.Fatalf("Failed to create test database: %v", err)
 	}
 	defer db.Close()
+	defer func() {
+		db.Close()
+		cleanupTestResources()
+	}()
+
+	// Clear tables before test
+	if err := clearDatabaseTables(db); err != nil {
+		t.Fatalf("Failed to clear database tables: %v", err)
+	}
 
 	// Insert expired and non-expired sessions into the database
 	_, err = db.Exec("INSERT INTO sessions (session_token, user_id, expires_at) VALUES (?, ?, ?)",

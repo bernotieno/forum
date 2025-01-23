@@ -2,8 +2,10 @@ package Test
 
 import (
 	"database/sql"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 	"time"
 
@@ -62,6 +64,15 @@ func TestAuthMiddleware(t *testing.T) {
 		t.Fatalf("Failed to create test database: %v", err)
 	}
 	defer db.Close()
+	defer func() {
+		db.Close()
+		cleanupTestResources()
+	}()
+
+	// Clear all tables before running tests
+	if err := clearDatabaseTables(db); err != nil {
+		t.Fatalf("Failed to clear database tables: %v", err)
+	}
 
 	// Test cases
 	tests := []struct {
@@ -158,4 +169,28 @@ func TestAuthMiddleware(t *testing.T) {
 			}
 		})
 	}
+}
+
+// Add cleanup helper function
+func cleanupTestResources() {
+	// Clean up log files
+	os.RemoveAll("logs")
+	// Clean up uploads directory if it exists
+	os.RemoveAll("uploads")
+	// Clean up entire storage directory
+	os.RemoveAll("BackEnd/database/storage")
+}
+
+// Add this new function after cleanupTestResources
+func clearDatabaseTables(db *sql.DB) error {
+	// List of tables to clear
+	tables := []string{"users", "posts", "comments", "likes", "sessions"}
+
+	for _, table := range tables {
+		_, err := db.Exec(fmt.Sprintf("DELETE FROM %s", table))
+		if err != nil {
+			return fmt.Errorf("failed to clear table %s: %v", table, err)
+		}
+	}
+	return nil
 }

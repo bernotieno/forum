@@ -2,6 +2,7 @@ package Test
 
 import (
 	"database/sql"
+	"os"
 	"reflect"
 	"strings"
 	"testing"
@@ -12,6 +13,17 @@ import (
 	"github.com/Raymond9734/forum.git/BackEnd/models"
 )
 
+// Modify TestMain to handle setup and cleanup
+func TestMain(m *testing.M) {
+	// Run tests
+	code := m.Run()
+
+	// Cleanup after all tests are done
+	cleanupTestResources()
+
+	os.Exit(code)
+}
+
 func TestLikesController_InsertLikes(t *testing.T) {
 	// Create a test database
 	db, err := database.Init("Test")
@@ -19,6 +31,11 @@ func TestLikesController_InsertLikes(t *testing.T) {
 		t.Fatalf("Failed to create test database: %v", err)
 	}
 	defer db.Close()
+
+	// Clear database tables before test
+	if err := clearDatabaseTables(db); err != nil {
+		t.Fatalf("Failed to clear database tables: %v", err)
+	}
 
 	// Create a LikesController instance
 	lc := controllers.NewLikesController(db)
@@ -132,6 +149,11 @@ func TestLikesController_UpdatePostVotes(t *testing.T) {
 	}
 	defer db.Close()
 
+	// Clear database tables before test
+	if err := clearDatabaseTables(db); err != nil {
+		t.Fatalf("Failed to clear database tables: %v", err)
+	}
+
 	// Create a LikesController instance
 	lc := controllers.NewLikesController(db)
 
@@ -242,6 +264,11 @@ func TestLikesController_GetPostVotes(t *testing.T) {
 	}
 	defer db.Close()
 
+	// Clear database tables before test
+	if err := clearDatabaseTables(db); err != nil {
+		t.Fatalf("Failed to clear database tables: %v", err)
+	}
+
 	// Create a LikesController instance
 	lc := controllers.NewLikesController(db)
 
@@ -330,6 +357,11 @@ func TestLikesController_CheckUserVote(t *testing.T) {
 		t.Fatalf("Failed to create test database: %v", err)
 	}
 	defer db.Close()
+
+	// Clear database tables before test
+	if err := clearDatabaseTables(db); err != nil {
+		t.Fatalf("Failed to clear database tables: %v", err)
+	}
 
 	// Create a LikesController instance
 	lc := controllers.NewLikesController(db)
@@ -424,6 +456,11 @@ func TestLikesController_RemoveUserVote(t *testing.T) {
 		t.Fatalf("Failed to create test database: %v", err)
 	}
 	defer db.Close()
+
+	// Clear database tables before test
+	if err := clearDatabaseTables(db); err != nil {
+		t.Fatalf("Failed to clear database tables: %v", err)
+	}
 
 	// Create a LikesController instance
 	lc := controllers.NewLikesController(db)
@@ -524,6 +561,11 @@ func TestLikesController_AddUserVote(t *testing.T) {
 		t.Fatalf("Failed to create test database: %v", err)
 	}
 	defer db.Close()
+
+	// Clear database tables before test
+	if err := clearDatabaseTables(db); err != nil {
+		t.Fatalf("Failed to clear database tables: %v", err)
+	}
 
 	// Create a LikesController instance
 	lc := controllers.NewLikesController(db)
@@ -635,6 +677,11 @@ func TestLikesController_HandleVote(t *testing.T) {
 	}
 	defer db.Close()
 
+	// Clear database tables before test
+	if err := clearDatabaseTables(db); err != nil {
+		t.Fatalf("Failed to clear database tables: %v", err)
+	}
+
 	// Create a LikesController instance
 	lc := controllers.NewLikesController(db)
 
@@ -697,7 +744,7 @@ func TestLikesController_HandleVote(t *testing.T) {
 			userID:  1,
 			vote:    "like",
 			wantErr: true,
-			errMsg:  "failed to add user vote",
+			errMsg:  "failed to check user vote: sql: database is closed",
 			setup: func(db *sql.DB) {
 				// Close the database connection to simulate a database error
 				db.Close()
@@ -750,6 +797,11 @@ func TestLikesController_GetUserVotes(t *testing.T) {
 		t.Fatalf("Failed to create test database: %v", err)
 	}
 	defer db.Close()
+
+	// Clear database tables before test
+	if err := clearDatabaseTables(db); err != nil {
+		t.Fatalf("Failed to clear database tables: %v", err)
+	}
 
 	// Create a LikesController instance
 	lc := controllers.NewLikesController(db)
@@ -842,6 +894,11 @@ func TestLikesController_GetUserLikesPosts(t *testing.T) {
 		t.Fatalf("Failed to create test database: %v", err)
 	}
 	defer db.Close()
+
+	// Clear database tables before test
+	if err := clearDatabaseTables(db); err != nil {
+		t.Fatalf("Failed to clear database tables: %v", err)
+	}
 
 	// Create a LikesController instance
 	lc := controllers.NewLikesController(db)

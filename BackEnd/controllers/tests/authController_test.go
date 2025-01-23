@@ -2,6 +2,8 @@ package Test
 
 import (
 	"database/sql"
+	"fmt"
+	"os"
 	"testing"
 
 	"github.com/Raymond9734/forum.git/BackEnd/controllers"
@@ -16,13 +18,49 @@ func init() {
 	logger.Init()
 }
 
+// Add cleanup helper function
+func cleanupTestResources() {
+	// Clean up log files
+	os.RemoveAll("logs")
+	// Clean up uploads directory if it exists
+	os.RemoveAll("uploads")
+	// Clean up entire storage directory with correct path, ensuring recursive removal
+	storageDir := "./BackEnd/database/storage"
+	if err := os.RemoveAll(storageDir); err != nil {
+		// Log the error but don't fail the test
+		fmt.Printf("Warning: Failed to remove storage directory: %v\n", err)
+	}
+}
+
+// Add this new function after cleanupTestResources
+func clearDatabaseTables(db *sql.DB) error {
+	// List of tables to clear
+	tables := []string{"users", "posts", "comments", "likes"}
+
+	for _, table := range tables {
+		_, err := db.Exec(fmt.Sprintf("DELETE FROM %s", table))
+		if err != nil {
+			return fmt.Errorf("failed to clear table %s: %v", table, err)
+		}
+	}
+	return nil
+}
+
 func TestAuthController_RegisterUser(t *testing.T) {
 	// Create a test database
 	db, err := database.Init("Test")
 	if err != nil {
 		t.Fatalf("Failed to create test database: %v", err)
 	}
-	defer db.Close()
+	defer func() {
+		db.Close()
+		cleanupTestResources()
+	}()
+
+	// Clear all tables before running tests
+	if err := clearDatabaseTables(db); err != nil {
+		t.Fatalf("Failed to clear database tables: %v", err)
+	}
 
 	type fields struct {
 		DB *sql.DB
@@ -115,7 +153,15 @@ func TestAuthController_AuthenticateUser(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create test database: %v", err)
 	}
-	defer db.Close()
+	defer func() {
+		db.Close()
+		cleanupTestResources()
+	}()
+
+	// Clear all tables before running tests
+	if err := clearDatabaseTables(db); err != nil {
+		t.Fatalf("Failed to clear database tables: %v", err)
+	}
 
 	// Insert a test user into the database
 	err = InsertTestUser(db, "test@example.com", "testuser", "password123")
@@ -386,7 +432,15 @@ func TestGetUsernameByID(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create test database: %v", err)
 	}
-	defer db.Close()
+	defer func() {
+		db.Close()
+		cleanupTestResources()
+	}()
+
+	// Clear all tables before running tests
+	if err := clearDatabaseTables(db); err != nil {
+		t.Fatalf("Failed to clear database tables: %v", err)
+	}
 
 	// Insert a test user into the database
 	err = InsertTestUser(db, "test@example.com", "testuser", "password123")
