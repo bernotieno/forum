@@ -7,14 +7,6 @@
 *.test
 *.out
 
-# SQLite database files
-*.db
-BackEnd/database/storage/forum.db
-
-BackEnd/database/*.db
-BackEnd/database/forum.sqlite
-BackEnd/database/forum.sqlite3
-
 # IDE specific files
 .idea/
 .vscode/
