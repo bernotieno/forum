@@ -51,7 +51,7 @@ body {
 /* Header styles */
 .header {
     background-color: var(--bg-secondary);
-    padding: 12px 16px;
+    padding: 8px 16px;
     display: flex;
     align-items: center;
     position: fixed;
@@ -63,6 +63,7 @@ body {
     border-bottom: 1px solid var(--border-color);
     justify-content: space-between;
     height: 50px;
+    gap: 8px;
     /* position: relative; */
 }
 .logo {
@@ -84,9 +85,76 @@ body {
     align-items: center;
 }
 .hamburger-menu {
-    display: none;
+    padding: 15px;
+    display: inline-block;
     cursor: pointer;
-    color: var(--accent-color);
+    background-color: transparent;
+    border: 0;
+    margin: 0;
+    transition: transform 0.3s ease-in-out;
+}
+.hamburger-box {
+    width: 24px;
+    height: 20px;
+    display: inline-block;
+    position: relative;
+}
+.hamburger-inner {
+    display: block;
+    top: 50%;
+    margin-top: -2px;
+}
+.hamburger-inner, .hamburger-inner::before, .hamburger-inner::after {
+    width: 24px;
+    height: 2px;
+    background-color: var(--text-primary);
+    border-radius: 4px;
+    position: absolute;
+    transition: transform 0.15s ease;
+}
+.hamburger-inner::before, .hamburger-inner::after {
+    content: "";
+    display: block;
+}
+.hamburger-inner::before {
+    top: -8px;
+}
+.hamburger-inner::after {
+    bottom: -8px;
+}
+/* Animation for menu open state */
+.hamburger-menu[aria-expanded="true"] .hamburger-inner {
+    transform: rotate(45deg);
+}
+.hamburger-menu[aria-expanded="true"] .hamburger-inner::before {
+    top: 0;
+    opacity: 0;
+}
+.hamburger-menu[aria-expanded="true"] .hamburger-inner::after {
+    bottom: 0;
+    transform: rotate(-90deg);
+}
+/* Sidebar transition */
+.sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-in-out;
+}
+/* Overlay for mobile */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    top: 50px;
+    z-index: 999;
+}
+.sidebar-overlay.active {
+    display: block;
+    opacity: 1;
 }
 /* Profile and User Section Styles */
 .profile-section {
@@ -1466,13 +1534,48 @@ body {
         display: none;
     }
     .header {
-        padding: 8px 16px;
+        padding: 8px 10px;
+        justify-content: space-between;
     }
+    .profile-section {
+        gap: 4px;
+    }
+    .button-post {
+        padding: 4px 8px;
+    }
+    .button-post .button-text {
+        display: none;
+    }
+    .search-bar-container {
+        flex: 0 1 auto;
+        width: auto;
+        min-width: 100px;
+        margin: 0 10px;
+    }
+
     .search-bar {
-        margin: 0 12px;
+        width: 100%;
     }
-    #postEditorContainer {
-        width: 95%;
+
+    .search-input {
+        width: 100%;
+        min-width: 120px;
+        padding: 6px 10px;
+        font-size: 13px;
+    }
+
+    .logo {
+        font-size: 16px;
+        margin-right: 5px;
+    }
+
+    .logo i {
+        font-size: 20px;
+    }
+
+    .hamburger-menu {
+        margin-right: 8px;
+        padding: 8px;
     }
     .post {
         padding: 10px 10px 0 10px;
@@ -1568,4 +1671,37 @@ body {
         opacity: 100%;
         z-index: 1000;
     }
+}
+
+.sidebar.active {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    width: 250px;
+    height: calc(100vh - 50px);
+    top: 50px;
+    left: 0;
+    background-color: var(--bg-secondary);
+    border-right: 1px solid var(--border-color);
+    overflow-y: auto;
+    z-index: 1000;
+    padding: 20px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    transform: translateX(0);
+}
+
+/* Overlay style */
+.sidebar-overlay {
+    background-color: rgba(0, 0, 0, 0.5);
+    position: fixed;
+    top: 50px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 999;
+    display: none;
+}
+
+.sidebar-overlay.active {
+    display: block;
 }

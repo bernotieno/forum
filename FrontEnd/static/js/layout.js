@@ -113,10 +113,17 @@ function toggleSubDropdown(event) {
 document.addEventListener('click', function(event) {
     const dropdown = document.querySelector('.dropdown-content');
     const profileImage = document.querySelector('.profile-image');
-    // Check if the click is outside the profile image and dropdown
-    if (!profileImage.contains(event.target) && !dropdown.contains(event.target)) {
-        dropdown.classList.add('hidden');
-        document.getElementById('myActivitiesDropdown').classList.add('hidden');
+    
+    // Only proceed if both elements exist
+    if (profileImage && dropdown) {
+        // Check if the click is outside the profile image and dropdown
+        if (!profileImage.contains(event.target) && !dropdown.contains(event.target)) {
+            dropdown.classList.add('hidden');
+            const activitiesDropdown = document.getElementById('myActivitiesDropdown');
+            if (activitiesDropdown) {
+                activitiesDropdown.classList.add('hidden');
+            }
+        }
     }
 });
 
@@ -181,8 +188,49 @@ function displayContent(data, type) {
 
 function toggleSidebar() {
     const sidebar = document.querySelector('.sidebar');
-    const sidebarSection = document.querySelector('.sidebar-section');
+    const hamburgerBtn = document.querySelector('.hamburger-menu');
+    const overlay = document.querySelector('.sidebar-overlay');
+    const isExpanded = hamburgerBtn.getAttribute('aria-expanded') === 'true';
+    
+    // Toggle ARIA attributes
+    hamburgerBtn.setAttribute('aria-expanded', !isExpanded);
+    
+    // Toggle classes
     sidebar.classList.toggle('active');
-    sidebarSection.classList.toggle('active');
-    console.log('Sidebar toggled');
+    overlay?.classList.toggle('active');
+    
+    // Handle body scroll
+    document.body.style.overflow = !isExpanded ? 'hidden' : '';
+    
+    // Handle escape key
+    if (!isExpanded) {
+        document.addEventListener('keydown', handleEscKey);
+    } else {
+        document.removeEventListener('keydown', handleEscKey);
+    }
 }
+
+function handleEscKey(e) {
+    if (e.key === 'Escape') {
+        toggleSidebar();
+    }
+}
+
+// Add overlay div to the DOM
+document.body.insertAdjacentHTML('beforeend', '<div class="sidebar-overlay"></div>');
+
+// Event Listeners
+document.querySelector('.hamburger-menu').addEventListener('click', toggleSidebar);
+document.querySelector('.sidebar-overlay').addEventListener('click', toggleSidebar);
+
+// Handle click outside
+document.addEventListener('click', (e) => {
+    const sidebar = document.querySelector('.sidebar');
+    const hamburgerBtn = document.querySelector('.hamburger-menu');
+    
+    if (sidebar.classList.contains('active') && 
+        !sidebar.contains(e.target) && 
+        !hamburgerBtn.contains(e.target)) {
+        toggleSidebar();
+    }
+});
