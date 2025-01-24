@@ -47,3 +47,5 @@ sessions/
 # Test coverage
 coverage.txt
 coverage.html
+
+test_forum.db
