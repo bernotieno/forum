@@ -27,7 +27,7 @@ func main() {
 
 	db, err := database.Init("Development")
 	if err != nil {
-		fmt.Println("An error occured while initializing Database")
+		fmt.Println("An error occurred while initializing Database")
 		os.Exit(1)
 	}
 	log.Println("Database initialized successfully")
@@ -52,9 +52,15 @@ func main() {
 		controllers.CleanupExpiredSessions(ctx, db)
 	}()
 
+	// Determine the port to listen on
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080" // Default to port 8080 in development
+	}
+
 	// Update your server configuration
 	server := &http.Server{
-		Addr:              ":8080",          // Listen on port 8080
+		Addr:              ":" + port,       // Listen on the determined port
 		ReadTimeout:       15 * time.Second, // Max time to read the entire request
 		WriteTimeout:      15 * time.Second, // Max time to write the response
 		IdleTimeout:       60 * time.Second, // Max time to keep idle connections alive
@@ -71,7 +77,7 @@ func main() {
 
 	// Run the server in a goroutine
 	go func() {
-		log.Println("Server running at http://localhost:8080")
+		log.Printf("Server running at http://localhost:%s\n", port)
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Printf("Server failed to start: %v\n", err)
 		}
