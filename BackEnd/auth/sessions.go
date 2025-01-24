@@ -3,6 +3,7 @@ package auth
 
 import (
 	"database/sql"
+	"errors"
 	"net/http"
 	"time"
 
@@ -13,6 +14,10 @@ import (
 
 // CreateSession creates a new session for a user
 func CreateSession(db *sql.DB, w http.ResponseWriter, userID int) error {
+	if userID <= 0 {
+		return errors.New("invalid user ID")
+	}
+
 	// Delete all existing sessions for the user
 	err := controllers.DeleteUserSessions(db, userID)
 	if err != nil {
@@ -43,6 +48,9 @@ func CreateSession(db *sql.DB, w http.ResponseWriter, userID int) error {
 }
 
 func DeleteSession(db *sql.DB, w http.ResponseWriter, cookie *http.Cookie) {
+	if cookie == nil || db == nil {
+		return
+	}
 	sessionToken := cookie.Value
 
 	// Delete the session from the database
