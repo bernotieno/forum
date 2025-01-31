@@ -168,3 +168,20 @@ document.getElementById('loginForm').querySelector('button').addEventListener('c
         showToast('Login failed. Please try again.'); 
     });
 });
+
+document.querySelector(".google-button").addEventListener("click", () => {
+    window.location.href = "/googleLogin";
+});
+
+document.querySelector(".github-button").addEventListener("click", () => {
+    window.location.href = "/githubLogin";
+});
+
+// On the homepage (or specific URL after GitHub login), reload the page
+window.onload = () => {
+    // Check if we're on the homepage or the desired page to reload
+    if (window.location.pathname === "/") {
+        window.location.reload();
+    }
+};
+

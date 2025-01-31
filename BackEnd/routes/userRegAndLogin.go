@@ -64,4 +64,24 @@ func UserRegAndLogin(db *sql.DB) {
 		middleware.VerifyCSRFMiddleware(db),
 		middleware.ValidatePathAndMethod("/logout", http.MethodPost),
 	))
+
+	// http.Handle("/googleLogin", middleware.ApplyMiddleware(
+	// 	http.HandlerFunc(handlers.GoogleHandler),
+	// 	middleware.SetCSPHeaders,
+	// 	middleware.CORSMiddleware,
+	// 	// authLimiter.RateLimit,
+	// 	middleware.ErrorHandler(handlers.ServeErrorPage),
+	// ))
+
+	http.HandleFunc("/googleLogin", handlers.GoogleHandler)
+	http.HandleFunc("/auth/google/callback", handlers.CallbackHandler)
+	http.HandleFunc("/githubLogin", handlers.GitHubHandler)
+	http.HandleFunc("/auth/github/callback", handlers.GitHubCallbackHandler)
+
+	// http.Handle("/auth/google/callback", middleware.ApplyMiddleware(
+	// 	http.HandlerFunc(handlers.CallbackHandler),
+	// 	middleware.SetCSPHeaders,
+	// 	middleware.CORSMiddleware,
+	// 	middleware.ErrorHandler(handlers.ServeErrorPage),
+	// ))
 }
