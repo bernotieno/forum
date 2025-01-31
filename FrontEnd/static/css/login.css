@@ -39,7 +39,7 @@ body {
 .container {
     background-color: var(--bg-secondary);
     width: 410px;
-    height: 400px;
+    height: 500px;
     border-radius: 15px;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
     overflow: hidden;
@@ -117,7 +117,9 @@ body {
     border-radius: 5px;
     cursor: pointer;
     font-size: 16px;
+    margin-bottom: 10px;
 }
+
 
 .form button:hover {
     background: #1c1c1c;
@@ -217,9 +219,9 @@ body {
     right: 20px; /* Slide into view */
 }
 
-.sign-up_button{
+/* .sign-up_button{
     width: 420px;
-}
+} */
 
 .sign-up_header{
     text-align: center;
