@@ -111,3 +111,8 @@ Counter Sharding: Handles concurrent voting efficiently
 Comment Trees: Optimizes memory usage for nested comments
 Rate Limiting: Prevents abuse and ensures fair resource usage
 Background Jobs: Improves responsiveness for heavy operations
+
+## Authentication
+The reload of the page whenever a user loggs in with either Google or Github.
+The buttons of the Google and Github sign in to also function the same way as the one in the login form.
+Readme update. 
