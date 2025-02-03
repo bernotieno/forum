@@ -187,8 +187,22 @@ document.addEventListener('DOMContentLoaded', function() {
     postForm.addEventListener('submit', async (e) => {
         e.preventDefault();
     
-        const title = document.getElementById('post-title').value;
-        const content = document.getElementById('post-body').innerText;
+        // Configure DOMPurify to remove all HTML tags
+        const purifyConfig = {
+            ALLOWED_TAGS: [], // Allow no HTML tags
+            ALLOWED_ATTR: [] // Allow no attributes
+        };
+
+        const title = DOMPurify.sanitize(
+            document.getElementById('post-title').value,
+            purifyConfig
+        );
+        
+        const content = DOMPurify.sanitize(
+            document.getElementById('post-body').innerText,
+            purifyConfig
+        );
+
         const categories = Array.from(selectedCats);
         const fileInput = document.getElementById('file-input');
     
