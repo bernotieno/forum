@@ -116,7 +116,7 @@
                 {{end}}
             </div>
         </div>
-        <div class="comment-content" id="comment-content-{{$comment.ID}}">{{$comment.Content}}</div>
+        <div class="comment-content" id="comment-content-{{$comment.ID}}">{{html .Content}}</div>
         <div class="comment-footer">
             <div class="vote-buttons">
                 <button class="vote-button comment-vote" data-vote="up" data-comment-id="{{$comment.ID}}">
@@ -154,6 +154,7 @@
 {{end}}
 
 {{define "scripts"}}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.8/purify.min.js"></script>
 <script src="../static/js/viewPost.js"></script>
 <script src="../static/js/theme.js"></script>
 <script src="../static/js/vote.js"></script>
