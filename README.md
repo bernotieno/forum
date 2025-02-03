@@ -5,6 +5,8 @@ A full-featured forum platform built with Go and SQLite, featuring real-time int
 ## Features
 
 - User Authentication & Authorization
+  - Local Authentication
+  - OAuth 2.0 Integration (Google & GitHub)
 - Post Creation and Management
 - Comment System with Nested Replies
 - Image Upload & Processing
@@ -22,12 +24,15 @@ A full-featured forum platform built with Go and SQLite, featuring real-time int
 - Secure Session Management
 - SQL Injection Prevention
 - Secure Password Hashing
+- OAuth 2.0 Secure Authentication Flow
 
 ## Prerequisites
 
 - Go 1.21 or higher
 - SQLite3
 - Docker (optional)
+- Google OAuth 2.0 Client Credentials
+- GitHub OAuth Application Credentials
 
 ## Project Structure
 
@@ -53,6 +58,12 @@ cd forum
 chmod +x run.sh
 ./run.sh
 ```
+
+### OAuth Configuration
+
+1. Create OAuth 2.0 credentials in the Google Cloud Console
+2. Register a new OAuth Application in GitHub Developer Settings
+3. Set up environment variables:
 
 ## Running the Application
 
