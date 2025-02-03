@@ -177,11 +177,31 @@ document.querySelector(".github-button").addEventListener("click", () => {
     window.location.href = "/githubLogin";
 });
 
-// On the homepage (or specific URL after GitHub login), reload the page
-window.onload = () => {
-    // Check if we're on the homepage or the desired page to reload
-    if (window.location.pathname === "/") {
-        window.location.reload();
-    }
+// Add this function before the window.onload handler
+function checkLoginStatus() {
+    return fetch('/checkLoginStatus', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        credentials: 'include' // Important for sending cookies
+    })
+    .then(response => response.json())
+    .then(data => {
+        return data.loggedIn;
+    })
+    .catch(error => {
+        console.error('Error checking login status:', error);
+        return false;
+    });
+}
+
+// The existing window.onload code remains the same
+window.onload = function() {
+    checkLoginStatus().then(isLoggedIn => {
+        if (isLoggedIn) {
+            window.location.replace('/');
+        }
+    });
 };
 
