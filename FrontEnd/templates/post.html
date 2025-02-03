@@ -11,7 +11,8 @@
         
         <div class="input-group">
             <input type="text" id="post-title" name="title" class="input-field" 
-                   placeholder="Title" maxlength="300" required>
+                   placeholder="Title" maxlength="300" pattern="[^<>]*" 
+                   title="HTML tags are not allowed" required>
         </div>
 
         <div class="tab-container">
@@ -67,6 +68,7 @@
 {{end}}
 
 {{define "scripts"}}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.8/purify.min.js"></script>
 <script src="../static/js/post.js"></script>
 <script src="../static/js/theme.js"></script>
 {{end}} 
