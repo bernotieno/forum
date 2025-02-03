@@ -134,16 +134,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Move submitComment outside DOMContentLoaded to make it globally available
 window.submitComment = async function(button) {
-    // Disable the button immediately to prevent double clicks
     button.disabled = true;
     
     const postId = button.getAttribute('data-post-id');
     const commentInput = document.getElementById('commentText');
-    const content = commentInput.value.trim();
+    const content = DOMPurify.sanitize(commentInput.value.trim());
     
     if (!content) {
         showToast('Comment cannot be empty');
-        button.disabled = false;  // Re-enable the button if validation fails
+        button.disabled = false;
         return;
     }
 
@@ -216,7 +215,8 @@ window.cancelReply = function(button) {
 window.submitReply = async function(button) {
     const commentId = button.getAttribute('data-comment-id');
     const postId = button.getAttribute('data-post-id');
-    const content = document.getElementById(`replyText-${commentId}`).value.trim();
+    const replyInput = document.getElementById(`replyText-${commentId}`);
+    const content = DOMPurify.sanitize(replyInput.value.trim());
     
     if (!content) {
         showToast('Reply cannot be empty');
@@ -308,7 +308,13 @@ async function editComment(commentId) {
 
 // Function to save the edited comment
 async function saveEdit(commentId) {
-    const editedContent = document.getElementById(`edit-${commentId}`).value;
+    const editInput = document.getElementById(`edit-${commentId}`);
+    const editedContent = DOMPurify.sanitize(editInput.value.trim());
+
+    if (!editedContent) {
+        showToast('Comment cannot be empty');
+        return;
+    }
 
     try {
         const response = await fetch(`/updateComment?id=${commentId}`, {
