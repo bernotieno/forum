@@ -10,7 +10,11 @@ func SetCSPHeaders(next http.Handler) http.Handler {
 				"script-src 'self' https://cdnjs.cloudflare.com 'unsafe-inline' 'unsafe-eval'; "+
 				"style-src 'self' https://cdnjs.cloudflare.com 'unsafe-inline'; "+
 				"font-src 'self' data: https://cdnjs.cloudflare.com/ajax/libs/font-awesome/; "+
-				"img-src 'self' data: blob:",
+				"img-src 'self' data: blob: https://*.yourdomain.com; "+
+				"frame-ancestors 'none'; "+
+				"object-src 'none'; "+
+				"base-uri 'self'; "+
+				"form-action 'self';",
 		)
 		next.ServeHTTP(w, r)
 	})
