@@ -65,8 +65,8 @@ function hideToast() {
 
 // Function to handle the signup form submission
 document.getElementById('signupForm').querySelector('button').addEventListener('click', function (event) {
-    event.preventDefault(); // Prevent the default form submission
-    hideToast(); // Hide any previous errors
+    event.preventDefault();
+    hideToast(); 
 
     // Get form elements using more specific selectors
     const usernameInput = document.getElementById('signupUsername');
@@ -169,13 +169,18 @@ document.getElementById('loginForm').querySelector('button').addEventListener('c
     });
 });
 
-document.querySelector(".google-button").addEventListener("click", () => {
-    window.location.href = "/googleLogin";
+document.querySelectorAll(".google-button").forEach(button => {
+    button.addEventListener("click", () => {
+        window.location.href = "/googleLogin";
+    });
 });
 
-document.querySelector(".github-button").addEventListener("click", () => {
-    window.location.href = "/githubLogin";
+document.querySelectorAll(".github-button").forEach(button => {
+    button.addEventListener("click", () => {
+        window.location.href = "/githubLogin";
+    });
 });
+
 
 // Add this function before the window.onload handler
 function checkLoginStatus() {
