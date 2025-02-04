@@ -5,59 +5,73 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"path/filepath"
-	"strconv"
+	"path"
 	"strings"
 	"time"
-
-	"github.com/Raymond9734/forum.git/BackEnd/logger"
 )
 
-func UploadFile(r *http.Request, formName string, userID int) (string, error) {
-	var filePath string
+func UploadFile(r *http.Request, fieldName string, userID int) (string, error) {
+	file, header, err := r.FormFile(fieldName)
+	if err != nil {
+		if err == http.ErrMissingFile {
+			return "", nil // No file uploaded, not an error
+		}
+		return "", fmt.Errorf("error retrieving file: %v", err)
+	}
+	defer file.Close()
 
-	file, handler, err := r.FormFile(formName)
-	if err != nil && err != http.ErrMissingFile {
-		logger.Error("Failed to retrieve file %v", err)
-		return "", err
+	// Check file size (20MB limit)
+	if header.Size > 20 * 1024 * 1024 { 
+		return "", fmt.Errorf("file size exceeds 20MB limit")
 	}
 
-	if file != nil {
-		defer file.Close()
-
-		// Generate a unique filename
-		timestamp := time.Now().Unix()
-		fileExt := filepath.Ext(handler.Filename)
-		newFilename := fmt.Sprintf("User%s_%d%s", strconv.Itoa(userID), timestamp, fileExt)
-
-		// Define the upload directory and paths
-		uploadDir := "uploads"
-		// Use forward slashes for web URLs
-		filePath = fmt.Sprintf("/uploads/%s", newFilename)
-		// Use filepath.Join for the system path
-		fullPath := filepath.Join(".", uploadDir, newFilename)
-
-		// Create the upload directory if it doesn't exist
-		if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
-			logger.Error("Failed to create upload directory: %v", err)
-			return "", err
-		}
-
-		// Save the file to the server's filesystem
-		dst, err := os.Create(fullPath)
-		if err != nil {
-			logger.Error("Failed to create file on server: %v", err)
-			return "", err
-		}
-		defer dst.Close()
-
-		_, err = io.Copy(dst, file)
-		if err != nil {
-			logger.Error("Failed to save file content: %v", err)
-			return "", err
-		}
+	// Read first 512 bytes to detect content type
+	buff := make([]byte, 512)
+	_, err = file.Read(buff)
+	if err != nil {
+		return "", fmt.Errorf("error reading file header: %v", err)
 	}
-	return filePath, nil
+
+	// Reset file pointer
+	file.Seek(0, 0)
+
+	// Check file type
+	contentType := http.DetectContentType(buff)
+	allowedTypes := map[string]string{
+		"image/jpeg":    ".jpg",
+		"image/png":     ".png",
+		"image/gif":     ".gif",
+		"image/svg+xml": ".svg",
+	}
+
+	extension, allowed := allowedTypes[contentType]
+	if !allowed {
+		return "", fmt.Errorf("invalid file type. Only JPEG, PNG, GIF and SVG files are allowed")
+	}
+
+	// Create unique filename
+	filename := fmt.Sprintf("%d_%s%s", userID, time.Now().Format("20060102150405"), extension)
+	uploadDir := "uploads/posts" // Configure your upload directory
+
+	// Ensure upload directory exists
+	if err := os.MkdirAll(uploadDir, 0o755); err != nil {
+		return "", fmt.Errorf("error creating upload directory: %v", err)
+	}
+
+	// Create new file
+	filepath := path.Join(uploadDir, filename)
+	dst, err := os.Create(filepath)
+	if err != nil {
+		return "", fmt.Errorf("error creating file: %v", err)
+	}
+	defer dst.Close()
+
+	// Copy file contents
+	if _, err = io.Copy(dst, file); err != nil {
+		return "", fmt.Errorf("error saving file: %v", err)
+	}
+
+	return filepath, nil
 }
 
 func RemoveImages(imagePaths []string) error {
