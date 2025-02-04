@@ -87,12 +87,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function validateAndOptimizeImage(file) {
         return new Promise((resolve, reject) => {
-            const maxSize = 5 * 1024 * 1024; // 5MB
-            if (file.size > maxSize) {
-                reject('File size should be less than 5MB');
+            // Check file type
+            if (!file.type.match(/^image\/(jpeg|png|gif|svg\+xml)$/)) {
+                reject('Only JPEG, PNG, GIF and SVG files are allowed');
                 return;
             }
-
+    
+            // Check file size (20MB)
+            if (file.size > 20 * 1024 * 1024) {
+                reject('File size should be less than 20MB');
+                return;
+            }
+    
+            // For SVG files, pass through without optimization
+            if (file.type === 'image/svg+xml') {
+                resolve(file);
+                return;
+            }
+    
+            // For other image types, optimize
             const img = new Image();
             img.onload = function() {
                 const canvas = document.createElement('canvas');
@@ -112,21 +125,37 @@ document.addEventListener('DOMContentLoaded', function() {
                         height = maxDim;
                     }
                 }
-
+    
                 canvas.width = width;
                 canvas.height = height;
                 ctx.drawImage(img, 0, 0, width, height);
-
+    
                 canvas.toBlob((blob) => {
                     resolve(new File([blob], file.name, {
                         type: 'image/jpeg',
                         lastModified: Date.now()
                     }));
-                }, 'image/jpeg', 0.9); // 90% quality
+                }, 'image/jpeg', 0.9);
             };
-
+    
             img.onerror = () => reject('Invalid image file');
             img.src = URL.createObjectURL(file);
+        });
+    }
+    function handleFiles(files) {
+        Array.from(files).forEach(file => {
+            if (!file.type.match(/^image\/(jpeg|png|gif|svg\+xml)$/)) {
+                showToast('Only JPEG, PNG, GIF and SVG files are allowed');
+                return;
+            }
+            
+            if (file.size > 20 * 1024 * 1024) {
+                showToast('File size should be less than 20MB');
+                return;
+            }
+    
+            uploadedFiles.add(file);
+            displayPreview(file);
         });
     }
 
