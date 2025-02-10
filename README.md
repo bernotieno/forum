@@ -1,12 +1,8 @@
-# Forum Application
+# Forum-Image-Upload Application
 
 A full-featured forum platform built with Go and SQLite, featuring real-time interactions, secure authentication, and media handling capabilities.
 
 ## Features
-
-- User Authentication & Authorization
-  - Local Authentication
-  - OAuth 2.0 Integration (Google & GitHub)
 - Post Creation and Management
 - Comment System with Nested Replies
 - Image Upload & Processing
@@ -53,17 +49,12 @@ A full-featured forum platform built with Go and SQLite, featuring real-time int
 ## Installation
 
 ```bash
-git clone https://learn.zone01kisumu.ke/git/rcaleb/forum.git
-cd forum
+git clone https://learn.zone01kisumu.ke/git/vinomondi/forum-image-upload.git
+cd forum-image-upload
 chmod +x run.sh
 ./run.sh
 ```
 
-### OAuth Configuration
-
-1. Create OAuth 2.0 credentials in the Google Cloud Console
-2. Register a new OAuth Application in GitHub Developer Settings
-3. Set up environment variables:
 
 ## Running the Application
 
