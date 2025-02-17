@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"text/template"
 
 	"github.com/Raymond9734/forum.git/BackEnd/auth"
 	"github.com/Raymond9734/forum.git/BackEnd/database"
@@ -25,7 +26,7 @@ const (
 // GitHubHandler redirects the user to GitHub OAuth
 func GitHubHandler(w http.ResponseWriter, r *http.Request) {
 	authLink := fmt.Sprintf("%s?client_id=%s&redirect_uri=%s&scope=user:email",
-    githubAuthURL, githubClientID, url.QueryEscape(githubRedirectURI))
+		githubAuthURL, githubClientID, url.QueryEscape(githubRedirectURI))
 
 	http.Redirect(w, r, authLink, http.StatusFound)
 }
@@ -85,7 +86,20 @@ func GitHubCallbackHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	tmpl, err := template.ParseFiles("FrontEnd/templates/oauth_callback.html")
+	if err != nil {
+		logger.Error("Failed to parse template: %v", err)
+		http.Error(w, "Server error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/html")
+	err = tmpl.Execute(w, nil)
+	if err != nil {
+		logger.Error("Failed to execute template: %v", err)
+		http.Error(w, "Server error", http.StatusInternalServerError)
+		return
+	}
 }
 
 // exchangeGitHubCodeForToken exchanges the OAuth code for an access token
