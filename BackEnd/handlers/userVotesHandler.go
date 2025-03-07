@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -113,6 +114,29 @@ func CreateUserVoteHandler(lc *controllers.LikesController) http.HandlerFunc {
 				"error": "Failed to fetch updated votes",
 			})
 			return
+		}
+
+		username := controllers.GetUsernameByID(lc.DB, userID)
+
+		var postAuthorID int
+		err = lc.DB.QueryRow("SELECT user_id FROM posts WHERE id=?", postID).Scan(&postAuthorID)
+		if err != nil {
+			logger.Error("Failed to get post author id: %v", err)
+		} else if postAuthorID != userID {
+			nc := controllers.NewNotificationController(lc.DB)
+
+			newNotification := models.Notification{
+				RecipientID: postAuthorID,
+				ActorID:     userID,
+				Type:        userVote,
+				EntityType:  "post",
+				Message:     fmt.Sprintf("%s %sd on your post", username, userVote),
+			}
+
+			_, err := nc.CreateNotification(newNotification)
+			if err != nil {
+				logger.Error("Failed To create Notification: %v", err)
+			}
 		}
 
 		// Return the updated likes and dislikes count
