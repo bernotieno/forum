@@ -169,5 +169,25 @@ func Init(env string) (*sql.DB, error) {
 		return nil, err
 	}
 
+	// create notifications table
+	_, err = DB.Exec(`
+	CREATE TABLE IF NOT EXISTS notifications (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			recipient_id INTEGER NOT NULL,
+			actor_id INTEGER NOT NULL,
+			type TEXT NOT NULL CHECK(type IN ('like', 'dislike', 'comment', 'follow', 'message', 'unfollow')),
+			entity_type TEXT NOT NULL CHECK(entity_type IN ('post', 'comment', 'profile', 'message')),
+			message TEXT NOT NULL,
+			is_read BOOLEAN DEFAULT FALSE,
+			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+			FOREIGN KEY (recipient_id) REFERENCES users(id) ON DELETE CASCADE,
+			FOREIGN KEY (actor_id) REFERENCES users(id) ON DELETE CASCADE
+		);
+		`)
+	if err != nil {
+		logger.Error("Failed to create Notifcation Table: %v", err)
+		return nil, err
+	}
+
 	return DB, nil
 }
