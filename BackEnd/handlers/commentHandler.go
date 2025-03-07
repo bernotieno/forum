@@ -3,6 +3,7 @@ package handlers
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -101,7 +102,7 @@ func CommentHandler(cCtrl *controllers.CommentController) http.HandlerFunc {
 		}
 
 		// Insert the comment into the database
-		commentID, err := cCtrl.InsertComment(comment)
+		_, err = cCtrl.InsertComment(comment)
 		if err != nil {
 			logger.Error("Failed to insert comment: %v", err)
 			w.Header().Set("Content-Type", "application/json")
@@ -112,11 +113,38 @@ func CommentHandler(cCtrl *controllers.CommentController) http.HandlerFunc {
 			return
 		}
 
+		var postAuthorID, commentAuthorID int
+		err = cCtrl.DB.QueryRow("SELECT user_id FROM posts  WHERE id=?", postId).Scan(&postAuthorID)
+		if err != nil {
+			logger.Error("Failed to get post user_id: %v", err)
+		}
+
+		err = cCtrl.DB.QueryRow("SELECT user_id FROM comments  WHERE id=?", commentReq.ParentID).Scan(&commentAuthorID)
+		if err != nil {
+			logger.Warning("Failed to get comment user_id: %v", err)
+		}
+		if postAuthorID != userID && commentAuthorID != userID {
+			nc := controllers.NewNotificationController(cCtrl.DB)
+
+			newNotification := models.Notification{
+				RecipientID: postAuthorID,
+				ActorID:     userID,
+				Type:        "comment",
+				EntityType:  "post",
+				Message:     fmt.Sprintf("%s commented on your post", username),
+			}
+
+			_, err := nc.CreateNotification(newNotification)
+			if err != nil {
+				logger.Error("Failed To create Notification: %v", err)
+			}
+
+		}
 		// Return the created comment ID in the response
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)
-		json.NewEncoder(w).Encode(map[string]int{
-			"commentID": commentID,
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"Message": "Comment Created Succesfully",
 		})
 	}
 }
