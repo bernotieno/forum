@@ -1,0 +1,208 @@
+/* Notification Button */
+.icon-btn {
+    position: relative;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: var(--accent-color);
+    transition: all 0.3s ease-in-out;
+}
+
+.icon-btn:hover {
+    color: var(--text-primary);
+    transform: scale(1.1);
+}
+
+/* Notification Badge */
+.notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    color: white;
+    border-radius: 50%;
+    min-width: 15px;
+    height: 15px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(255, 17, 17, 0.3);
+    border: 2px solid var(--bg-primary);
+}
+
+.notification-badge.hide {
+    display: none;
+}
+
+.icon-btn:hover .notification-badge {
+    transform: scale(1.2);
+}
+
+/* Notification Menu */
+.notification-menu {
+    position: relative;
+}
+
+.notification-menu .dropdown-menu {
+    position: absolute;
+    top: 120%;
+    right: -10px;
+    background: var(--bg-primary);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    width: 380px;
+    max-height: 480px;
+    overflow-y: auto;
+    display: none;
+    z-index: 1000;
+    border: 1px solid var(--border-color);
+}
+
+.notification-menu .dropdown-menu.show {
+    display: block;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Notification Item */
+.notification-item {
+    padding: 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    transition: all 0.3s ease;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    background-color: var(--bg-primary);
+}
+
+.notification-item:hover {
+    background-color: var(--hover-bg);
+}
+
+.notification-item.unread {
+    background-color: rgba(255, 69, 0, 0.1);
+}
+
+/* Notification Icon */
+.notification-icon {
+    background: var(--hover-bg);
+    padding: 8px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notification-icon i {
+    color: var(--accent-color);
+    font-size: 1.1rem;
+}
+
+/* Notification Content */
+.notification-content {
+    flex: 1;
+}
+
+.notification-content p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    line-height: 1.4;
+}
+
+.notification-time {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    display: block;
+    margin-top: 4px;
+}
+
+/* Notification Actions */
+.notification-actions {
+    display: flex;
+    gap: 8px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.notification-item:hover .notification-actions {
+    opacity: 1;
+}
+
+.mark-read-btn,
+.notification-close {
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.mark-read-btn:hover,
+.notification-close:hover {
+    background: var(--hover-bg);
+}
+
+.mark-read-btn i {
+    color: var(--accent-color);
+}
+
+.notification-close i {
+    color: var(--text-secondary);
+}
+
+/* Notification Header */
+.notification-header {
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg-secondary);
+}
+
+.notification-header .h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+/* Light & Dark Mode Variables */
+:root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f6f7f8;
+    --text-primary: #1c1c1c;
+    --text-secondary: #787c7e;
+    --accent-color: #FF4500;
+    --border-color: #d1d3d5;
+    --hover-bg: #f2f4f5;
+}
+
+[data-theme="dark"] {
+    --bg-primary: #1A1A1B;
+    --bg-secondary: #272729;
+    --text-primary: #D7DADC;
+    --text-secondary: #818384;
+    --border-color: #505050;
+    --hover-bg: #2D2D2E;
+}
