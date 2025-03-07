@@ -74,6 +74,7 @@ func main() {
 	routes.PostRoutes(db)
 	routes.CommentRoute(db)
 	routes.LikesRoutes(db)
+	routes.SetupNotificationRoutes(db)
 
 	// Run the server in a goroutine
 	go func() {
