@@ -20,11 +20,11 @@ func ErrorHandler(serveErrorPageFunc func(w http.ResponseWriter, status int, tit
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			rw := &responseWriter{ResponseWriter: w, status: http.StatusOK}
-			
+
 			// Check if it's an API/AJAX request
 			isAPIRequest := r.Header.Get("X-Requested-With") == "XMLHttpRequest" ||
-						  r.Header.Get("Accept") == "application/json" ||
-						  strings.HasPrefix(r.Header.Get("Content-Type"), "application/json")
+				r.Header.Get("Accept") == "application/json" ||
+				strings.HasPrefix(r.Header.Get("Content-Type"), "application/json")
 
 			next.ServeHTTP(rw, r)
 
