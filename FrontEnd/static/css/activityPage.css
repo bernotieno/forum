@@ -1,0 +1,505 @@
+/* Activity page styles */
+.activity-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.activity-page h1 {
+    margin-bottom: 30px;
+    color: var(--heading-color);
+    font-size: 2.2rem;
+    text-align: center;
+}
+
+/* Tab navigation styling */
+.activity-tabs {
+    display: flex;
+    margin-bottom: 30px;
+    border-bottom: 1px solid var(--border-color);
+    justify-content: center;
+    gap: 10px;
+}
+
+.tab-button {
+    padding: 12px 25px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-color);
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s ease;
+    border-radius: 6px 6px 0 0;
+}
+
+.tab-button:hover {
+    background-color: var(--hover-bg);
+    color: var(--primary-color);
+}
+
+.tab-button.active {
+    border-bottom: 3px solid var(--accent-color) !important;
+    color: var(--accent-color) !important;
+    background-color: var(--hover-bg) !important;
+    font-weight: bold !important;
+}
+
+/* Tab content styling */
+.tab-content {
+    display: none;
+    animation: fadeIn 0.5s ease;
+    width: 100%;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.tab-content h2 {
+    margin-bottom: 25px;
+    color: var(--heading-color);
+    font-size: 1.8rem;
+    border-left: 5px solid var(--primary-color);
+    padding-left: 15px;
+}
+
+/* Post cards styling */
+.posts-container, .comments-container {
+    display: grid;
+    gap: 25px;
+    grid-template-columns: 1fr;
+    width: 100%;
+}
+
+.post-card, .comment-activity-card {
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    padding: 25px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid var(--border-color);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.post-card:hover, .comment-activity-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.post-header {
+    margin-bottom: 15px;
+}
+
+.post-title {
+    margin: 0 0 10px 0;
+    font-size: 1.4rem;
+}
+
+.post-title a {
+    color: var(--heading-color);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.post-title a:hover {
+    color: var(--primary-color);
+}
+
+.post-meta {
+    display: block;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+}
+
+.post-category {
+    display: inline-block;
+    background-color: var(--light-bg);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+.post-content {
+    margin-bottom: 20px;
+    line-height: 1.6;
+}
+
+.read-more {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+    display: inline-block;
+    margin-top: 5px;
+}
+
+.post-image {
+    margin-bottom: 20px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.post-image img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    max-height: 300px;
+}
+
+.post-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 15px;
+    border-top: 1px solid var(--border-color);
+}
+
+.footer-icons {
+    display: flex;
+    gap: 20px;
+}
+
+.vote-buttons, .comments-count {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.vote-buttons i, .comments-count i {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+}
+
+.counter {
+    font-size: 0.9rem;
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+.comments-count a {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Comment activity styling */
+.comments-container {
+    display: grid;
+    gap: 25px;
+}
+
+.comment-activity-card {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.comment-content, .commented-post {
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.comment-content {
+    background-color: var(--light-bg);
+    border-left: 4px solid var(--primary-color);
+}
+
+.comment-content h4, .commented-post h4 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    color: var(--heading-color);
+}
+
+.comment-content p {
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+.comment-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-top: 15px;
+}
+
+.commented-post {
+    background-color: var(--light-bg);
+    border-left: 4px solid var(--secondary-color);
+}
+
+.post-author {
+    color: var(--text-muted);
+    font-style: italic;
+    margin: 5px 0 10px 0;
+}
+
+.post-excerpt {
+    margin: 10px 0;
+    line-height: 1.5;
+}
+
+.view-in-context {
+    display: inline-block;
+    margin-top: 15px;
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.view-in-context:hover {
+    text-decoration: underline;
+}
+
+.vote-type {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    margin-left: 10px;
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 500;
+}
+
+.no-content {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+    font-style: italic;
+    background-color: var(--light-bg);
+    border-radius: 8px;
+    font-size: 1.1rem;
+}
+
+/* Vote tab specific styling */
+#votes .post-card {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .activity-page {
+        padding: 15px 5px;
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    .activity-tabs {
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+    
+    .tab-button {
+        flex: 1;
+        min-width: 100px;
+        padding: 10px 8px;
+        font-size: 14px;
+        text-align: center;
+    }
+    
+    .posts-container, .comments-container {
+        grid-template-columns: 1fr;
+        width: 100% !important;
+        max-width: 100%;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .post-card, .comment-activity-card {
+        padding: 15px;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+    
+    .comment-content, .commented-post {
+        padding: 15px;
+    }
+    
+    .post-title {
+        font-size: 1.2rem;
+    }
+    
+    .post-footer {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .footer-icons {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .post-meta, .post-category, .vote-type {
+        display: block;
+        margin: 5px 0;
+    }
+    
+    .vote-type {
+        margin-left: 0;
+        display: inline-block;
+        margin-top: 8px;
+    }
+    
+    .comment-activity-card {
+        gap: 15px;
+    }
+    
+    .comment-meta {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    /* Vote tab mobile improvements */
+    #votes .post-header {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    #votes .vote-type {
+        margin-left: 0;
+        align-self: flex-start;
+        margin-top: 8px;
+        font-size: 0.8rem;
+        padding: 3px 8px;
+    }
+    
+    #votes .post-content {
+        margin-top: 10px;
+    }
+    
+    /* Posts tab mobile improvements */
+    #posts .post-header {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    #posts .post-title {
+        margin-bottom: 8px;
+    }
+    
+    #posts .post-meta {
+        margin-bottom: 6px;
+        font-size: 0.85rem;
+    }
+    
+    #posts .post-category {
+        align-self: flex-start;
+        margin-bottom: 10px;
+    }
+    
+    #posts .post-content {
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+    
+    #posts .read-more {
+        display: block;
+        margin-top: 8px;
+    }
+    
+    #posts .post-image {
+        margin: 12px 0;
+    }
+    
+    /* Posts tab mobile improvements */
+    #posts .post-card {
+        width: 100% !important;
+        margin: 0 !important;
+    }
+    
+    /* Vote tab mobile improvements */
+    #votes .post-card {
+        width: 100% !important;
+        margin: 0 !important;
+    }
+    
+    .tab-content {
+        width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+}
+
+@media (min-width: 769px) {
+    .posts-container, .comments-container {
+        grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+    }
+}
+
+@media (max-width: 480px) {
+    .activity-page {
+        padding: 15px 10px;
+    }
+    
+    .activity-page h1 {
+        font-size: 1.8rem;
+        margin-bottom: 20px;
+    }
+    
+    .tab-button {
+        padding: 8px 5px;
+        font-size: 13px;
+    }
+    
+    .post-image img {
+        max-height: 200px;
+    }
+    
+    /* Vote tab small screen improvements */
+    #votes .post-card {
+        padding: 12px;
+    }
+    
+    #votes .vote-type {
+        font-size: 0.75rem;
+        padding: 2px 6px;
+    }
+    
+    /* Posts tab small screen improvements */
+    #posts .post-card {
+        padding: 12px;
+    }
+    
+    #posts .post-title {
+        font-size: 1.1rem;
+    }
+    
+    #posts .post-meta, 
+    #posts .post-category {
+        font-size: 0.8rem;
+    }
+    
+    #posts .post-content {
+        font-size: 0.9rem;
+        margin-bottom: 15px;
+    }
+    
+    #posts .post-footer {
+        padding-top: 10px;
+    }
+    
+    #posts .counter {
+        font-size: 0.85rem;
+    }
+}
