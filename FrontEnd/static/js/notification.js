@@ -4,65 +4,57 @@ let hasMoreNotifications = true;
 
 async function fetchNotifications() {
   try {
-      const response = await fetch(`/api/notifications`, {
-          method: "GET",
-          headers: {
-              'Content-Type': 'application/json',
-              'X-CSRF-Token': getCSRFToken()
-          },
-      });
+    const response = await fetch(`/api/notifications`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRF-Token": getCSRFToken(),
+      },
+    });
 
-      // Log the raw response status and headers
-      console.log("Response Status:", response.status);
-      console.log("Response Headers:", [...response.headers.entries()]);
+    // Clone the response so we can read the body without affecting further processing
+    const responseClone = response.clone();
+    const rawText = await responseClone.text();
 
-      // Clone the response so we can read the body without affecting further processing
-      const responseClone = response.clone();
-      const rawText = await responseClone.text();
-      
-      console.log("Raw Response Body:", rawText);
+    if (!response.ok) throw new Error("Failed to fetch notifications");
 
-      if (!response.ok) throw new Error("Failed to fetch notifications");
-      
-      return await response.json();
+    return await response.json();
   } catch (error) {
-      console.error("Error fetching notifications:", error);
-      showToast("Failed to load notifications");
-      throw error;
+    console.error("Error fetching notifications:", error);
+    showToast("Failed to load notifications");
+    throw error;
   }
 }
 
-  
-  async function markNotificationAsRead(notificationId) {
-    try {
-      const response = await fetch(
-        `/api/notifications/read?notificationId=${notificationId}`,
-        {
-          method: "PUT",
-        }
-      );
-      if (!response.ok) throw new Error("Failed to mark notification as read");
-      return await response.json();
-    } catch (error) {
-      console.error("Error marking notification as read:", error);
-      throw error;
-    }
+async function markNotificationAsRead(notificationId) {
+  try {
+    const response = await fetch(
+      `/api/notifications/read?notificationId=${notificationId}`,
+      {
+        method: "PUT",
+      }
+    );
+    if (!response.ok) throw new Error("Failed to mark notification as read");
+    return await response.json();
+  } catch (error) {
+    console.error("Error marking notification as read:", error);
+    throw error;
   }
-  
-  async function clearAllNotifications() {
-    try {
-      const response = await fetch("/api/notifications/clear", {
-        method: "DELETE",
-      });
-      if (!response.ok) throw new Error("Failed to clear notifications");
-      return await response.json();
-    } catch (error) {
-      console.error("Error clearing notifications:", error);
-      throw error;
-    }
-  }
- async function initializeNotifications() {
+}
 
+async function clearAllNotifications() {
+  try {
+    const response = await fetch("/api/notifications/clear", {
+      method: "DELETE",
+    });
+    if (!response.ok) throw new Error("Failed to clear notifications");
+    return await response.json();
+  } catch (error) {
+    console.error("Error clearing notifications:", error);
+    throw error;
+  }
+}
+async function initializeNotifications() {
   // Reset state
   currentPage = 1;
   isLoading = false;
@@ -103,7 +95,6 @@ async function loadNotifications(append = false) {
     }
 
     updateNotificationsList(notifications, append);
-
 
     const loadMoreBtn = document.querySelector(".load-more-notifications");
     if (loadMoreBtn) {
@@ -182,10 +173,7 @@ async function handleNotificationClick(event) {
 
       showToast("Notification marked as read");
     } catch (error) {
-      showToast(
-        "Failed to mark notification as read",
-        NotificationType.ERROR
-      );
+      showToast("Failed to mark notification as read", NotificationType.ERROR);
     }
     return;
   }
@@ -212,7 +200,7 @@ function updateNotificationBadge(count) {
   }
 }
 
- function setupNotificationDropdown() {
+function setupNotificationDropdown() {
   const notificationBtn = document.querySelector(
     ".notification-menu .icon-btn"
   );
@@ -276,16 +264,15 @@ function updateNotificationBadge(count) {
 }
 // Function to get CSRF token - add flexibility in how we find it
 function getCSRFToken() {
-    // Try different ways to find the CSRF token
-    const csrfElement = 
-        document.querySelector('meta[name="csrf-token"]') 
-    
-    if (csrfElement) {
-        return csrfElement.content 
-    }
-    
-    // If no token found, return null or an empty string
-    return '';
+  // Try different ways to find the CSRF token
+  const csrfElement = document.querySelector('meta[name="csrf-token"]');
+
+  if (csrfElement) {
+    return csrfElement.content;
+  }
+
+  // If no token found, return null or an empty string
+  return "";
 }
 function getNotificationTypeIcon(type) {
   const icons = {
@@ -340,4 +327,4 @@ function formatTimeAgo(timestamp) {
   if (diff < 31536000) return `${Math.floor(diff / 86400)}days`;
   return `${Math.floor(diff / 31536000)}yrs`;
 }
- initializeNotifications()
+initializeNotifications();
