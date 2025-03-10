@@ -75,7 +75,21 @@
                         <h3 class="post-title"><a href="/viewPost?id={{.ID}}">{{.Title}}</a></h3>
                         <span class="post-meta">Posted by {{.Author}} on {{formatTime .Timestamp}}</span>
                         <span class="post-category">{{.Category}}</span>
-                        <span class="vote-type">You {{.UserVote.String}}d this post</span>
+                        {{if eq .VoteSource "post"}}
+                            <span class="vote-type">You {{.UserVote.String}}d this post</span>
+                        {{end}}
+                        {{if .VotedComments}}
+                            <div class="voted-comment">
+                                {{$post := .}}
+                                {{range $comment := .VotedComments}}
+                                <span class="vote-type">You {{$comment.UserVote}}d this comment:</span>
+                                <div class="comment-preview">
+                                    <blockquote>{{$comment.CommentContent}}</blockquote>
+                                    <a href="/viewPost?id={{$post.ID}}#comment-content-{{$comment.CommentID}}" class="view-comment">View Comment</a>
+                                </div>
+                                {{end}}
+                            </div>
+                        {{end}}
                     </div>
                     <div class="post-content">
                         {{if gt (len .Content) 200}}
@@ -110,7 +124,7 @@
                 {{end}}
             </div>
         {{else}}
-            <p class="no-content">You haven't voted on any posts yet.</p>
+            <p class="no-content">You haven't voted on any posts or comments yet.</p>
         {{end}}
     </div>
     
