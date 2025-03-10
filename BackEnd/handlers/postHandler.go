@@ -162,7 +162,7 @@ func UpdatePostHandler(pc *controllers.PostController) http.HandlerFunc {
 		// Extract post ID from URL
 		postID := r.URL.Query().Get("id")
 		if postID == "" {
-			logger.Warning("Post Id Is empty")
+			logger.Error("Post Id Is empty")
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -183,6 +183,9 @@ func UpdatePostHandler(pc *controllers.PostController) http.HandlerFunc {
 		title := r.FormValue("title")
 		content := r.FormValue("content")
 		categories := r.FormValue("category")
+
+		fmt.Println("categories", categories)
+		fmt.Println("title", title)
 
 		// Only update fields that have been changed
 		if title != "" {
