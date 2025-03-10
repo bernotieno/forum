@@ -71,6 +71,7 @@ func main() {
 	routes.HomeRoute(db)
 	routes.ServeStaticFolder()
 	routes.UserRegAndLogin(db)
+	routes.ActivityRoutes(db)
 	routes.PostRoutes(db)
 	routes.CommentRoute(db)
 	routes.LikesRoutes(db)
