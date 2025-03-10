@@ -9,6 +9,7 @@
     --upvote-color: #FF4500;
     --downvote-color: #7193FF;
     --hover-bg: #f2f4f5;
+    
 }
 [data-theme="dark"] {
     /* Dark theme variables */
