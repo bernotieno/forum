@@ -1,0 +1,150 @@
+{{define "title"}}My Activity{{end}}
+
+{{define "css"}}
+<link rel="stylesheet" href="../static/css/activityPage.css">
+{{end}}
+
+{{define "content"}}
+<div class="activity-page">
+    <h1>My Activity</h1>
+    
+    <div class="activity-tabs">
+        <button class="tab-button active" data-tab="posts">My Posts</button>
+        <button class="tab-button" data-tab="votes">My Votes</button>
+        <button class="tab-button" data-tab="comments">My Comments</button>
+    </div>
+    
+    <!-- My Posts Tab -->
+    <div id="posts" class="tab-content active">
+        
+        {{if .UserPosts}}
+            <div class="posts-container">
+                {{range .UserPosts}}
+                <div class="post-card">
+                    <div class="post-header">
+                        <h3 class="post-title"><a href="/viewPost?id={{.ID}}">{{.Title}}</a></h3>
+                        <span class="post-meta">Posted by {{.Author}} on {{formatTime .Timestamp}}</span>
+                        <span class="post-category">{{.Category}}</span>
+                    </div>
+                    <div class="post-content">
+                        {{if gt (len .Content) 200}}
+                            {{truncate .Content 200}}
+                            <a href="/viewPost?id={{.ID}}" class="read-more">Read more</a>
+                        {{else}}
+                            {{.Content}}
+                        {{end}}
+                    </div>
+                    {{if .ImageUrl.Valid}}
+                    <div class="post-image">
+                        <img src="{{.ImageUrl.String}}" alt="Post image" loading="lazy">
+                    </div>
+                    {{end}}
+                    <div class="post-footer">
+                        <div class="footer-icons">
+                            <div class="vote-buttons">
+                                <i class="fa-regular fa-thumbs-up"></i>
+                                <div class="counter">{{.Likes}}</div>
+                                <i class="fa-regular fa-thumbs-down"></i>
+                                <div class="counter">{{.Dislikes}}</div>
+                            </div>
+                            <div class="comments-count">
+                                <a href="/viewPost?id={{.ID}}#commentText">
+                                    <i class="fa-regular fa-comment"></i>
+                                    <span class="counter">{{.CommentCount}}</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {{end}}
+            </div>
+        {{else}}
+            <p class="no-content">You haven't created any posts yet.</p>
+        {{end}}
+    </div>
+    
+    <!-- My Votes Tab -->
+    <div id="votes" class="tab-content">
+      
+        {{if .VotedPosts}}
+            <div class="posts-container">
+                {{range .VotedPosts}}
+                <div class="post-card">
+                    <div class="post-header">
+                        <h3 class="post-title"><a href="/viewPost?id={{.ID}}">{{.Title}}</a></h3>
+                        <span class="post-meta">Posted by {{.Author}} on {{formatTime .Timestamp}}</span>
+                        <span class="post-category">{{.Category}}</span>
+                        <span class="vote-type">You {{.UserVote.String}}d this post</span>
+                    </div>
+                    <div class="post-content">
+                        {{if gt (len .Content) 200}}
+                            {{truncate .Content 200}}
+                            <a href="/viewPost?id={{.ID}}" class="read-more">Read more</a>
+                        {{else}}
+                            {{.Content}}
+                        {{end}}
+                    </div>
+                    {{if .ImageUrl.Valid}}
+                    <div class="post-image">
+                        <img src="{{.ImageUrl.String}}" alt="Post image" loading="lazy">
+                    </div>
+                    {{end}}
+                    <div class="post-footer">
+                        <div class="footer-icons">
+                            <div class="vote-buttons">
+                                <i class="fa-regular fa-thumbs-up"></i>
+                                <div class="counter">{{.Likes}}</div>
+                                <i class="fa-regular fa-thumbs-down"></i>
+                                <div class="counter">{{.Dislikes}}</div>
+                            </div>
+                            <div class="comments-count">
+                                <a href="/viewPost?id={{.ID}}#commentText">
+                                    <i class="fa-regular fa-comment"></i>
+                                    <span class="counter">{{.CommentCount}}</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {{end}}
+            </div>
+        {{else}}
+            <p class="no-content">You haven't voted on any posts yet.</p>
+        {{end}}
+    </div>
+    
+    <!-- My Comments Tab -->
+    <div id="comments" class="tab-content">
+       
+        {{if .UserComments}}
+            <div class="comments-container">
+                {{range .UserComments}}
+                <div class="comment-activity-card">
+                    <div class="comment-content">
+                        <h4>My Comment:</h4>
+                        <p>{{.CommentContent}}</p>
+                        <div class="comment-meta">
+                            <span>Posted on {{formatTime .CommentTimestamp}}</span>
+                            <span>Likes: {{.CommentLikes}} | Dislikes: {{.CommentDislikes}}</span>
+                        </div>
+                    </div>
+                    <div class="commented-post">
+                        <h4>On Post: <a href="/viewPost?id={{.PostID}}">{{.PostTitle}}</a></h4>
+                        <p class="post-author">by {{.PostAuthor}}</p>
+                        <p class="post-excerpt">{{truncate .PostContent 150}}</p>
+                        <a href="/viewPost?id={{.PostID}}#comment-{{.CommentID}}" class="view-in-context">View in context</a>
+                    </div>
+                </div>
+                {{end}}
+            </div>
+        {{else}}
+            <p class="no-content">You haven't commented on any posts yet.</p>
+        {{end}}
+    </div>
+</div>
+{{end}}
+
+{{define "scripts"}}
+<script src="../static/js/activity.js"></script>
+<script src="../static/js/theme.js"></script>
+{{end}} 
