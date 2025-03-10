@@ -1,99 +1,99 @@
 // theme-manager.js - Include this file in all your pages
 
 class ThemeManager {
-    constructor() {
-      this.theme = localStorage.getItem('theme') || 'light';
-      this.toggleButton = document.getElementById('theme-toggle');
-      
-      // Initialize theme immediately before page loads completely
-      this.initializeTheme();
-      
-      // If toggle button exists on this page, set it up
-      if (this.toggleButton) {
-        this.setupToggleButton();
-      }
-      
-      // Listen for theme changes from other tabs/windows
-      this.setupStorageListener();
+  constructor() {
+    this.theme = localStorage.getItem("theme") || "light";
+    this.toggleButton = document.getElementById("theme-toggle");
+
+    // Initialize theme immediately before page loads completely
+    this.initializeTheme();
+
+    // If toggle button exists on this page, set it up
+    if (this.toggleButton) {
+      this.setupToggleButton();
     }
-  
-    initializeTheme() {
-      // Apply theme immediately to prevent flash of wrong theme
-      document.documentElement.setAttribute('data-theme', this.theme);
-      
-      // Add class to body for additional theme-specific styles
-      document.body.classList.remove('light-theme', 'dark-theme');
-      document.body.classList.add(`${this.theme}-theme`);
-    }
-  
-    setupToggleButton() {
-      const iconElement = this.toggleButton.querySelector('i');
-      const textElement = this.toggleButton.querySelector('span');
-  
-      // Update button appearance based on current theme
+
+    // Listen for theme changes from other tabs/windows
+    this.setupStorageListener();
+  }
+
+  initializeTheme() {
+    // Apply theme immediately to prevent flash of wrong theme
+    document.documentElement.setAttribute("data-theme", this.theme);
+
+    // Add class to body for additional theme-specific styles
+    document.body.classList.remove("light-theme", "dark-theme");
+    document.body.classList.add(`${this.theme}-theme`);
+  }
+
+  setupToggleButton() {
+    const iconElement = this.toggleButton.querySelector("i");
+    const textElement = this.toggleButton.querySelector("span");
+
+    // Update button appearance based on current theme
+    this.updateToggleButton(iconElement, textElement);
+
+    // Add click handler
+    this.toggleButton.addEventListener("click", () => {
+      this.toggleTheme();
       this.updateToggleButton(iconElement, textElement);
-  
-      // Add click handler
-      this.toggleButton.addEventListener('click', () => {
-        this.toggleTheme();
-        this.updateToggleButton(iconElement, textElement);
-      });
-    }
-  
-    updateToggleButton(iconElement) {
-      if (!iconElement) return;
-    
-      if (this.theme === 'dark') {
-        iconElement.classList.remove('fa-moon');
-        iconElement.classList.add('fa-sun');
-      } else {
-        iconElement.classList.remove('fa-sun');
-        iconElement.classList.add('fa-moon');
-      }
-    }
-  
-    toggleTheme() {
-      this.theme = this.theme === 'light' ? 'dark' : 'light';
-      localStorage.setItem('theme', this.theme);
-      this.initializeTheme();
-    }
-  
-    setupStorageListener() {
-      // Listen for theme changes from other tabs/windows
-      window.addEventListener('storage', (event) => {
-        if (event.key === 'theme') {
-          this.theme = event.newValue;
-          this.initializeTheme();
-          
-          // Update toggle button if it exists on this page
-          if (this.toggleButton) {
-            this.updateToggleButton(
-              this.toggleButton.querySelector('i'),
-              this.toggleButton.querySelector('span')
-            );
-          }
-        }
-      });
+    });
+  }
+
+  updateToggleButton(iconElement) {
+    if (!iconElement) return;
+
+    if (this.theme === "dark") {
+      iconElement.classList.remove("fa-moon");
+      iconElement.classList.add("fa-sun");
+    } else {
+      iconElement.classList.remove("fa-sun");
+      iconElement.classList.add("fa-moon");
     }
   }
-  
-  // Prevent flash of wrong theme by adding this script in the <head> of each page
-  const preloadTheme = `
+
+  toggleTheme() {
+    this.theme = this.theme === "light" ? "dark" : "light";
+    localStorage.setItem("theme", this.theme);
+    this.initializeTheme();
+  }
+
+  setupStorageListener() {
+    // Listen for theme changes from other tabs/windows
+    window.addEventListener("storage", (event) => {
+      if (event.key === "theme") {
+        this.theme = event.newValue;
+        this.initializeTheme();
+
+        // Update toggle button if it exists on this page
+        if (this.toggleButton) {
+          this.updateToggleButton(
+            this.toggleButton.querySelector("i"),
+            this.toggleButton.querySelector("span")
+          );
+        }
+      }
+    });
+  }
+}
+
+// Prevent flash of wrong theme by adding this script in the <head> of each page
+const preloadTheme = `
     (function() {
       const theme = localStorage.getItem('theme') || 'light';
       document.documentElement.setAttribute('data-theme', theme);
       document.documentElement.classList.add('theme-loaded');
     })();
   `;
-  
-  // Add preload script to head
-  const script = document.createElement('script');
-  script.textContent = preloadTheme;
-  document.head.appendChild(script);
-  
-  // Add necessary styles
-  const themeStyles = document.createElement('style');
-  themeStyles.textContent = `
+
+// Add preload script to head
+const script = document.createElement("script");
+script.textContent = preloadTheme;
+document.head.appendChild(script);
+
+// Add necessary styles
+const themeStyles = document.createElement("style");
+themeStyles.textContent = `
     /* Prevent flash of wrong theme */
     html:not(.theme-loaded) {
       visibility: hidden;
@@ -122,46 +122,47 @@ class ThemeManager {
       font-size: 16px;
     }
   `;
-  document.head.appendChild(themeStyles);
-  
-  // Initialize theme manager when DOM is ready
-  document.addEventListener('DOMContentLoaded', () => {
-    new ThemeManager();
-  });
+document.head.appendChild(themeStyles);
+
+// Initialize theme manager when DOM is ready
+document.addEventListener("DOMContentLoaded", () => {
+  new ThemeManager();
+});
 
 // Add event listener to all delete buttons
-document.querySelectorAll('.delete-post-btn').forEach(button => {
-  button.addEventListener('click', async () => {
-      const postId = button.getAttribute('data-post-id');
-      
-      if (!confirm('Are you sure you want to delete this comment?')) return;
+document.querySelectorAll(".delete-post-btn").forEach((button) => {
+  button.addEventListener("click", async () => {
+    const postId = button.getAttribute("data-post-id");
 
-      try {
-          const response = await fetch(`/deletePost?id=${postId}`, {
-              method: 'DELETE',
-              headers: {
-                  'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-              }
-          });
+    if (!confirm("Are you sure you want to delete this comment?")) return;
 
-          if (response.ok) {
-              window.location.pathname = "/"
-          } else {
-              showToast('Failed to delete comment');
-          }
-      } catch (error) {
-          console.error('Error:', error);
-          showToast('An error occurred while deleting the comment');
+    try {
+      const response = await fetch(`/deletePost?id=${postId}`, {
+        method: "DELETE",
+        headers: {
+          "X-CSRF-Token": document
+            .querySelector('meta[name="csrf-token"]')
+            .getAttribute("content"),
+        },
+      });
+
+      if (response.ok) {
+        window.location.pathname = "/";
+      } else {
+        showToast("Failed to delete comment");
       }
+    } catch (error) {
+      console.error("Error:", error);
+      showToast("An error occurred while deleting the comment");
+    }
   });
 });
 
 // Edit Post Button
-document.querySelectorAll('.edit-post-btn').forEach(button => {
-  console.log('Edit post button found');
-  button.addEventListener('click', () => {
-      const postId = button.getAttribute('data-post-id');
-      // Redirect to the edit page for the specific post
-      window.location.href = `/editPost?id=${postId}`;
+document.querySelectorAll(".edit-post-btn").forEach((button) => {
+  button.addEventListener("click", () => {
+    const postId = button.getAttribute("data-post-id");
+    // Redirect to the edit page for the specific post
+    window.location.href = `/editPost?id=${postId}`;
   });
 });
