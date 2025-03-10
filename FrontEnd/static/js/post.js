@@ -40,6 +40,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Category handling
   categorySelect.addEventListener("change", function () {
     const selectedValue = this.value;
+    console.log("selected Value 2", selectedValue)
     if (!selectedValue) return;
 
     if (!selectedCats.has(selectedValue)) {
@@ -263,6 +264,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (fileInput.files.length > 0) {
       formData.append("post-file", fileInput.files[0]);
     }
+  
 
     try {
       const csrfToken = document.querySelector(
@@ -296,6 +298,71 @@ document.addEventListener("DOMContentLoaded", function () {
       showToast("An error occurred. Please try again.");
     }
   });
+
+  const updateButton = document.getElementById("update-button");
+
+  if (updateButton) {
+    updateButton.addEventListener("click", async function() {
+      const formData = new FormData(postForm);
+      const postBody = document.getElementById("post-body");
+      formData.append("content", postBody.innerHTML);
+      
+      // Get file input and check if a new file was selected
+      const fileInput = document.getElementById("file-input");
+      if (fileInput.files.length > 0) {
+          formData.append("post-file", fileInput.files[0]);
+      }
+      
+      // Get the title and validate
+      const title = document.getElementById("post-title").value.trim();
+      if (!title) {
+          showToast("Title is required");
+          return;
+      }
+      
+      // Get selected categories from the Set
+      if (selectedCats.size === 0) {
+          showToast("At least one category is required");
+          return;
+      }
+      
+      // Remove the original category value from the form
+      formData.delete('category');
+      // Add the new categories as a comma-separated string
+      formData.append('category', Array.from(selectedCats).join(','));
+      
+      // Check if at least content or file is provided
+      const content = postBody.innerHTML.trim();
+      const hasExistingImage = document.querySelector('.current-media img') !== null;
+      if (!content && !hasExistingImage && fileInput.files.length === 0) {
+          showToast("Please provide either text content or an image");
+          return;
+      }
+ 
+      
+      try {
+          const postId = document.querySelector('input[name="id"]').value;
+          const response = await fetch(`/updatePost?id=${postId}`, {
+              method: "PUT",
+              body: formData
+          });
+          
+   
+          const data = await response.json();
+          
+          if (response.ok) {
+            window.location.href = "/"
+          } else {
+              showToast(data.error || "Failed to update post");
+          }
+      } catch (error) {
+          console.error("Error:", error);
+          showToast("An error occurred. Please try again.");
+      }
+  });
+  }
+    
+   
 
   // Toast notification
   function showToast(message) {
