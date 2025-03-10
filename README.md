@@ -1,9 +1,10 @@
-# Forum-Image-Upload Application
+# Forum-Advanced-Features Application
 
 A full-featured forum platform built with Go and SQLite, featuring real-time interactions, secure authentication, and media handling capabilities.
 
 ## Features
 - Post Creation and Management
+- Notifications
 - Comment System with Nested Replies
 - Image Upload & Processing
 - Real-time Vote System
@@ -49,8 +50,8 @@ A full-featured forum platform built with Go and SQLite, featuring real-time int
 ## Installation
 
 ```bash
-git clone https://learn.zone01kisumu.ke/git/vinomondi/forum-image-upload.git
-cd forum-image-upload
+git clone https://learn.zone01kisumu.ke/git/bernaotieno/forum-advanced-features.git
+cd forum-advanced-features
 chmod +x run.sh
 ./run.sh
 ```
