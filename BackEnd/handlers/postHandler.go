@@ -184,9 +184,6 @@ func UpdatePostHandler(pc *controllers.PostController) http.HandlerFunc {
 		content := r.FormValue("content")
 		categories := r.FormValue("category")
 
-		fmt.Println("categories", categories)
-		fmt.Println("title", title)
-
 		// Only update fields that have been changed
 		if title != "" {
 			existingPost.Title = title
