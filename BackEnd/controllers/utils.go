@@ -21,7 +21,7 @@ func UploadFile(r *http.Request, fieldName string, userID int) (string, error) {
 	defer file.Close()
 
 	// Check file size (20MB limit)
-	if header.Size > 20 * 1024 * 1024 { 
+	if header.Size > 20*1024*1024 {
 		return "", fmt.Errorf("file size exceeds 20MB limit")
 	}
 
